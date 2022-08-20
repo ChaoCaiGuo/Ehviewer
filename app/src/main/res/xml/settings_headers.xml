@@ -43,6 +43,6 @@
 
     <Preference
         android:icon="@drawable/v_info_primary_x24"
-        android:key="com.hippo.ehviewer.ui.fragment.AboutFragment"
+        android:key="com.hippo.composeUi.settingFragment.AboutFragment"
         android:title="@string/settings_about" />
 </PreferenceScreen>

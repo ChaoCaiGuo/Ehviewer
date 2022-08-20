@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!--    SearchNormal    item-->
+    <string-array name="Category">
+        <item>@string/doujinshi</item>
+        <item>@string/manga</item>
+        <item>@string/artist_cg</item>
+        <item>@string/game_cg</item>
+        <item>@string/western</item>
+        <item>@string/non_h</item>
+        <item>@string/image_set</item>
+        <item>@string/cosplay</item>
+        <item>@string/asian_porn</item>
+        <item>@string/misc</item>
+    </string-array>
+
+    <!--    SearchRadio    item-->
+    <string-array name="SearchRadio">
+        <item>@string/search_normal_search</item>
+        <item>@string/search_subscription_search</item>
+        <item>@string/search_specify_uploader</item>
+        <item>@string/search_specify_tag</item>
+    </string-array>
+
+
+    <!--    AdvanceSearchTable-->
+    <string-array name="AdvanceSearch">
+        <item>@string/search_sname</item>
+        <item>@string/search_stags</item>
+        <item>@string/search_sdesc</item>
+        <item>@string/search_storr</item>
+        <item>@string/search_sto</item>
+        <!--        <item>@string/search_sr</item>-->
+        <!--        <item>@string/search_sp</item>-->
+    </string-array>
+
+    <!--    ImageSearchLayout-->
+    <string-array name="ImageSearchLayout">
+        <item>@string/search_uss</item>
+        <item>@string/search_osc</item>
+        <item>@string/search_se</item>
+
+    </string-array>
+
+
+    <!--Setting  Eh-->
+    <!--    <string-array name="eh_title">-->
+    <!--        　　        <item>@string/settings_eh_sign_out</item>-->
+    <!--        　　        <item>@string/settings_eh_identity_cookies</item>-->
+    <!--        　　        <item>@string/settings_eh_gallery_site</item>-->
+    <!--        　　        <item>@string/settings_u_config</item>-->
+    <!--        　　        <item>@string/settings_my_tags</item>-->
+    <!--                    <item>@string/dark_theme</item>-->
+    <!--                    <item>@string/black_dark_theme</item>-->
+    <!--                <item>@string/settings_eh_launch_page</item>-->
+    <!--                <item>@string/settings_eh_list_mode</item>-->
+    <!--                <item>@string/settings_eh_detail_size</item>-->
+    <!--                <item>@string/settings_eh_thumb_size</item>-->
+    <!--                <item>@string/settings_eh_thumb_resolution</item>-->
+    <!--                <item>@string/settings_eh_fix_thumb_url</item>-->
+    <!--                <item>@string/settings_eh_show_jpn_title</item>-->
+    <!--                <item>@string/settings_eh_show_gallery_pages</item>-->
+    <!--                <item>@string/settings_eh_show_tag_translations</item>-->
+    <!--                <item>@string/settings_eh_tag_translations_source</item>-->
+    <!--                <item>@string/settings_eh_filter</item>-->
+    <!--                <item>@string/settings_eh_metered_network_warning</item>-->
+    <!--                <item>@string/settings_request_news_title</item>-->
+    <!--    </string-array>-->
+
+    <!--Setting  About-->
+    <string-array name="about_title">
+        　　        <item>@string/settings_about_declaration</item>
+        　　        <item>@string/settings_about_author</item>
+        　　        <item>@string/settings_about_latest_release</item>
+        　　        <item>@string/settings_about_source</item>
+        　　        <item>@string/settings_about_check_for_updates</item>
+    </string-array>
+
+    <string-array name="about_summary">
+        　　        <item>@string/settings_about_declaration_summary</item>
+        　　        <item>""</item>
+        　　        <item>"https://github.com/Ehviewer-Overhauled/Ehviewer/releases"</item>
+        　　        <item>"https://github.com/Ehviewer-Overhauled/Ehviewer"</item>
+        　　        <item>""</item>
+    </string-array>
+
+</resources>
