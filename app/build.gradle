@@ -8,10 +8,6 @@ android {
     compileSdkVersion 33
     buildToolsVersion "33.0.0"
 
-    Properties localProperties = new Properties()
-    if (project.rootProject.file('local.properties').exists()) {
-        localProperties.load(project.rootProject.file('local.properties').newDataInputStream())
-    }
 
     splits {
         abi {
@@ -73,9 +69,10 @@ android {
             signingConfig signingConfigs.sign
         }
         debug {
-            applicationIdSuffix ".debug"
+            applicationIdSuffix ".compose"
             signingConfig signingConfigs.debug
         }
+
     }
 
     sourceSets {
@@ -85,10 +82,6 @@ android {
     }
 
     namespace 'com.hippo.ehviewer'
-}
-
-tasks.withType(JavaCompile) {
-    task -> task.dependsOn ":daogenerator:executeDaoGenerator"
 }
 
 dependencies {
