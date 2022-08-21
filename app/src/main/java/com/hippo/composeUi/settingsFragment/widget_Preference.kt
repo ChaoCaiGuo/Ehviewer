@@ -1,5 +1,6 @@
-package com.hippo.composeUi.settingFragment
+package com.hippo.composeUi.settingsFragment
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
@@ -26,7 +27,7 @@ fun Preference(title: String, summary: String,onClick:(()->Unit)?= null) {
 fun Preference(title: String, summary: AnnotatedString, onClick:(()->Unit)?= null) {
     Column(modifier =Modifier.fillMaxWidth().clickable { onClick?.invoke() }.padding(horizontal = 17.dp,10.dp)) {
         Text(title, fontSize = 17.sp,color= MaterialTheme.colorScheme.TextColor,fontWeight= FontWeight.Medium)
-        Text(summary, fontSize = 14.sp, color = Color.Gray,lineHeight=17.sp)
+        Text(summary, fontSize = 14.sp, color = Color.Gray,lineHeight=17.sp,)
     }
 }
 

@@ -1,4 +1,4 @@
-package com.hippo.composeUi.settingFragment
+package com.hippo.composeUi.settingsFragment
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
