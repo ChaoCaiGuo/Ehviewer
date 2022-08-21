@@ -47,12 +47,13 @@ import com.hippo.ehviewer.client.exception.EhException
 import com.hippo.widget.RadioGridGroup
 import com.hippo.yorozuya.NumberUtils
 import com.hippo.yorozuya.ViewUtils
+import com.hippo.composeUi.searchLayout.ImageSearchLayout
 
 @SuppressLint("InflateParams")
 class SearchLayout @JvmOverloads constructor(
     context: Context, attrs: AttributeSet? = null
-) : EasyRecyclerView(context, attrs), CompoundButton.OnCheckedChangeListener, View.OnClickListener,
-    ImageSearchLayout.Helper, OnTabSelectedListener {
+) : EasyRecyclerView(context, attrs), CompoundButton.OnCheckedChangeListener,
+    View.OnClickListener, OnTabSelectedListener {
 
     @SearchMode
     private var mSearchMode = SEARCH_MODE_NORMAL
@@ -125,7 +126,11 @@ class SearchLayout @JvmOverloads constructor(
         mTableAdvanceSearch = mAdvanceView.findViewById(R.id.search_advance_search_table)
         // Create image view
         mImageView = mInflater.inflate(R.layout.search_image, null) as ImageSearchLayout
-        mImageView.setHelper(this)
+        mImageView.setSelectImage {
+            if (mHelper != null) {
+                mHelper!!.onSelectImage()
+            }
+        }
         // Create action view
         mActionView = mInflater.inflate(R.layout.search_action, null)
         mActionView.layoutParams = LayoutParams(
@@ -153,11 +158,6 @@ class SearchLayout @JvmOverloads constructor(
         mNormalSearchMode.check(id)
     }
 
-    override fun onSelectImage() {
-        if (mHelper != null) {
-            mHelper!!.onSelectImage()
-        }
-    }
 
     override fun onCheckedChanged(buttonView: CompoundButton, isChecked: Boolean) {
         if (buttonView === mEnableAdvanceSwitch) {
