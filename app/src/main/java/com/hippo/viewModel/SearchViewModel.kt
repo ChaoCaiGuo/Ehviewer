@@ -20,6 +20,7 @@ class SearchViewModel:ViewModel(){
     var advance_pageMunber =pageMunber(-1,-1)
     var image_path by mutableStateOf<Uri?>(null)
     var enabledAdvance by mutableStateOf(false)
+    var advance_pageNumber by mutableStateOf(false)
     val verticalScroll = ScrollState(initial = 0)
     var mSearchMode = 0
 

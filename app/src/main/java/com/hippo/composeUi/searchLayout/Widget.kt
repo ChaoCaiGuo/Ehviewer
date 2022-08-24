@@ -1,5 +1,6 @@
 package com.hippo.composeUi.searchLayout
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
@@ -19,7 +20,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
@@ -55,9 +55,9 @@ fun AdvanceSearchItem(text: String, checked: Boolean, onClick: () -> Unit) {
 @Composable
 fun PageNumber(viewModel: SearchViewModel) {
     Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-        var enablePageMunber by rememberSaveable { mutableStateOf(false) }
-        var pageFrom by remember { mutableStateOf("") }
-        var pageTo by remember { mutableStateOf("") }
+        var enablePageMunber by rememberSaveable { mutableStateOf(!((viewModel.advance_pageMunber.PageFrom == -1) and (viewModel.advance_pageMunber.PageTo == -1))) }
+        var pageFrom by remember { mutableStateOf(  if(viewModel.advance_pageMunber.PageFrom !=-1) viewModel.advance_pageMunber.PageFrom.toString() else "") }
+        var pageTo   by remember { mutableStateOf(  if(viewModel.advance_pageMunber.PageTo   !=-1) viewModel.advance_pageMunber.PageTo.toString() else "") }
 
         AdvanceSearchItem(stringResource(id = R.string.search_sp), enablePageMunber) {
             enablePageMunber = !enablePageMunber
@@ -121,7 +121,7 @@ private fun pageTextField(text: String, setText: (text: String) -> Unit) {
 @Composable
 fun MinRating(viewModel: SearchViewModel) {
     var expanded by remember { mutableStateOf(false) }
-    var enableMinRating by rememberSaveable { mutableStateOf(false) }
+    var enableMinRating by rememberSaveable { mutableStateOf(viewModel.advance_minRating != -1) }
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier.clickable2(enabledIndication = false) {
