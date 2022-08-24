@@ -23,6 +23,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
+import com.google.accompanist.pager.PagerState
 import com.google.accompanist.pager.rememberPagerState
 import com.hippo.composeUi.composeExt.addComposeView
 import com.hippo.composeUi.composeExt.pagerTabIndicatorOffset
@@ -38,12 +39,13 @@ import com.hippo.unifile.UniFile
 import com.hippo.util.BitmapUtils
 import com.hippo.viewModel.SearchViewModel
 import com.hippo.yorozuya.IOUtils
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import java.io.FileNotFoundException
 import java.io.FileOutputStream
 import java.io.OutputStream
 
-val TAG =" SearchLayout"
+val TAG = " SearchLayout"
 
 class SearchLayout @JvmOverloads constructor(
     private val mContext: Context,
@@ -66,7 +68,7 @@ class SearchLayout @JvmOverloads constructor(
 
     init {
         clipToPadding = false
-        addComposeView { ComposeSearchLayout(viewModel,mHelper) }
+        addComposeView { ComposeSearchLayout(viewModel, mHelper) }
     }
 
 
@@ -157,11 +159,11 @@ fun ComposeSearchLayout(viewModel: SearchViewModel = viewModel(), mHelper: Helpe
         stringResource(id = R.string.keyword_search),
         stringResource(id = R.string.image_search)
     )
-    val scope = rememberCoroutineScope()
 
     LaunchedEffect(pagerState) {
         snapshotFlow { pagerState.currentPage }.collect { page ->
             viewModel.mSearchMode = page
+            viewModel.verticalScroll.animateScrollTo(0)
         }
     }
 
@@ -174,37 +176,52 @@ fun ComposeSearchLayout(viewModel: SearchViewModel = viewModel(), mHelper: Helpe
             verticalAlignment = Alignment.Top
         ) { page ->
             when (page) {
-                0 -> ComposeKeywordSearch(viewModel)
-                1 -> CardPage { ComposeImageSearchLayout(viewModel) { mHelper?.onSelectImage() } }
+                0 -> Column {
+                    ComposeKeywordSearch(viewModel)
+                    TabRow(pagerState, pages)
+                }
+                1 -> Column {
+                    CardPage { ComposeImageSearchLayout(viewModel) { mHelper?.onSelectImage() } }
+                    TabRow(pagerState, pages)
+                }
                 else -> {}
             }
         }
-        TabRow(
-            contentColor = MaterialTheme.colorScheme.CheckBox,
-            selectedTabIndex = pagerState.currentPage,
-            indicator = { tabPositions ->
-                TabRowDefaults.Indicator(
-                    Modifier.pagerTabIndicatorOffset(pagerState, tabPositions)
-                )
-            },
 
-            ) {
-            pages.forEachIndexed { index, title ->
-                Tab(
-                    modifier = Modifier.wrapContentSize(Alignment.Center),
-                    text = { Text(title) },
-                    selected = pagerState.currentPage == index,
-                    onClick = {
-                        scope.launch {
-                            pagerState.animateScrollToPage(index)
-                        }
-
-                    },
-                )
-            }
-        }
     }
 
+}
+
+@OptIn(ExperimentalPagerApi::class)
+@Composable
+private fun TabRow(
+    pagerState: PagerState,
+    pages: List<String>,
+    scope: CoroutineScope = rememberCoroutineScope()
+) {
+    TabRow(
+        contentColor = MaterialTheme.colorScheme.CheckBox,
+        selectedTabIndex = pagerState.currentPage,
+        indicator = { tabPositions ->
+            TabRowDefaults.Indicator(
+                Modifier.pagerTabIndicatorOffset(pagerState, tabPositions)
+            )
+        },
+
+        ) {
+        pages.forEachIndexed { index, title ->
+            Tab(
+                text = { Text(title) },
+                selected = pagerState.currentPage == index,
+                onClick = {
+                    scope.launch {
+                        pagerState.animateScrollToPage(index)
+                    }
+
+                },
+            )
+        }
+    }
 }
 
 @Composable

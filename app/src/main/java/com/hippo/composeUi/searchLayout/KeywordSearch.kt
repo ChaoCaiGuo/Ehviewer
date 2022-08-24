@@ -93,6 +93,10 @@ private fun SearchNormalCategory(viewModel: SearchViewModel) {
             modifier = Modifier
                 .clickable {
                     viewModel.enabledAdvance = !viewModel.enabledAdvance
+                    scope.launch {
+                        viewModel.verticalScroll.animateScrollTo(0)
+                    }
+
                 }
                 .fillMaxWidth(),
             color = MaterialTheme.colorScheme.TextColor,
