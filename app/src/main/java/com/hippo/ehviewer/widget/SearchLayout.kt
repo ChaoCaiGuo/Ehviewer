@@ -82,7 +82,7 @@ class SearchLayout @JvmOverloads constructor(
         mAdapter.setHasStableIds(true)
         adapter = mAdapter
         setHasFixedSize(true)
-        clipToPadding = false
+//        clipToPadding = false
         (itemAnimator as DefaultItemAnimator?)?.supportsChangeAnimations = false
         val interval = resources.getDimensionPixelOffset(R.dimen.search_layout_interval)
         val paddingH = resources.getDimensionPixelOffset(R.dimen.search_layout_margin_h)
@@ -92,6 +92,7 @@ class SearchLayout @JvmOverloads constructor(
         )
         addItemDecoration(decoration)
         decoration.applyPaddings(this)
+
         // Create normal view
         mNormalView = mInflater.inflate(R.layout.search_normal, null)
         val mCategoryStored = mSharePref.getInt(SEARCH_CATEGORY_PREF, EhConfig.ALL_CATEGORY)

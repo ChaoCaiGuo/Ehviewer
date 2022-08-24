@@ -768,5 +768,6 @@
     <string name="archive_need_passwd">歸檔文件需要密碼</string>
     <string name="passwd_wrong">密碼錯誤</string>
     <string name="passwd_cannot_be_empty">密碼不能為空</string>
+    <string name="search_disable_advance">關閉進階選項</string>
 
 </resources>

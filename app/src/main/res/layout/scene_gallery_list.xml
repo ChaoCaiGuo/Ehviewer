@@ -27,7 +27,7 @@
         android:layout_height="match_parent"
         app:fitsSystemWindowsInsets="top|bottom" />
 
-    <com.hippo.ehviewer.widget.SearchLayout
+    <com.hippo.composeUi.searchLayout.SearchLayout
         android:id="@+id/search_layout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"

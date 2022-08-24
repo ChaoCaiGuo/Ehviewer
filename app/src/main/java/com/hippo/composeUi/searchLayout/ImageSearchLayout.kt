@@ -6,28 +6,24 @@ import android.net.Uri
 import android.util.AttributeSet
 import android.util.Log
 import android.widget.LinearLayout
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.itemsIndexed
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.ViewModelProvider
 import coil.compose.AsyncImage
 import com.hippo.composeUi.composeExt.addComposeView
-import com.hippo.composeUi.settingsFragment.AdvanceSearchItem
 import com.hippo.ehviewer.AppConfig
 import com.hippo.ehviewer.R
 import com.hippo.ehviewer.client.data.ListUrlBuilder
@@ -56,7 +52,7 @@ class ImageSearchLayout @JvmOverloads constructor(
     private var mImagePath: String? = null
 
     init {
-        addComposeView { composeImageSearchLayout(viewModel,selectImage) }
+        addComposeView { ComposeImageSearchLayout(viewModel,selectImage) }
     }
 
     fun setSelectImage( onclick: (() -> Unit)){
@@ -108,9 +104,11 @@ class ImageSearchLayout @JvmOverloads constructor(
 
 
 @Composable
-fun composeImageSearchLayout(viewModel: SearchViewModel, onclick: (() -> Unit)?) {
+fun ComposeImageSearchLayout(viewModel: SearchViewModel, onclick: (() -> Unit)?) {
     val imageSearchLayoutString = stringArrayResource(id = R.array.ImageSearchLayout)
     Column {
+        Text(text = stringResource(id = R.string.search_image), fontWeight = FontWeight.W900, fontSize = 14.sp)
+        Spacer(modifier = Modifier.height(17.dp))
         if(viewModel.image_path != null){
             Box(contentAlignment= Alignment.Center, modifier = Modifier.fillMaxWidth()){
                 AsyncImage(
@@ -127,7 +125,7 @@ fun composeImageSearchLayout(viewModel: SearchViewModel, onclick: (() -> Unit)?)
             )
         }
 
-        LazyVerticalGrid(columns = GridCells.Fixed(2), modifier = Modifier.height(90.dp)) {
+        LazyVerticalGrid(columns = GridCells.Fixed(2), modifier = Modifier.height(90.dp),userScrollEnabled =false) {
             itemsIndexed(viewModel.image_selected) { index, item ->
                 AdvanceSearchItem(imageSearchLayoutString[index], item) {
                     viewModel.image_selected[index] = !viewModel.image_selected[index]
@@ -135,6 +133,5 @@ fun composeImageSearchLayout(viewModel: SearchViewModel, onclick: (() -> Unit)?)
             }
         }
     }
-
 
 }

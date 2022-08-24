@@ -704,5 +704,6 @@
     <string name="settings_privacy_secure">不允許荧幕抓取</string>
     <string name="settings_privacy_secure_summary">啟用後，將不能截取該應用的螢幕截圖，同時，將不會在系統任務切換器中顯示該應用的內容預覽，重新啟動應用以生效此更改</string>
     <string name="favorite_name">收藏畫廊</string>
+    <string name="search_disable_advance">關閉進階選項</string>
 
 </resources>

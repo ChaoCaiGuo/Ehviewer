@@ -68,6 +68,7 @@ import com.h6ah4i.android.widget.advrecyclerview.draggable.ItemDraggableRange;
 import com.h6ah4i.android.widget.advrecyclerview.draggable.RecyclerViewDragDropManager;
 import com.h6ah4i.android.widget.advrecyclerview.utils.AbstractDraggableItemViewHolder;
 import com.hippo.app.EditTextDialogBuilder;
+import com.hippo.composeUi.searchLayout.Helper;
 import com.hippo.drawable.AddDeleteDrawable;
 import com.hippo.drawable.DrawerArrowDrawable;
 import com.hippo.easyrecyclerview.EasyRecyclerView;
@@ -98,7 +99,7 @@ import com.hippo.ehviewer.ui.MainActivity;
 import com.hippo.ehviewer.ui.dialog.SelectItemWithIconAdapter;
 import com.hippo.ehviewer.widget.GalleryInfoContentHelper;
 import com.hippo.ehviewer.widget.SearchBar;
-import com.hippo.ehviewer.widget.SearchLayout;
+import com.hippo.composeUi.searchLayout.SearchLayout;
 import com.hippo.scene.Announcer;
 import com.hippo.scene.SceneFragment;
 import com.hippo.util.ExceptionUtils;
@@ -109,7 +110,6 @@ import com.hippo.widget.FabLayout;
 import com.hippo.widget.SearchBarMover;
 import com.hippo.yorozuya.AnimationUtils;
 import com.hippo.yorozuya.AssertUtils;
-import com.hippo.yorozuya.LayoutUtils;
 import com.hippo.yorozuya.MathUtils;
 import com.hippo.yorozuya.SimpleAnimatorListener;
 import com.hippo.yorozuya.StringUtils;
@@ -127,7 +127,7 @@ import rikka.core.res.ResourcesKt;
 @SuppressLint("RtlHardcoded")
 public final class GalleryListScene extends BaseScene
         implements SearchBar.Helper, SearchBar.OnStateChangeListener, FastScroller.OnDragHandlerListener,
-        SearchLayout.Helper, SearchBarMover.Helper, View.OnClickListener, FabLayout.OnClickFabListener,
+        Helper, SearchBarMover.Helper, View.OnClickListener, FabLayout.OnClickFabListener,
         FabLayout.OnExpandListener {
 
     public final static String KEY_ACTION = "action";
@@ -503,9 +503,10 @@ public final class GalleryListScene extends BaseScene
         }
 
         // Update normal search mode
-        mSearchLayout.setNormalSearchMode(builder.getMode() == ListUrlBuilder.MODE_SUBSCRIPTION
-                ? R.id.search_subscription_search
-                : R.id.search_normal_search);
+        //Todo 这下面的是改普通搜索的类别 比如订阅搜索等 这功能应该分离到具体的订阅等页面
+//        mSearchLayout.setNormalSearchMode(builder.getMode() == ListUrlBuilder.MODE_SUBSCRIPTION
+//                ? R.id.search_subscription_search
+//                : R.id.search_normal_search);
 
         // Update search edit text
         if (!TextUtils.isEmpty(keyword) && null != mSearchBar && !mIsTopList) {
@@ -601,7 +602,7 @@ public final class GalleryListScene extends BaseScene
 
         mSearchLayout.setHelper(this);
         mSearchLayout.setPadding(mSearchLayout.getPaddingLeft(), mSearchLayout.getPaddingTop() + paddingTopSB,
-                mSearchLayout.getPaddingRight(), mSearchLayout.getPaddingBottom() + paddingBottomFab);
+                mSearchLayout.getPaddingRight(), mSearchLayout.getPaddingBottom() );
 
         mFabLayout.setAutoCancel(true);
         mFabLayout.setExpanded(false);
@@ -616,7 +617,7 @@ public final class GalleryListScene extends BaseScene
 
         mSearchFab.setOnClickListener(this);
 
-        mSearchBarMover = new SearchBarMover(this, mSearchBar, mRecyclerView, mSearchLayout);
+        mSearchBarMover = new SearchBarMover(this, mSearchBar, mRecyclerView);
 
         // Update list url builder
         onUpdateUrlBuilder();
@@ -1140,13 +1141,13 @@ public final class GalleryListScene extends BaseScene
                         selectSearchFab(animation);
                     } else if (state == STATE_SEARCH) {
                         mViewTransition.showView(1, animation);
-                        mSearchLayout.scrollSearchContainerToTop();
+//                        mSearchLayout.scrollSearchContainerToTop();
                         mSearchBar.setState(SearchBar.STATE_SEARCH, animation);
                         mSearchBarMover.returnSearchBarPosition();
                         selectSearchFab(animation);
                     } else if (state == STATE_SEARCH_SHOW_LIST) {
                         mViewTransition.showView(1, animation);
-                        mSearchLayout.scrollSearchContainerToTop();
+//                        mSearchLayout.scrollSearchContainerToTop();
                         mSearchBar.setState(SearchBar.STATE_SEARCH_LIST, animation);
                         mSearchBarMover.returnSearchBarPosition();
                         selectSearchFab(animation);
@@ -1159,12 +1160,12 @@ public final class GalleryListScene extends BaseScene
                         selectActionFab(animation);
                     } else if (state == STATE_SEARCH) {
                         mViewTransition.showView(1, animation);
-                        mSearchLayout.scrollSearchContainerToTop();
+//                        mSearchLayout.scrollSearchContainerToTop();
                         mSearchBar.setState(SearchBar.STATE_SEARCH, animation);
                         mSearchBarMover.returnSearchBarPosition();
                     } else if (state == STATE_SEARCH_SHOW_LIST) {
                         mViewTransition.showView(1, animation);
-                        mSearchLayout.scrollSearchContainerToTop();
+//                        mSearchLayout.scrollSearchContainerToTop();
                         mSearchBar.setState(SearchBar.STATE_SEARCH_LIST, animation);
                         mSearchBarMover.returnSearchBarPosition();
                     }
@@ -1286,7 +1287,8 @@ public final class GalleryListScene extends BaseScene
         if (mSearchLayout == null || uri == null) {
             return;
         }
-        mSearchLayout.setSearchMode(SearchLayout.SEARCH_MODE_IMAGE);
+        //Todo 这儿要改成compose版的修改SearchMode
+//        mSearchLayout.setSearchMode(SearchLayout.SEARCH_MODE_IMAGE);
         mSearchLayout.setImageUri(uri);
         setState(STATE_SEARCH);
     }
@@ -1342,12 +1344,12 @@ public final class GalleryListScene extends BaseScene
         }
     }
 
-    @Override
-    public void onChangeSearchMode() {
-        if (null != mSearchBarMover) {
-            mSearchBarMover.showSearchBar();
-        }
-    }
+//    @Override
+//    public void onChangeSearchMode() {
+//        if (null != mSearchBarMover) {
+//            mSearchBarMover.showSearchBar();
+//        }
+//    }
 
     @Override
     public void onSelectImage() {
@@ -1363,7 +1365,7 @@ public final class GalleryListScene extends BaseScene
     @Override
     public boolean isValidView(RecyclerView recyclerView) {
         return (mState == STATE_NORMAL && recyclerView == mRecyclerView) ||
-                (mState == STATE_SEARCH && recyclerView == mSearchLayout);
+                (mState == STATE_SEARCH );
     }
 
     // SearchBarMover.Helper
@@ -1372,7 +1374,7 @@ public final class GalleryListScene extends BaseScene
         if (mState == STATE_NORMAL || mState == STATE_SIMPLE_SEARCH) {
             return mRecyclerView;
         } else {
-            return mSearchLayout;
+            return null;
         }
     }
 

@@ -20,7 +20,7 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.view.View;
 
-import com.hippo.ehviewer.widget.SearchLayout;
+import com.hippo.composeUi.searchLayout.SearchLayout;
 import com.hippo.widget.ContentLayout;
 
 public class BringOutTransition extends ViewTransition {

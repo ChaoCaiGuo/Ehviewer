@@ -70,3 +70,6 @@ var isdarkTheme: Boolean = false
 
 val ColorScheme.TextColor:Color
     get() = if(isdarkTheme) TextdarkColor else TextlightColor
+
+val ColorScheme.CheckBox:Color
+    get() = Color(0xFF5E35B1)

@@ -1,9 +1,5 @@
 package com.hippo.composeUi.composeExt
-/**
- *      compose屏幕适配方案 该项目尚未适配
- *      使用方法见最下面{@link SampleNewDensity}
- *
- */
+
 import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Spacer
@@ -18,6 +14,13 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
+
+/**
+ *      compose屏幕适配方案 该项目尚未适配
+ *      使用方法见最下面{@link SampleNewDensity}
+ *
+ *
+ */
 
 
 /**
