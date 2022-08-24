@@ -27,7 +27,6 @@ import com.hippo.ehviewer.client.EhConfig;
 import com.hippo.ehviewer.client.EhUrl;
 import com.hippo.ehviewer.client.EhUtils;
 import com.hippo.ehviewer.dao.QuickSearch;
-import com.hippo.ehviewer.widget.AdvanceSearchTable;
 import com.hippo.network.UrlBuilder;
 import com.hippo.yorozuya.NumberUtils;
 import com.hippo.yorozuya.StringUtils;
@@ -48,7 +47,7 @@ public class ListUrlBuilder implements Cloneable, Parcelable {
     public static final int MODE_IMAGE_SEARCH = 0x4;
     public static final int MODE_SUBSCRIPTION = 0x5;
     public static final int MODE_TOPLIST = 0x6;
-    public static final int DEFAULT_ADVANCE = AdvanceSearchTable.SNAME | AdvanceSearchTable.STAGS;
+    public static final int DEFAULT_ADVANCE = AdvanceSearchOptions.SNAME | AdvanceSearchOptions.STAGS;
     public static final int DEFAULT_MIN_RATING = 2;
     public static final Creator<ListUrlBuilder> CREATOR = new Creator<ListUrlBuilder>() {
         @Override
@@ -395,57 +394,57 @@ public class ListUrlBuilder implements Cloneable, Parcelable {
                     break;
                 case "f_sname":
                     if ("on".equals(value)) {
-                        advanceSearch |= AdvanceSearchTable.SNAME;
+                        advanceSearch |= AdvanceSearchOptions.SNAME;
                     }
                     break;
                 case "f_stags":
                     if ("on".equals(value)) {
-                        advanceSearch |= AdvanceSearchTable.STAGS;
+                        advanceSearch |= AdvanceSearchOptions.STAGS;
                     }
                     break;
                 case "f_sdesc":
                     if ("on".equals(value)) {
-                        advanceSearch |= AdvanceSearchTable.SDESC;
+                        advanceSearch |= AdvanceSearchOptions.SDESC;
                     }
                     break;
                 case "f_storr":
                     if ("on".equals(value)) {
-                        advanceSearch |= AdvanceSearchTable.STORR;
+                        advanceSearch |= AdvanceSearchOptions.STORR;
                     }
                     break;
                 case "f_sto":
                     if ("on".equals(value)) {
-                        advanceSearch |= AdvanceSearchTable.STO;
+                        advanceSearch |= AdvanceSearchOptions.STO;
                     }
                     break;
                 case "f_sdt1":
                     if ("on".equals(value)) {
-                        advanceSearch |= AdvanceSearchTable.SDT1;
+                        advanceSearch |= AdvanceSearchOptions.SDT1;
                     }
                     break;
                 case "f_sdt2":
                     if ("on".equals(value)) {
-                        advanceSearch |= AdvanceSearchTable.SDT2;
+                        advanceSearch |= AdvanceSearchOptions.SDT2;
                     }
                     break;
                 case "f_sh":
                     if ("on".equals(value)) {
-                        advanceSearch |= AdvanceSearchTable.SH;
+                        advanceSearch |= AdvanceSearchOptions.SH;
                     }
                     break;
                 case "f_sfl":
                     if ("on".equals(value)) {
-                        advanceSearch |= AdvanceSearchTable.SFL;
+                        advanceSearch |= AdvanceSearchOptions.SFL;
                     }
                     break;
                 case "f_sfu":
                     if ("on".equals(value)) {
-                        advanceSearch |= AdvanceSearchTable.SFU;
+                        advanceSearch |= AdvanceSearchOptions.SFU;
                     }
                     break;
                 case "f_sft":
                     if ("on".equals(value)) {
-                        advanceSearch |= AdvanceSearchTable.SFT;
+                        advanceSearch |= AdvanceSearchOptions.SFT;
                     }
                     break;
                 case "f_sr":
@@ -531,23 +530,23 @@ public class ListUrlBuilder implements Cloneable, Parcelable {
                 // Advance search
                 if (mAdvanceSearch != -1) {
                     ub.addQuery("advsearch", "1");
-                    if ((mAdvanceSearch & AdvanceSearchTable.SNAME) != 0)
+                    if ((mAdvanceSearch & AdvanceSearchOptions.SNAME) != 0)
                         ub.addQuery("f_sname", "on");
-                    if ((mAdvanceSearch & AdvanceSearchTable.STAGS) != 0)
+                    if ((mAdvanceSearch & AdvanceSearchOptions.STAGS) != 0)
                         ub.addQuery("f_stags", "on");
-                    if ((mAdvanceSearch & AdvanceSearchTable.SDESC) != 0)
+                    if ((mAdvanceSearch & AdvanceSearchOptions.SDESC) != 0)
                         ub.addQuery("f_sdesc", "on");
-                    if ((mAdvanceSearch & AdvanceSearchTable.STORR) != 0)
+                    if ((mAdvanceSearch & AdvanceSearchOptions.STORR) != 0)
                         ub.addQuery("f_storr", "on");
-                    if ((mAdvanceSearch & AdvanceSearchTable.STO) != 0) ub.addQuery("f_sto", "on");
-                    if ((mAdvanceSearch & AdvanceSearchTable.SDT1) != 0)
+                    if ((mAdvanceSearch & AdvanceSearchOptions.STO) != 0) ub.addQuery("f_sto", "on");
+                    if ((mAdvanceSearch & AdvanceSearchOptions.SDT1) != 0)
                         ub.addQuery("f_sdt1", "on");
-                    if ((mAdvanceSearch & AdvanceSearchTable.SDT2) != 0)
+                    if ((mAdvanceSearch & AdvanceSearchOptions.SDT2) != 0)
                         ub.addQuery("f_sdt2", "on");
-                    if ((mAdvanceSearch & AdvanceSearchTable.SH) != 0) ub.addQuery("f_sh", "on");
-                    if ((mAdvanceSearch & AdvanceSearchTable.SFL) != 0) ub.addQuery("f_sfl", "on");
-                    if ((mAdvanceSearch & AdvanceSearchTable.SFU) != 0) ub.addQuery("f_sfu", "on");
-                    if ((mAdvanceSearch & AdvanceSearchTable.SFT) != 0) ub.addQuery("f_sft", "on");
+                    if ((mAdvanceSearch & AdvanceSearchOptions.SH) != 0) ub.addQuery("f_sh", "on");
+                    if ((mAdvanceSearch & AdvanceSearchOptions.SFL) != 0) ub.addQuery("f_sfl", "on");
+                    if ((mAdvanceSearch & AdvanceSearchOptions.SFU) != 0) ub.addQuery("f_sfu", "on");
+                    if ((mAdvanceSearch & AdvanceSearchOptions.SFT) != 0) ub.addQuery("f_sft", "on");
                     // Set min star
                     if (mMinRating != -1) {
                         ub.addQuery("f_sr", "on");

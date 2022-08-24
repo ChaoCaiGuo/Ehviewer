@@ -83,7 +83,7 @@
 
     <!-- CategoryTable -->
 
-    <!-- AdvanceSearchTable -->
+    <!-- AdvanceSearchOptions -->
     <dimen name="advance_search_table_item_margin">4dp</dimen>
 
     <!-- Search item -->

@@ -23,7 +23,7 @@
     </string-array>
 
 
-    <!--    AdvanceSearchTable-->
+    <!--    AdvanceSearchOptions-->
     <string-array name="AdvanceSearch">
         <item>@string/search_sname</item>
         <item>@string/search_stags</item>

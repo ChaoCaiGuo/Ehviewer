@@ -181,7 +181,7 @@ fun ComposeSearchLayout(viewModel: SearchViewModel = viewModel(), mHelper: Helpe
                     TabRow(pagerState, pages)
                 }
                 1 -> Column {
-                    CardPage { ComposeImageSearchLayout(viewModel) { mHelper?.onSelectImage() } }
+                    CardPage { ComposeImageSearch(viewModel) { mHelper?.onSelectImage() } }
                     TabRow(pagerState, pages)
                 }
                 else -> {}
