@@ -1,11 +1,5 @@
 package com.hippo.composeUi.searchLayout
 
-import android.content.Context
-import android.graphics.Bitmap
-import android.net.Uri
-import android.util.AttributeSet
-import android.util.Log
-import android.widget.LinearLayout
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -21,86 +15,9 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.ViewModelProvider
 import coil.compose.AsyncImage
-import com.hippo.composeUi.composeExt.addComposeView
-import com.hippo.ehviewer.AppConfig
 import com.hippo.ehviewer.R
-import com.hippo.ehviewer.client.data.ListUrlBuilder
-import com.hippo.ehviewer.client.exception.EhException
-import com.hippo.ehviewer.ui.MainActivity
-import com.hippo.io.UniFileInputStreamPipe
-import com.hippo.unifile.UniFile
-import com.hippo.util.BitmapUtils
 import com.hippo.viewModel.SearchViewModel
-import com.hippo.yorozuya.IOUtils
-import java.io.FileNotFoundException
-import java.io.FileOutputStream
-import java.io.OutputStream
-
-
-class ImageSearchLayout @JvmOverloads constructor(
-    private val mContext: Context,
-    attrs: AttributeSet? = null,
-    defStyleAttr: Int = 0
-) : LinearLayout(mContext, attrs, defStyleAttr) {
-    private val TAG = this::class.java.simpleName
-
-    private val viewModel =
-        ViewModelProvider(mContext as MainActivity).get(SearchViewModel::class.java)
-    private var selectImage: (() -> Unit)? = null
-    private var mImagePath: String? = null
-
-    init {
-        addComposeView { ComposeImageSearchLayout(viewModel,selectImage) }
-    }
-
-    fun setSelectImage( onclick: (() -> Unit)){
-        selectImage=onclick
-    }
-    fun setImageUri(imageUri: Uri?) {
-        if (null == imageUri) {
-            return
-        }
-        viewModel.image_path =imageUri
-
-        val file = UniFile.fromUri(mContext, imageUri) ?: return
-        try {
-            val maxSize = context.resources.getDimensionPixelOffset(R.dimen.image_search_max_size)
-            val bitmap =
-                BitmapUtils.decodeStream(UniFileInputStreamPipe(file), maxSize, maxSize) ?: return
-            val temp = AppConfig.createTempFile() ?: return
-
-            // TODO ehentai image search is bad when I'm writing this line.
-            // Re-compress image will make image search failed.
-            var os: OutputStream? = null
-            try {
-                os = FileOutputStream(temp)
-                bitmap.compress(Bitmap.CompressFormat.JPEG, 90, os)
-                mImagePath = temp.path
-            } catch (e: FileNotFoundException) {
-                e.printStackTrace()
-            } finally {
-                IOUtils.closeQuietly(os)
-            }
-        } catch (e: OutOfMemoryError) {
-            Log.e(TAG, "Out of memory ${e.message}")
-        }
-    }
-
-
-    @Throws(EhException::class)
-    fun formatListUrlBuilder(builder: ListUrlBuilder) {
-        if (null == mImagePath) {
-            throw EhException(context.getString(R.string.select_image_first))
-        }
-        builder.imagePath = mImagePath
-        builder.isUseSimilarityScan = viewModel.image_selected[0]
-        builder.isOnlySearchCovers =  viewModel.image_selected[1]
-        builder.isShowExpunged =      viewModel.image_selected[2]
-    }
-
-}
 
 
 @Composable
