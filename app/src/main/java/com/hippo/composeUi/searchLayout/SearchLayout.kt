@@ -68,14 +68,14 @@ class SearchLayout @JvmOverloads constructor(
 
     init {
         clipToPadding = false
-        addComposeView { ComposeSearchLayout(viewModel, mHelper) }
+        addComposeView { ComposeSearchLayout(viewModel, onSelectImage) }
     }
 
 
     private val viewModel =
         ViewModelProvider(mContext as MainActivity).get(SearchViewModel::class.java)
     private var mImagePath: String? = null
-    private var mHelper: Helper? = null
+    private var onSelectImage:(()->Unit)? =null
 
 
     @SuppressLint("NonConstantResourceId")
@@ -143,17 +143,16 @@ class SearchLayout @JvmOverloads constructor(
     }
 
 
-    fun setHelper(helper: Helper?) {
-        mHelper = helper
+    fun onSelectImage(event:(()->Unit)?){
+        onSelectImage = event
     }
-
 
 }
 
 
 @OptIn(ExperimentalPagerApi::class)
 @Composable
-fun ComposeSearchLayout(viewModel: SearchViewModel = viewModel(), mHelper: Helper? = null) {
+fun ComposeSearchLayout(viewModel: SearchViewModel = viewModel(),onSelectImage:(()->Unit)? = null) {
     val pagerState = rememberPagerState()
     val pages = listOf(
         stringResource(id = R.string.keyword_search),
@@ -181,7 +180,7 @@ fun ComposeSearchLayout(viewModel: SearchViewModel = viewModel(), mHelper: Helpe
                     TabRow(pagerState, pages)
                 }
                 1 -> Column {
-                    CardPage { ComposeImageSearch(viewModel) { mHelper?.onSelectImage() } }
+                    CardPage { ComposeImageSearch(viewModel) { onSelectImage?.invoke() } }
                     TabRow(pagerState, pages)
                 }
                 else -> {}
@@ -233,6 +232,3 @@ fun CardPage(content: @Composable () -> Unit) {
     }
 }
 
-interface Helper {
-    fun onSelectImage()
-}

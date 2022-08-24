@@ -50,7 +50,6 @@ import com.h6ah4i.android.widget.advrecyclerview.draggable.ItemDraggableRange
 import com.h6ah4i.android.widget.advrecyclerview.draggable.RecyclerViewDragDropManager
 import com.h6ah4i.android.widget.advrecyclerview.utils.AbstractDraggableItemViewHolder
 import com.hippo.app.EditTextDialogBuilder
-import com.hippo.composeUi.searchLayout.Helper
 import com.hippo.composeUi.searchLayout.SearchLayout
 import com.hippo.drawable.AddDeleteDrawable
 import com.hippo.drawable.DrawerArrowDrawable
@@ -94,7 +93,7 @@ import java.io.File
 
 @SuppressLint("RtlHardcoded")
 class GalleryListScene : BaseScene(), SearchBar.Helper, OnStateChangeListener,
-    OnDragHandlerListener, Helper, SearchBarMover.Helper, View.OnClickListener, OnClickFabListener,
+    OnDragHandlerListener, SearchBarMover.Helper, View.OnClickListener, OnClickFabListener,
     OnExpandListener {
     /*---------------
      Whole life cycle
@@ -454,7 +453,13 @@ class GalleryListScene : BaseScene(), SearchBar.Helper, OnStateChangeListener,
         mSearchBar!!.setOnStateChangeListener(this)
         setSearchBarHint(mSearchBar)
         setSearchBarSuggestionProvider(mSearchBar)
-        mSearchLayout!!.setHelper(this)
+        mSearchLayout!!.onSelectImage{
+            try {
+            selectImageLauncher.launch(arrayOf("image/*"))
+        } catch (e: Throwable) {
+            ExceptionUtils.throwIfFatal(e)
+            showTip(R.string.error_cant_find_activity, LENGTH_SHORT)
+        }}
         mSearchLayout!!.setPadding(
             mSearchLayout!!.paddingLeft, mSearchLayout!!.paddingTop + paddingTopSB,
             mSearchLayout!!.paddingRight, mSearchLayout!!.paddingBottom
@@ -1148,14 +1153,6 @@ class GalleryListScene : BaseScene(), SearchBar.Helper, OnStateChangeListener,
     //            mSearchBarMover.showSearchBar();
     //        }
     //    }
-    override fun onSelectImage() {
-        try {
-            selectImageLauncher.launch(arrayOf("image/*"))
-        } catch (e: Throwable) {
-            ExceptionUtils.throwIfFatal(e)
-            showTip(R.string.error_cant_find_activity, LENGTH_SHORT)
-        }
-    }
 
     // SearchBarMover.Helper
     override fun isValidView(recyclerView: RecyclerView): Boolean {
