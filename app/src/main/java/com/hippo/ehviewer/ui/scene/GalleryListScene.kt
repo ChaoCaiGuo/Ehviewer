@@ -13,493 +13,348 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.hippo.ehviewer.ui.scene
 
-package com.hippo.ehviewer.ui.scene;
-
-import android.animation.Animator;
-import android.annotation.SuppressLint;
-import android.app.Activity;
-import android.content.Context;
-import android.content.DialogInterface;
-import android.content.Intent;
-import android.content.res.Resources;
-import android.graphics.Point;
-import android.graphics.Rect;
-import android.graphics.drawable.Drawable;
-import android.net.Uri;
-import android.os.Bundle;
-import android.text.InputType;
-import android.text.Spannable;
-import android.text.SpannableStringBuilder;
-import android.text.TextUtils;
-import android.text.style.ImageSpan;
-import android.view.Display;
-import android.view.Gravity;
-import android.view.LayoutInflater;
-import android.view.MenuItem;
-import android.view.View;
-import android.view.ViewConfiguration;
-import android.view.ViewGroup;
-import android.view.ViewPropertyAnimator;
-import android.widget.ImageView;
-import android.widget.TextView;
-
-import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContracts;
-import androidx.annotation.IntDef;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.widget.PopupMenu;
-import androidx.appcompat.widget.Toolbar;
-import androidx.core.content.ContextCompat;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsAnimationCompat;
-import androidx.drawerlayout.widget.DrawerLayout;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-
-import com.google.android.material.dialog.MaterialAlertDialogBuilder;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.h6ah4i.android.widget.advrecyclerview.animator.DraggableItemAnimator;
-import com.h6ah4i.android.widget.advrecyclerview.animator.GeneralItemAnimator;
-import com.h6ah4i.android.widget.advrecyclerview.draggable.DraggableItemAdapter;
-import com.h6ah4i.android.widget.advrecyclerview.draggable.ItemDraggableRange;
-import com.h6ah4i.android.widget.advrecyclerview.draggable.RecyclerViewDragDropManager;
-import com.h6ah4i.android.widget.advrecyclerview.utils.AbstractDraggableItemViewHolder;
-import com.hippo.app.EditTextDialogBuilder;
-import com.hippo.composeUi.searchLayout.Helper;
-import com.hippo.drawable.AddDeleteDrawable;
-import com.hippo.drawable.DrawerArrowDrawable;
-import com.hippo.easyrecyclerview.EasyRecyclerView;
-import com.hippo.easyrecyclerview.FastScroller;
-import com.hippo.ehviewer.EhApplication;
-import com.hippo.ehviewer.EhDB;
-import com.hippo.ehviewer.FavouriteStatusRouter;
-import com.hippo.ehviewer.R;
-import com.hippo.ehviewer.Settings;
-import com.hippo.ehviewer.WindowInsetsAnimationHelper;
-import com.hippo.ehviewer.client.EhClient;
-import com.hippo.ehviewer.client.EhRequest;
-import com.hippo.ehviewer.client.EhUrl;
-import com.hippo.ehviewer.client.EhUtils;
-import com.hippo.ehviewer.client.data.GalleryInfo;
-import com.hippo.ehviewer.client.data.ListUrlBuilder;
-import com.hippo.ehviewer.client.exception.EhException;
-import com.hippo.ehviewer.client.parser.GalleryDetailUrlParser;
-import com.hippo.ehviewer.client.parser.GalleryListParser;
-import com.hippo.ehviewer.client.parser.GalleryPageUrlParser;
-import com.hippo.ehviewer.dao.DownloadInfo;
-import com.hippo.ehviewer.dao.DownloadLabel;
-import com.hippo.ehviewer.dao.QuickSearch;
-import com.hippo.ehviewer.download.DownloadManager;
-import com.hippo.ehviewer.ui.CommonOperations;
-import com.hippo.ehviewer.ui.GalleryActivity;
-import com.hippo.ehviewer.ui.MainActivity;
-import com.hippo.ehviewer.ui.dialog.SelectItemWithIconAdapter;
-import com.hippo.ehviewer.widget.GalleryInfoContentHelper;
-import com.hippo.ehviewer.widget.SearchBar;
-import com.hippo.composeUi.searchLayout.SearchLayout;
-import com.hippo.scene.Announcer;
-import com.hippo.scene.SceneFragment;
-import com.hippo.util.ExceptionUtils;
-import com.hippo.view.BringOutTransition;
-import com.hippo.view.ViewTransition;
-import com.hippo.widget.ContentLayout;
-import com.hippo.widget.FabLayout;
-import com.hippo.widget.SearchBarMover;
-import com.hippo.yorozuya.AnimationUtils;
-import com.hippo.yorozuya.AssertUtils;
-import com.hippo.yorozuya.MathUtils;
-import com.hippo.yorozuya.SimpleAnimatorListener;
-import com.hippo.yorozuya.StringUtils;
-import com.hippo.yorozuya.ViewUtils;
-
-import java.io.File;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
-import rikka.core.res.ResourcesKt;
+import android.animation.Animator
+import android.annotation.SuppressLint
+import android.content.Context
+import android.content.DialogInterface
+import android.content.Intent
+import android.content.res.Resources
+import android.net.Uri
+import android.os.Bundle
+import android.text.InputType
+import android.text.Spannable
+import android.text.SpannableStringBuilder
+import android.text.TextUtils
+import android.text.style.ImageSpan
+import android.view.*
+import android.widget.ImageView
+import android.widget.TextView
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.IntDef
+import androidx.appcompat.widget.PopupMenu
+import androidx.appcompat.widget.Toolbar
+import androidx.core.content.ContextCompat
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsAnimationCompat
+import androidx.drawerlayout.widget.DrawerLayout
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.android.material.floatingactionbutton.FloatingActionButton
+import com.h6ah4i.android.widget.advrecyclerview.animator.DraggableItemAnimator
+import com.h6ah4i.android.widget.advrecyclerview.animator.GeneralItemAnimator
+import com.h6ah4i.android.widget.advrecyclerview.draggable.DraggableItemAdapter
+import com.h6ah4i.android.widget.advrecyclerview.draggable.ItemDraggableRange
+import com.h6ah4i.android.widget.advrecyclerview.draggable.RecyclerViewDragDropManager
+import com.h6ah4i.android.widget.advrecyclerview.utils.AbstractDraggableItemViewHolder
+import com.hippo.app.EditTextDialogBuilder
+import com.hippo.composeUi.searchLayout.Helper
+import com.hippo.composeUi.searchLayout.SearchLayout
+import com.hippo.drawable.AddDeleteDrawable
+import com.hippo.drawable.DrawerArrowDrawable
+import com.hippo.easyrecyclerview.EasyRecyclerView
+import com.hippo.easyrecyclerview.FastScroller.OnDragHandlerListener
+import com.hippo.ehviewer.*
+import com.hippo.ehviewer.client.EhClient
+import com.hippo.ehviewer.client.EhRequest
+import com.hippo.ehviewer.client.EhUrl
+import com.hippo.ehviewer.client.EhUtils
+import com.hippo.ehviewer.client.data.GalleryInfo
+import com.hippo.ehviewer.client.data.ListUrlBuilder
+import com.hippo.ehviewer.client.exception.EhException
+import com.hippo.ehviewer.client.parser.GalleryDetailUrlParser
+import com.hippo.ehviewer.client.parser.GalleryListParser
+import com.hippo.ehviewer.client.parser.GalleryPageUrlParser
+import com.hippo.ehviewer.dao.DownloadInfo
+import com.hippo.ehviewer.dao.QuickSearch
+import com.hippo.ehviewer.download.DownloadManager
+import com.hippo.ehviewer.download.DownloadManager.DownloadInfoListener
+import com.hippo.ehviewer.ui.CommonOperations
+import com.hippo.ehviewer.ui.GalleryActivity
+import com.hippo.ehviewer.ui.dialog.SelectItemWithIconAdapter
+import com.hippo.ehviewer.widget.GalleryInfoContentHelper
+import com.hippo.ehviewer.widget.SearchBar
+import com.hippo.ehviewer.widget.SearchBar.OnStateChangeListener
+import com.hippo.ehviewer.widget.SearchBar.Suggestion
+import com.hippo.scene.Announcer
+import com.hippo.scene.SceneFragment
+import com.hippo.util.ExceptionUtils
+import com.hippo.view.BringOutTransition
+import com.hippo.view.ViewTransition
+import com.hippo.widget.ContentLayout
+import com.hippo.widget.FabLayout
+import com.hippo.widget.FabLayout.OnClickFabListener
+import com.hippo.widget.FabLayout.OnExpandListener
+import com.hippo.widget.SearchBarMover
+import com.hippo.yorozuya.*
+import rikka.core.res.resolveColor
+import java.io.File
 
 @SuppressLint("RtlHardcoded")
-public final class GalleryListScene extends BaseScene
-        implements SearchBar.Helper, SearchBar.OnStateChangeListener, FastScroller.OnDragHandlerListener,
-        Helper, SearchBarMover.Helper, View.OnClickListener, FabLayout.OnClickFabListener,
-        FabLayout.OnExpandListener {
-
-    public final static String KEY_ACTION = "action";
-    public final static String ACTION_HOMEPAGE = "action_homepage";
-    public final static String ACTION_SUBSCRIPTION = "action_subscription";
-    public final static String ACTION_WHATS_HOT = "action_whats_hot";
-    public final static String ACTION_TOP_LIST = "action_top_list";
-    public final static String ACTION_LIST_URL_BUILDER = "action_list_url_builder";
-    public final static String KEY_LIST_URL_BUILDER = "list_url_builder";
-    public final static String KEY_HAS_FIRST_REFRESH = "has_first_refresh";
-    public final static String KEY_STATE = "state";
-    private static final int BACK_PRESSED_INTERVAL = 2000;
-    private final static int STATE_NORMAL = 0;
-    private final static int STATE_SIMPLE_SEARCH = 1;
-    private final static int STATE_SEARCH = 2;
-    private final static int STATE_SEARCH_SHOW_LIST = 3;
-    private static final long ANIMATE_TIME = 300L;
+class GalleryListScene : BaseScene(), SearchBar.Helper, OnStateChangeListener,
+    OnDragHandlerListener, Helper, SearchBarMover.Helper, View.OnClickListener, OnClickFabListener,
+    OnExpandListener {
     /*---------------
      Whole life cycle
      ---------------*/
-    @Nullable
-    private EhClient mClient;
-    @Nullable
-    private ListUrlBuilder mUrlBuilder;
+    private var mClient: EhClient? = null
+    private var mUrlBuilder: ListUrlBuilder? = null
+
     /*---------------
      View life cycle
      ---------------*/
-    @Nullable
-    private ContentLayout mContentLayout;
-    @Nullable
-    private EasyRecyclerView mRecyclerView;
-    @Nullable
-    private SearchLayout mSearchLayout;
-    ActivityResultLauncher<String[]> selectImageLauncher = registerForActivityResult(
-            new ActivityResultContracts.OpenDocument(),
-            result -> mSearchLayout.setImageUri(result));
-    @Nullable
-    private SearchBar mSearchBar;
-    @Nullable
-    private View mSearchFab;
-    @Nullable
-    private final Animator.AnimatorListener mSearchFabAnimatorListener = new SimpleAnimatorListener() {
-        @Override
-        public void onAnimationEnd(Animator animation) {
-            if (null != mSearchFab) {
-                mSearchFab.setVisibility(View.INVISIBLE);
+    private var mContentLayout: ContentLayout? = null
+    private var mRecyclerView: EasyRecyclerView? = null
+    private var mSearchLayout: SearchLayout? = null
+    var selectImageLauncher = registerForActivityResult<Array<String>, Uri>(
+        ActivityResultContracts.OpenDocument()
+    ) { result: Uri? -> mSearchLayout!!.setImageUri(result) }
+    private var mSearchBar: SearchBar? = null
+    private var mSearchFab: View? = null
+    private val mSearchFabAnimatorListener: Animator.AnimatorListener? =
+        object : SimpleAnimatorListener() {
+            override fun onAnimationEnd(animation: Animator) {
+                if (null != mSearchFab) {
+                    mSearchFab!!.visibility = View.INVISIBLE
+                }
             }
         }
-    };
-    @Nullable
-    private FabLayout mFabLayout;
-    @Nullable
-    private final Animator.AnimatorListener mActionFabAnimatorListener = new SimpleAnimatorListener() {
-        @Override
-        public void onAnimationEnd(Animator animation) {
-            if (null != mFabLayout) {
-                ((View) mFabLayout.getPrimaryFab()).setVisibility(View.INVISIBLE);
+    private var mFabLayout: FabLayout? = null
+    private val mActionFabAnimatorListener: Animator.AnimatorListener? =
+        object : SimpleAnimatorListener() {
+            override fun onAnimationEnd(animation: Animator) {
+                if (null != mFabLayout) {
+                    (mFabLayout!!.primaryFab as View).visibility = View.INVISIBLE
+                }
             }
         }
-    };
-    @Nullable
-    private ViewPropertyAnimator fabAnimator;
-    @Nullable
-    private ViewTransition mViewTransition;
-    @Nullable
-    private GalleryListAdapter mAdapter;
-    @Nullable
-    private GalleryListHelper mHelper;
-    @Nullable
-    private DrawerArrowDrawable mLeftDrawable;
-    @Nullable
-    private AddDeleteDrawable mRightDrawable;
-    @Nullable
-    private SearchBarMover mSearchBarMover;
-    @Nullable
-    private AddDeleteDrawable mActionFabDrawable;
-    @Nullable
-    private List<QuickSearch> mQuickSearchList;
-    private int mHideActionFabSlop;
-    private boolean mShowActionFab = true;
+    private var fabAnimator: ViewPropertyAnimator? = null
+    private var mViewTransition: ViewTransition? = null
+    private var mAdapter: GalleryListAdapter? = null
+    private var mHelper: GalleryListHelper? = null
+    private var mLeftDrawable: DrawerArrowDrawable? = null
+    private var mRightDrawable: AddDeleteDrawable? = null
+    private var mSearchBarMover: SearchBarMover? = null
+    private var mActionFabDrawable: AddDeleteDrawable? = null
+    private var mQuickSearchList: MutableList<QuickSearch>? = null
+    private var mHideActionFabSlop = 0
+    private var mShowActionFab = true
+
     @State
-    private int mState = STATE_NORMAL;
-    @Nullable
-    private final RecyclerView.OnScrollListener mOnScrollListener = new RecyclerView.OnScrollListener() {
-        @Override
-        public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
-        }
-
-        @Override
-        public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
-            if (dy >= mHideActionFabSlop) {
-                hideActionFab();
-            } else if (dy <= -mHideActionFabSlop / 2) {
-                showActionFab();
+    private var mState = STATE_NORMAL
+    private val mOnScrollListener: RecyclerView.OnScrollListener? =
+        object : RecyclerView.OnScrollListener() {
+            override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {}
+            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                if (dy >= mHideActionFabSlop) {
+                    hideActionFab()
+                } else if (dy <= -mHideActionFabSlop / 2) {
+                    showActionFab()
+                }
             }
         }
-    };
+
     // Double click back exit
-    private long mPressBackTime = 0;
-    private boolean mHasFirstRefresh = false;
-    private int mNavCheckedId = 0;
-    private DownloadManager mDownloadManager;
-    private DownloadManager.DownloadInfoListener mDownloadInfoListener;
-    private FavouriteStatusRouter mFavouriteStatusRouter;
-    private FavouriteStatusRouter.Listener mFavouriteStatusRouterListener;
-    private boolean mIsTopList = false;
-
-    @Nullable
-    private static String getSuitableTitleForUrlBuilder(
-            Resources resources, ListUrlBuilder urlBuilder, boolean appName) {
-        String keyword = urlBuilder.getKeyword();
-        int category = urlBuilder.getCategory();
-
-        if (ListUrlBuilder.MODE_NORMAL == urlBuilder.getMode() &&
-                EhUtils.NONE == category &&
-                TextUtils.isEmpty(keyword) &&
-                urlBuilder.getAdvanceSearch() == -1 &&
-                urlBuilder.getMinRating() == -1 &&
-                urlBuilder.getPageFrom() == -1 &&
-                urlBuilder.getPageTo() == -1) {
-            return resources.getString(appName ? R.string.app_name : R.string.homepage);
-        } else if (ListUrlBuilder.MODE_SUBSCRIPTION == urlBuilder.getMode() &&
-                EhUtils.NONE == category &&
-                TextUtils.isEmpty(keyword) &&
-                urlBuilder.getAdvanceSearch() == -1 &&
-                urlBuilder.getMinRating() == -1 &&
-                urlBuilder.getPageFrom() == -1 &&
-                urlBuilder.getPageTo() == -1) {
-            return resources.getString(R.string.subscription);
-        } else if (ListUrlBuilder.MODE_WHATS_HOT == urlBuilder.getMode()) {
-            return resources.getString(R.string.whats_hot);
-        } else if (ListUrlBuilder.MODE_TOPLIST == urlBuilder.getMode()) {
-            switch (urlBuilder.getKeyword()) {
-                case "11":
-                    return resources.getString(R.string.toplist_alltime);
-                case "12":
-                    return resources.getString(R.string.toplist_pastyear);
-                case "13":
-                    return resources.getString(R.string.toplist_pastmonth);
-                case "15":
-                    return resources.getString(R.string.toplist_yesterday);
-            }
-            return null;
-        } else if (!TextUtils.isEmpty(keyword)) {
-            return keyword;
-        } else if (MathUtils.hammingWeight(category) == 1) {
-            return EhUtils.getCategory(category);
-        } else {
-            return null;
-        }
+    private val mPressBackTime: Long = 0
+    private var mHasFirstRefresh = false
+    private var mNavCheckedId = 0
+    private var mDownloadManager: DownloadManager? = null
+    private var mDownloadInfoListener: DownloadInfoListener? = null
+    private var mFavouriteStatusRouter: FavouriteStatusRouter? = null
+    private var mFavouriteStatusRouterListener: FavouriteStatusRouter.Listener? = null
+    private var mIsTopList = false
+    override fun getNavCheckedItem(): Int {
+        return mNavCheckedId
     }
 
-    public static void startScene(SceneFragment scene, ListUrlBuilder lub) {
-        scene.startScene(getStartAnnouncer(lub));
-    }
-
-    public static Announcer getStartAnnouncer(ListUrlBuilder lub) {
-        Bundle args = new Bundle();
-        args.putString(KEY_ACTION, ACTION_LIST_URL_BUILDER);
-        args.putParcelable(KEY_LIST_URL_BUILDER, lub);
-        return new Announcer(GalleryListScene.class).setArgs(args);
-    }
-
-    @Override
-    public int getNavCheckedItem() {
-        return mNavCheckedId;
-    }
-
-    private void handleArgs(Bundle args) {
+    private fun handleArgs(args: Bundle?) {
         if (null == args || null == mUrlBuilder) {
-            return;
+            return
         }
-
-        String action = args.getString(KEY_ACTION);
-        if (ACTION_HOMEPAGE.equals(action)) {
-            mUrlBuilder.reset();
-        } else if (ACTION_SUBSCRIPTION.equals(action)) {
-            mUrlBuilder.reset();
-            mUrlBuilder.setMode(ListUrlBuilder.MODE_SUBSCRIPTION);
-        } else if (ACTION_WHATS_HOT.equals(action)) {
-            mUrlBuilder.reset();
-            mUrlBuilder.setMode(ListUrlBuilder.MODE_WHATS_HOT);
-        } else if (ACTION_TOP_LIST.equals(action)) {
-            mUrlBuilder.reset();
-            mUrlBuilder.setMode(ListUrlBuilder.MODE_TOPLIST);
-            mUrlBuilder.setKeyword("11");
-        } else if (ACTION_LIST_URL_BUILDER.equals(action)) {
-            ListUrlBuilder builder = args.getParcelable(KEY_LIST_URL_BUILDER);
+        val action = args.getString(KEY_ACTION)
+        if (ACTION_HOMEPAGE == action) {
+            mUrlBuilder!!.reset()
+        } else if (ACTION_SUBSCRIPTION == action) {
+            mUrlBuilder!!.reset()
+            mUrlBuilder!!.mode = ListUrlBuilder.MODE_SUBSCRIPTION
+        } else if (ACTION_WHATS_HOT == action) {
+            mUrlBuilder!!.reset()
+            mUrlBuilder!!.mode = ListUrlBuilder.MODE_WHATS_HOT
+        } else if (ACTION_TOP_LIST == action) {
+            mUrlBuilder!!.reset()
+            mUrlBuilder!!.mode = ListUrlBuilder.MODE_TOPLIST
+            mUrlBuilder!!.keyword = "11"
+        } else if (ACTION_LIST_URL_BUILDER == action) {
+            val builder = args.getParcelable<ListUrlBuilder>(KEY_LIST_URL_BUILDER)
             if (builder != null) {
-                mUrlBuilder.set(builder);
+                mUrlBuilder!!.set(builder)
             }
         }
     }
 
-    @Override
-    public void onNewArguments(@NonNull Bundle args) {
-        handleArgs(args);
-        onUpdateUrlBuilder();
+    override fun onNewArguments(args: Bundle) {
+        handleArgs(args)
+        onUpdateUrlBuilder()
         if (null != mHelper) {
-            mHelper.refresh();
+            mHelper!!.refresh()
         }
-        setState(STATE_NORMAL);
+        setState(STATE_NORMAL)
         if (null != mSearchBarMover) {
-            mSearchBarMover.showSearchBar();
+            mSearchBarMover!!.showSearchBar()
         }
     }
 
-    @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-
-        Context context = getContext();
-        AssertUtils.assertNotNull(context);
-        mClient = EhApplication.getEhClient(context);
-        mDownloadManager = EhApplication.getDownloadManager(context);
-        mFavouriteStatusRouter = EhApplication.getFavouriteStatusRouter(context);
-
-        mDownloadInfoListener = new DownloadManager.DownloadInfoListener() {
-            @Override
-            public void onAdd(@NonNull DownloadInfo info, @NonNull List<DownloadInfo> list, int position) {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        val context = context
+        AssertUtils.assertNotNull(context)
+        mClient = EhApplication.getEhClient(context!!)
+        mDownloadManager = EhApplication.getDownloadManager(context)
+        mFavouriteStatusRouter = EhApplication.getFavouriteStatusRouter(context)
+        mDownloadInfoListener = object : DownloadInfoListener {
+            override fun onAdd(info: DownloadInfo, list: List<DownloadInfo>, position: Int) {
                 if (mAdapter != null) {
-                    mAdapter.notifyDataSetChanged();
+                    mAdapter!!.notifyDataSetChanged()
                 }
             }
 
-            @Override
-            public void onUpdate(@NonNull DownloadInfo info, @NonNull List<DownloadInfo> list) {
-            }
-
-            @Override
-            public void onUpdateAll() {
-            }
-
-            @Override
-            public void onReload() {
+            override fun onUpdate(info: DownloadInfo, list: List<DownloadInfo>) {}
+            override fun onUpdateAll() {}
+            override fun onReload() {
                 if (mAdapter != null) {
-                    mAdapter.notifyDataSetChanged();
+                    mAdapter!!.notifyDataSetChanged()
                 }
             }
 
-            @Override
-            public void onChange() {
+            override fun onChange() {
                 if (mAdapter != null) {
-                    mAdapter.notifyDataSetChanged();
+                    mAdapter!!.notifyDataSetChanged()
                 }
             }
 
-            @Override
-            public void onRenameLabel(String from, String to) {
-            }
-
-            @Override
-            public void onRemove(@NonNull DownloadInfo info, @NonNull List<DownloadInfo> list, int position) {
+            override fun onRenameLabel(from: String, to: String) {}
+            override fun onRemove(info: DownloadInfo, list: List<DownloadInfo>, position: Int) {
                 if (mAdapter != null) {
-                    mAdapter.notifyDataSetChanged();
+                    mAdapter!!.notifyDataSetChanged()
                 }
             }
 
-            @Override
-            public void onUpdateLabels() {
-            }
-        };
-        mDownloadManager.addDownloadInfoListener(mDownloadInfoListener);
-
-        mFavouriteStatusRouterListener = (gid, slot) -> {
+            override fun onUpdateLabels() {}
+        }
+        mDownloadManager!!.addDownloadInfoListener(mDownloadInfoListener)
+        mFavouriteStatusRouterListener = FavouriteStatusRouter.Listener { gid: Long, slot: Int ->
             if (mAdapter != null) {
-                mAdapter.notifyDataSetChanged();
+                mAdapter!!.notifyDataSetChanged()
             }
-        };
-        mFavouriteStatusRouter.addListener(mFavouriteStatusRouterListener);
-
+        }
+        mFavouriteStatusRouter!!.addListener(mFavouriteStatusRouterListener)
         if (savedInstanceState == null) {
-            onInit();
+            onInit()
         } else {
-            onRestore(savedInstanceState);
+            onRestore(savedInstanceState)
         }
     }
 
-    public void onInit() {
-        mUrlBuilder = new ListUrlBuilder();
-        handleArgs(getArguments());
+    fun onInit() {
+        mUrlBuilder = ListUrlBuilder()
+        handleArgs(arguments)
     }
 
-    @SuppressWarnings("WrongConstant")
-    private void onRestore(Bundle savedInstanceState) {
-        mHasFirstRefresh = savedInstanceState.getBoolean(KEY_HAS_FIRST_REFRESH);
-        mUrlBuilder = savedInstanceState.getParcelable(KEY_LIST_URL_BUILDER);
-        mState = savedInstanceState.getInt(KEY_STATE);
+    private fun onRestore(savedInstanceState: Bundle) {
+        mHasFirstRefresh = savedInstanceState.getBoolean(KEY_HAS_FIRST_REFRESH)
+        mUrlBuilder = savedInstanceState.getParcelable(KEY_LIST_URL_BUILDER)
+        mState = savedInstanceState.getInt(KEY_STATE)
     }
 
-    @Override
-    public void onSaveInstanceState(@NonNull Bundle outState) {
-        super.onSaveInstanceState(outState);
-
-        boolean hasFirstRefresh;
-        if (mHelper != null && 1 == mHelper.getShownViewIndex()) {
-            hasFirstRefresh = false;
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        val hasFirstRefresh: Boolean
+        hasFirstRefresh = if (mHelper != null && 1 == mHelper!!.shownViewIndex) {
+            false
         } else {
-            hasFirstRefresh = mHasFirstRefresh;
+            mHasFirstRefresh
         }
-        outState.putBoolean(KEY_HAS_FIRST_REFRESH, hasFirstRefresh);
-        outState.putParcelable(KEY_LIST_URL_BUILDER, mUrlBuilder);
-        outState.putInt(KEY_STATE, mState);
+        outState.putBoolean(KEY_HAS_FIRST_REFRESH, hasFirstRefresh)
+        outState.putParcelable(KEY_LIST_URL_BUILDER, mUrlBuilder)
+        outState.putInt(KEY_STATE, mState)
     }
 
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-
-        mClient = null;
-        mUrlBuilder = null;
-        mDownloadManager.removeDownloadInfoListener(mDownloadInfoListener);
-        mFavouriteStatusRouter.removeListener(mFavouriteStatusRouterListener);
+    override fun onDestroy() {
+        super.onDestroy()
+        mClient = null
+        mUrlBuilder = null
+        mDownloadManager!!.removeDownloadInfoListener(mDownloadInfoListener)
+        mFavouriteStatusRouter!!.removeListener(mFavouriteStatusRouterListener)
     }
 
-    private void setSearchBarHint(SearchBar searchBar) {
-        searchBar.setEditTextHint(getString(EhUrl.SITE_EX == Settings.getGallerySite() ?
-                R.string.gallery_list_search_bar_hint_exhentai :
-                R.string.gallery_list_search_bar_hint_e_hentai));
+    private fun setSearchBarHint(searchBar: SearchBar?) {
+        searchBar!!.setEditTextHint(getString(if (EhUrl.SITE_EX == Settings.getGallerySite()) R.string.gallery_list_search_bar_hint_exhentai else R.string.gallery_list_search_bar_hint_e_hentai))
     }
 
-    private void setSearchBarSuggestionProvider(SearchBar searchBar) {
-        searchBar.setSuggestionProvider(text -> {
-            GalleryDetailUrlParser.Result result1 = GalleryDetailUrlParser.parse(text, false);
+    private fun setSearchBarSuggestionProvider(searchBar: SearchBar?) {
+        searchBar!!.setSuggestionProvider { text: String? ->
+            val result1 = GalleryDetailUrlParser.parse(text, false)
             if (result1 != null) {
-                return Collections.singletonList(new GalleryDetailUrlSuggestion(result1.gid, result1.token));
+                return@setSuggestionProvider listOf<Suggestion>(
+                    GalleryDetailUrlSuggestion(
+                        result1.gid,
+                        result1.token
+                    )
+                )
             }
-            GalleryPageUrlParser.Result result2 = GalleryPageUrlParser.parse(text, false);
+            val result2 = GalleryPageUrlParser.parse(text, false)
             if (result2 != null) {
-                return Collections.singletonList(new GalleryPageUrlSuggestion(result2.gid, result2.pToken, result2.page));
+                return@setSuggestionProvider listOf<Suggestion>(
+                    GalleryPageUrlSuggestion(
+                        result2.gid,
+                        result2.pToken,
+                        result2.page
+                    )
+                )
             }
-            return null;
-        });
+            null
+        }
     }
 
-    private String wrapTagKeyword(String keyword) {
-        keyword = keyword.trim();
-
-        int index1 = keyword.indexOf(':');
-        if (index1 == -1 || index1 >= keyword.length() - 1) {
+    private fun wrapTagKeyword(keyword: String): String {
+        var keyword = keyword
+        keyword = keyword.trim { it <= ' ' }
+        val index1 = keyword.indexOf(':')
+        if (index1 == -1 || index1 >= keyword.length - 1) {
             // Can't find :, or : is the last char
-            return keyword;
+            return keyword
         }
-        if (keyword.charAt(index1 + 1) == '"') {
+        if (keyword[index1 + 1] == '"') {
             // The char after : is ", the word must be quoted
-            return keyword;
+            return keyword
         }
-        int index2 = keyword.indexOf(' ');
-        if (index2 <= index1) {
+        val index2 = keyword.indexOf(' ')
+        return if (index2 <= index1) {
             // Can't find space, or space is before :
-            return keyword;
-        }
-
-        return keyword.substring(0, index1 + 1) + "\"" + keyword.substring(index1 + 1) + "$\"";
+            keyword
+        } else keyword.substring(
+            0,
+            index1 + 1
+        ) + "\"" + keyword.substring(index1 + 1) + "$\""
     }
 
     // Update search bar title, drawer checked item
-    private void onUpdateUrlBuilder() {
-        ListUrlBuilder builder = mUrlBuilder;
-        Resources resources = getResourcesOrNull();
+    private fun onUpdateUrlBuilder() {
+        val builder = mUrlBuilder
+        val resources = resourcesOrNull
         if (resources == null || builder == null || mSearchLayout == null) {
-            return;
+            return
         }
-
-        String keyword = builder.getKeyword();
-        int category = builder.getCategory();
-
-        boolean isTopList = builder.getMode() == ListUrlBuilder.MODE_TOPLIST;
+        var keyword = builder.keyword
+        val category = builder.category
+        val isTopList = builder.mode == ListUrlBuilder.MODE_TOPLIST
         if (isTopList != mIsTopList) {
-            mIsTopList = isTopList;
-            recreateDrawerView();
-            mFabLayout.getSecondaryFabAt(0).setImageResource(isTopList ? R.drawable.ic_baseline_format_list_numbered_24 : R.drawable.v_magnify_x24);
+            mIsTopList = isTopList
+            recreateDrawerView()
+            mFabLayout!!.getSecondaryFabAt(0)
+                .setImageResource(if (isTopList) R.drawable.ic_baseline_format_list_numbered_24 else R.drawable.v_magnify_x24)
         }
 
         // Update normal search mode
@@ -510,1349 +365,1265 @@ public final class GalleryListScene extends BaseScene
 
         // Update search edit text
         if (!TextUtils.isEmpty(keyword) && null != mSearchBar && !mIsTopList) {
-            if (builder.getMode() == ListUrlBuilder.MODE_TAG) {
-                keyword = wrapTagKeyword(keyword);
+            if (builder.mode == ListUrlBuilder.MODE_TAG) {
+                keyword = wrapTagKeyword(keyword)
             }
-            mSearchBar.setText(keyword);
-            mSearchBar.cursorToEnd();
+            mSearchBar!!.text = keyword
+            mSearchBar!!.cursorToEnd()
         }
 
         // Update title
-        String title = getSuitableTitleForUrlBuilder(resources, builder, true);
+        var title = getSuitableTitleForUrlBuilder(resources, builder, true)
         if (null == title) {
-            title = resources.getString(R.string.search);
+            title = resources.getString(R.string.search)
         }
         if (null != mSearchBar) {
-            mSearchBar.setTitle(title);
+            mSearchBar!!.setTitle(title)
         }
 
         // Update nav checked item
-        int checkedItemId;
-        if (ListUrlBuilder.MODE_NORMAL == builder.getMode() &&
-                EhUtils.NONE == category &&
-                TextUtils.isEmpty(keyword)) {
-            checkedItemId = R.id.nav_homepage;
-        } else if (ListUrlBuilder.MODE_SUBSCRIPTION == builder.getMode()) {
-            checkedItemId = R.id.nav_subscription;
-        } else if (ListUrlBuilder.MODE_WHATS_HOT == builder.getMode()) {
-            checkedItemId = R.id.nav_whats_hot;
-        } else if (ListUrlBuilder.MODE_TOPLIST == builder.getMode()) {
-            checkedItemId = R.id.nav_toplist;
-        } else {
-            checkedItemId = 0;
-        }
-        setNavCheckedItem(checkedItemId);
-        mNavCheckedId = checkedItemId;
+        val checkedItemId: Int
+        checkedItemId =
+            if (ListUrlBuilder.MODE_NORMAL == builder.mode && EhUtils.NONE == category &&
+                TextUtils.isEmpty(keyword)
+            ) {
+                R.id.nav_homepage
+            } else if (ListUrlBuilder.MODE_SUBSCRIPTION == builder.mode) {
+                R.id.nav_subscription
+            } else if (ListUrlBuilder.MODE_WHATS_HOT == builder.mode) {
+                R.id.nav_whats_hot
+            } else if (ListUrlBuilder.MODE_TOPLIST == builder.mode) {
+                R.id.nav_toplist
+            } else {
+                0
+            }
+        navCheckedItem = checkedItemId
+        mNavCheckedId = checkedItemId
     }
 
-    @NonNull
-    @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
-                             @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.scene_gallery_list, container, false);
-
-        Context context = getContext();
-        AssertUtils.assertNotNull(context);
-        Resources resources = context.getResources();
-
-        mHideActionFabSlop = ViewConfiguration.get(context).getScaledTouchSlop();
-        mShowActionFab = true;
-
-        View mainLayout = ViewUtils.$$(view, R.id.main_layout);
-        mContentLayout = (ContentLayout) ViewUtils.$$(mainLayout, R.id.content_layout);
-        mRecyclerView = mContentLayout.getRecyclerView();
-        FastScroller fastScroller = mContentLayout.getFastScroller();
-        mSearchLayout = (SearchLayout) ViewUtils.$$(mainLayout, R.id.search_layout);
-        mSearchBar = (SearchBar) ViewUtils.$$(mainLayout, R.id.search_bar);
-        mFabLayout = (FabLayout) ViewUtils.$$(mainLayout, R.id.fab_layout);
-        mSearchFab = ViewUtils.$$(mainLayout, R.id.search_fab);
-        ViewCompat.setWindowInsetsAnimationCallback(view, new WindowInsetsAnimationHelper(
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
+        val view = inflater.inflate(R.layout.scene_gallery_list, container, false)
+        val context = context
+        AssertUtils.assertNotNull(context)
+        val resources = context!!.resources
+        mHideActionFabSlop = ViewConfiguration.get(context).scaledTouchSlop
+        mShowActionFab = true
+        val mainLayout = ViewUtils.`$$`(view, R.id.main_layout)
+        mContentLayout = ViewUtils.`$$`(mainLayout, R.id.content_layout) as ContentLayout
+        mRecyclerView = mContentLayout!!.recyclerView
+        val fastScroller = mContentLayout!!.fastScroller
+        mSearchLayout = ViewUtils.`$$`(mainLayout, R.id.search_layout) as SearchLayout
+        mSearchBar = ViewUtils.`$$`(mainLayout, R.id.search_bar) as SearchBar
+        mFabLayout = ViewUtils.`$$`(mainLayout, R.id.fab_layout) as FabLayout
+        mSearchFab = ViewUtils.`$$`(mainLayout, R.id.search_fab)
+        ViewCompat.setWindowInsetsAnimationCallback(
+            view, WindowInsetsAnimationHelper(
                 WindowInsetsAnimationCompat.Callback.DISPATCH_MODE_STOP,
                 mFabLayout,
-                (View) mSearchFab.getParent()
-        ));
-
-        int paddingTopSB = resources.getDimensionPixelOffset(R.dimen.gallery_padding_top_search_bar);
-        int paddingBottomFab = resources.getDimensionPixelOffset(R.dimen.gallery_padding_bottom_fab);
-
-        mViewTransition = new BringOutTransition(mContentLayout, mSearchLayout);
-
-        mHelper = new GalleryListHelper();
-        mContentLayout.setHelper(mHelper);
-        mContentLayout.getFastScroller().setOnDragHandlerListener(this);
-        mContentLayout.setFitPaddingTop(paddingTopSB);
-
-        mAdapter = new GalleryListAdapter(inflater, resources,
-                mRecyclerView, Settings.getListMode());
-        mRecyclerView.setClipToPadding(false);
-        mRecyclerView.setClipChildren(false);
-        mRecyclerView.addOnScrollListener(mOnScrollListener);
-
-        fastScroller.setPadding(fastScroller.getPaddingLeft(), fastScroller.getPaddingTop() + paddingTopSB,
-                fastScroller.getPaddingRight(), fastScroller.getPaddingBottom());
-
-        mLeftDrawable = new DrawerArrowDrawable(context, ResourcesKt.resolveColor(getTheme(), android.R.attr.colorControlNormal));
-        mRightDrawable = new AddDeleteDrawable(context, ResourcesKt.resolveColor(getTheme(), android.R.attr.colorControlNormal));
-        mSearchBar.setLeftDrawable(mLeftDrawable);
-        mSearchBar.setRightDrawable(mRightDrawable);
-        mSearchBar.setHelper(this);
-        mSearchBar.setOnStateChangeListener(this);
-        setSearchBarHint(mSearchBar);
-        setSearchBarSuggestionProvider(mSearchBar);
-
-        mSearchLayout.setHelper(this);
-        mSearchLayout.setPadding(mSearchLayout.getPaddingLeft(), mSearchLayout.getPaddingTop() + paddingTopSB,
-                mSearchLayout.getPaddingRight(), mSearchLayout.getPaddingBottom() );
-
-        mFabLayout.setAutoCancel(true);
-        mFabLayout.setExpanded(false);
-        mFabLayout.setHidePrimaryFab(false);
-        mFabLayout.setOnClickFabListener(this);
-        mFabLayout.setOnExpandListener(this);
-        addAboveSnackView(mFabLayout);
-
-        int colorID = ResourcesKt.resolveColor(getTheme(), com.google.android.material.R.attr.colorOnSurface);
-        mActionFabDrawable = new AddDeleteDrawable(context, colorID);
-        mFabLayout.getPrimaryFab().setImageDrawable(mActionFabDrawable);
-
-        mSearchFab.setOnClickListener(this);
-
-        mSearchBarMover = new SearchBarMover(this, mSearchBar, mRecyclerView);
+                mSearchFab!!.parent as View
+            )
+        )
+        val paddingTopSB = resources.getDimensionPixelOffset(R.dimen.gallery_padding_top_search_bar)
+        val paddingBottomFab = resources.getDimensionPixelOffset(R.dimen.gallery_padding_bottom_fab)
+        mViewTransition = BringOutTransition(mContentLayout, mSearchLayout)
+        mHelper = GalleryListHelper()
+        mContentLayout!!.setHelper(mHelper)
+        mContentLayout!!.fastScroller.setOnDragHandlerListener(this)
+        mContentLayout!!.setFitPaddingTop(paddingTopSB)
+        mAdapter = GalleryListAdapter(
+            inflater, resources,
+            mRecyclerView!!, Settings.getListMode()
+        )
+        mRecyclerView!!.clipToPadding = false
+        mRecyclerView!!.clipChildren = false
+        mRecyclerView!!.addOnScrollListener(mOnScrollListener!!)
+        fastScroller.setPadding(
+            fastScroller.paddingLeft, fastScroller.paddingTop + paddingTopSB,
+            fastScroller.paddingRight, fastScroller.paddingBottom
+        )
+        mLeftDrawable =
+            DrawerArrowDrawable(context, theme.resolveColor(android.R.attr.colorControlNormal))
+        mRightDrawable =
+            AddDeleteDrawable(context, theme.resolveColor(android.R.attr.colorControlNormal))
+        mSearchBar!!.setLeftDrawable(mLeftDrawable)
+        mSearchBar!!.setRightDrawable(mRightDrawable)
+        mSearchBar!!.setHelper(this)
+        mSearchBar!!.setOnStateChangeListener(this)
+        setSearchBarHint(mSearchBar)
+        setSearchBarSuggestionProvider(mSearchBar)
+        mSearchLayout!!.setHelper(this)
+        mSearchLayout!!.setPadding(
+            mSearchLayout!!.paddingLeft, mSearchLayout!!.paddingTop + paddingTopSB,
+            mSearchLayout!!.paddingRight, mSearchLayout!!.paddingBottom
+        )
+        mFabLayout!!.setAutoCancel(true)
+        mFabLayout!!.isExpanded = false
+        mFabLayout!!.setHidePrimaryFab(false)
+        mFabLayout!!.setOnClickFabListener(this)
+        mFabLayout!!.setOnExpandListener(this)
+        addAboveSnackView(mFabLayout)
+        val colorID = theme.resolveColor(com.google.android.material.R.attr.colorOnSurface)
+        mActionFabDrawable = AddDeleteDrawable(context, colorID)
+        mFabLayout!!.primaryFab.setImageDrawable(mActionFabDrawable)
+        mSearchFab!!.setOnClickListener(this)
+        mSearchBarMover = SearchBarMover(this, mSearchBar, mRecyclerView)
 
         // Update list url builder
-        onUpdateUrlBuilder();
+        onUpdateUrlBuilder()
 
         // Restore state
-        int newState = mState;
-        mState = STATE_NORMAL;
-        setState(newState, false);
+        val newState = mState
+        mState = STATE_NORMAL
+        setState(newState, false)
 
         // Only refresh for the first time
         if (!mHasFirstRefresh) {
-            mHasFirstRefresh = true;
-            mHelper.firstRefresh();
+            mHasFirstRefresh = true
+            mHelper!!.firstRefresh()
         }
-
-        return view;
+        return view
     }
 
-    @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-
+    override fun onDestroyView() {
+        super.onDestroyView()
         if (null != mSearchBarMover) {
-            mSearchBarMover.cancelAnimation();
-            mSearchBarMover = null;
+            mSearchBarMover!!.cancelAnimation()
+            mSearchBarMover = null
         }
         if (null != mHelper) {
-            mHelper.destroy();
-            if (1 == mHelper.getShownViewIndex()) {
-                mHasFirstRefresh = false;
+            mHelper!!.destroy()
+            if (1 == mHelper!!.shownViewIndex) {
+                mHasFirstRefresh = false
             }
         }
         if (null != mRecyclerView) {
-            mRecyclerView.stopScroll();
-            mRecyclerView = null;
+            mRecyclerView!!.stopScroll()
+            mRecyclerView = null
         }
         if (null != mFabLayout) {
-            removeAboveSnackView(mFabLayout);
-            mFabLayout = null;
+            removeAboveSnackView(mFabLayout)
+            mFabLayout = null
         }
-
-        mAdapter = null;
-        mSearchLayout = null;
-        mSearchBar = null;
-        mSearchFab = null;
-        mViewTransition = null;
-        mLeftDrawable = null;
-        mRightDrawable = null;
-        mActionFabDrawable = null;
+        mAdapter = null
+        mSearchLayout = null
+        mSearchBar = null
+        mSearchFab = null
+        mViewTransition = null
+        mLeftDrawable = null
+        mRightDrawable = null
+        mActionFabDrawable = null
     }
 
-    private void showQuickSearchTipDialog(final QsDrawerAdapter adapter,
-                                          final EasyRecyclerView recyclerView, final TextView tip) {
-        Context context = getContext();
-        if (null == context) {
-            return;
-        }
-        final MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(context);
-        builder.setMessage(R.string.add_quick_search_tip);
-        builder.setTitle(R.string.readme);
-        builder.show();
+    private fun showQuickSearchTipDialog(
+        adapter: QsDrawerAdapter,
+        recyclerView: EasyRecyclerView, tip: TextView
+    ) {
+        val context = context ?: return
+        val builder = MaterialAlertDialogBuilder(context)
+        builder.setMessage(R.string.add_quick_search_tip)
+        builder.setTitle(R.string.readme)
+        builder.show()
     }
 
-
-    private void showAddQuickSearchDialog(final QsDrawerAdapter adapter,
-                                          final EasyRecyclerView recyclerView, final TextView tip) {
-        Context context = getContext();
-        final ListUrlBuilder urlBuilder = mUrlBuilder;
+    private fun showAddQuickSearchDialog(
+        adapter: QsDrawerAdapter,
+        recyclerView: EasyRecyclerView, tip: TextView
+    ) {
+        val context = context
+        val urlBuilder = mUrlBuilder
         if (null == context || null == urlBuilder) {
-            return;
+            return
         }
 
         // Can't add image search as quick search
-        if (ListUrlBuilder.MODE_IMAGE_SEARCH == urlBuilder.getMode()) {
-            showTip(R.string.image_search_not_quick_search, LENGTH_LONG);
-            return;
+        if (ListUrlBuilder.MODE_IMAGE_SEARCH == urlBuilder.mode) {
+            showTip(R.string.image_search_not_quick_search, LENGTH_LONG)
+            return
         }
 
         // Check duplicate
-        for (QuickSearch q : mQuickSearchList) {
+        for (q in mQuickSearchList!!) {
             if (urlBuilder.equalsQuickSearch(q)) {
-                showTip(getString(R.string.duplicate_quick_search, q.name), LENGTH_LONG);
-                return;
+                showTip(getString(R.string.duplicate_quick_search, q.name), LENGTH_LONG)
+                return
             }
         }
-
-        final EditTextDialogBuilder builder = new EditTextDialogBuilder(context,
-                getSuitableTitleForUrlBuilder(context.getResources(), urlBuilder, false), getString(R.string.quick_search));
-        builder.setTitle(R.string.add_quick_search_dialog_title);
-        builder.setPositiveButton(android.R.string.ok, null);
-        final AlertDialog dialog = builder.show();
-        dialog.getButton(DialogInterface.BUTTON_POSITIVE).setOnClickListener(v -> {
-            String text = builder.getText().trim();
+        val builder = EditTextDialogBuilder(
+            context,
+            getSuitableTitleForUrlBuilder(context.resources, urlBuilder, false),
+            getString(R.string.quick_search)
+        )
+        builder.setTitle(R.string.add_quick_search_dialog_title)
+        builder.setPositiveButton(android.R.string.ok, null)
+        val dialog = builder.show()
+        dialog.getButton(DialogInterface.BUTTON_POSITIVE).setOnClickListener { v: View? ->
+            val text = builder.text.trim { it <= ' ' }
 
             // Check name empty
             if (TextUtils.isEmpty(text)) {
-                builder.setError(getString(R.string.name_is_empty));
-                return;
+                builder.setError(getString(R.string.name_is_empty))
+                return@setOnClickListener
             }
 
             // Check name duplicate
-            for (QuickSearch q : mQuickSearchList) {
-                if (text.equals(q.name)) {
-                    builder.setError(getString(R.string.duplicate_name));
-                    return;
+            for (q in mQuickSearchList!!) {
+                if (text == q.name) {
+                    builder.setError(getString(R.string.duplicate_name))
+                    return@setOnClickListener
                 }
             }
-
-            builder.setError(null);
-            dialog.dismiss();
-            QuickSearch quickSearch = urlBuilder.toQuickSearch();
-            quickSearch.name = text;
-            EhDB.insertQuickSearch(quickSearch);
-            mQuickSearchList.add(quickSearch);
-            adapter.notifyItemInserted(mQuickSearchList.size() - 1);
-
-            if (0 == mQuickSearchList.size()) {
-                tip.setVisibility(View.VISIBLE);
-                recyclerView.setVisibility(View.GONE);
+            builder.setError(null)
+            dialog.dismiss()
+            val quickSearch = urlBuilder.toQuickSearch()
+            quickSearch.name = text
+            EhDB.insertQuickSearch(quickSearch)
+            mQuickSearchList!!.add(quickSearch)
+            adapter.notifyItemInserted(mQuickSearchList!!.size - 1)
+            if (0 == mQuickSearchList!!.size) {
+                tip.visibility = View.VISIBLE
+                recyclerView.visibility = View.GONE
             } else {
-                tip.setVisibility(View.GONE);
-                recyclerView.setVisibility(View.VISIBLE);
+                tip.visibility = View.GONE
+                recyclerView.visibility = View.VISIBLE
             }
-        });
+        }
     }
 
-    @Override
-    public View onCreateDrawerView(LayoutInflater inflater, @Nullable ViewGroup container,
-                                   @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.drawer_list_rv, container, false);
-        Toolbar toolbar = (Toolbar) ViewUtils.$$(view, R.id.toolbar);
-        final TextView tip = (TextView) ViewUtils.$$(view, R.id.tip);
-
-        Context context = getContext();
-        AssertUtils.assertNotNull(context);
-
-        RecyclerViewDragDropManager dragDropManager = new RecyclerViewDragDropManager();
-        dragDropManager.setInitiateOnLongPress(true);
-        dragDropManager.setInitiateOnTouch(false);
-        dragDropManager.setDraggingItemAlpha(0.8f);
-
-        final EasyRecyclerView recyclerView = view.findViewById(R.id.recycler_view_drawer);
-        recyclerView.setLayoutManager(new LinearLayoutManager(context));
-        final QsDrawerAdapter qsDrawerAdapter = new QsDrawerAdapter(inflater);
-        qsDrawerAdapter.setHasStableIds(true);
-        final GeneralItemAnimator animator = new DraggableItemAnimator();
-        recyclerView.setItemAnimator(animator);
-        recyclerView.setAdapter(dragDropManager.createWrappedAdapter(qsDrawerAdapter));
-        dragDropManager.attachRecyclerView(recyclerView);
-        mQuickSearchList = EhDB.getAllQuickSearch();
-        tip.setText(R.string.quick_search_tip);
+    override fun onCreateDrawerView(
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
+        val view = inflater.inflate(R.layout.drawer_list_rv, container, false)
+        val toolbar = ViewUtils.`$$`(view, R.id.toolbar) as Toolbar
+        val tip = ViewUtils.`$$`(view, R.id.tip) as TextView
+        val context = context
+        AssertUtils.assertNotNull(context)
+        val dragDropManager = RecyclerViewDragDropManager()
+        dragDropManager.setInitiateOnLongPress(true)
+        dragDropManager.setInitiateOnTouch(false)
+        dragDropManager.draggingItemAlpha = 0.8f
+        val recyclerView = view.findViewById<EasyRecyclerView>(R.id.recycler_view_drawer)
+        recyclerView.layoutManager = LinearLayoutManager(context)
+        val qsDrawerAdapter: QsDrawerAdapter = QsDrawerAdapter(inflater)
+        qsDrawerAdapter.setHasStableIds(true)
+        val animator: GeneralItemAnimator = DraggableItemAnimator()
+        recyclerView.itemAnimator = animator
+        recyclerView.adapter = dragDropManager.createWrappedAdapter(qsDrawerAdapter)
+        dragDropManager.attachRecyclerView(recyclerView)
+        mQuickSearchList = EhDB.getAllQuickSearch()
+        tip.setText(R.string.quick_search_tip)
         if (mIsTopList) {
-            toolbar.setTitle(R.string.toplist);
+            toolbar.setTitle(R.string.toplist)
         } else {
-            toolbar.setTitle(R.string.quick_search);
+            toolbar.setTitle(R.string.quick_search)
         }
-        if (!mIsTopList) toolbar.inflateMenu(R.menu.drawer_gallery_list);
-        toolbar.setOnMenuItemClickListener(item -> {
-            int id = item.getItemId();
+        if (!mIsTopList) toolbar.inflateMenu(R.menu.drawer_gallery_list)
+        toolbar.setOnMenuItemClickListener { item: MenuItem ->
+            val id = item.itemId
             if (id == R.id.action_add) {
-                showAddQuickSearchDialog(qsDrawerAdapter, recyclerView, tip);
+                showAddQuickSearchDialog(qsDrawerAdapter, recyclerView, tip)
             } else if (id == R.id.action_help) {
-                showQuickSearchTipDialog(qsDrawerAdapter, recyclerView, tip);
+                showQuickSearchTipDialog(qsDrawerAdapter, recyclerView, tip)
             }
-            return true;
-        });
-
-        if (0 == mQuickSearchList.size() && !mIsTopList) {
-            tip.setVisibility(View.VISIBLE);
-            recyclerView.setVisibility(View.GONE);
+            true
+        }
+        if (0 == EhDB.getAllQuickSearch().size && !mIsTopList) {
+            tip.visibility = View.VISIBLE
+            recyclerView.visibility = View.GONE
         } else {
-            tip.setVisibility(View.GONE);
-            recyclerView.setVisibility(View.VISIBLE);
+            tip.visibility = View.GONE
+            recyclerView.visibility = View.VISIBLE
         }
-
-        return view;
+        return view
     }
 
-    @Override
-    public void onBackPressed() {
-        if (null != mFabLayout && mFabLayout.isExpanded()) {
-            mFabLayout.setExpanded(false);
-            return;
+    override fun onBackPressed() {
+        if (null != mFabLayout && mFabLayout!!.isExpanded) {
+            mFabLayout!!.isExpanded = false
+            return
         }
-
-        switch (mState) {
-            case STATE_NORMAL:
-                if (getStackIndex() == 0)
-                    requireActivity().moveTaskToBack(false);
-                else
-                    finish();
-                break;
-            case STATE_SIMPLE_SEARCH:
-            case STATE_SEARCH:
-                setState(STATE_NORMAL);
-                break;
-            case STATE_SEARCH_SHOW_LIST:
-                setState(STATE_SEARCH);
-                break;
+        when (mState) {
+            STATE_NORMAL -> if (stackIndex == 0) requireActivity().moveTaskToBack(false) else finish()
+            STATE_SIMPLE_SEARCH, STATE_SEARCH -> setState(STATE_NORMAL)
+            STATE_SEARCH_SHOW_LIST -> setState(STATE_SEARCH)
         }
     }
 
-    public boolean onItemClick(View view, int position) {
+    fun onItemClick(view: View?, position: Int): Boolean {
         if (null == mHelper || null == mRecyclerView) {
-            return false;
+            return false
         }
-
-        GalleryInfo gi = mHelper.getDataAtEx(position);
-        if (gi == null) {
-            return true;
-        }
-
-        Bundle args = new Bundle();
-        args.putString(GalleryDetailScene.KEY_ACTION, GalleryDetailScene.ACTION_GALLERY_INFO);
-        args.putParcelable(GalleryDetailScene.KEY_GALLERY_INFO, gi);
-        Announcer announcer = new Announcer(GalleryDetailScene.class).setArgs(args);
-        startScene(announcer);
-        return true;
+        val gi = mHelper!!.getDataAtEx(position) ?: return true
+        val args = Bundle()
+        args.putString(GalleryDetailScene.KEY_ACTION, GalleryDetailScene.ACTION_GALLERY_INFO)
+        args.putParcelable(GalleryDetailScene.KEY_GALLERY_INFO, gi)
+        val announcer = Announcer(GalleryDetailScene::class.java).setArgs(args)
+        startScene(announcer)
+        return true
     }
 
-    @Override
-    public void onClick(View v) {
+    override fun onClick(v: View) {
         if (STATE_NORMAL != mState && null != mSearchBar) {
-            mSearchBar.applySearch();
-            hideSoftInput();
+            mSearchBar!!.applySearch()
+            hideSoftInput()
         }
     }
 
-    @Override
-    public void onClickPrimaryFab(FabLayout view, FloatingActionButton fab) {
+    override fun onClickPrimaryFab(view: FabLayout, fab: FloatingActionButton) {
         if (STATE_NORMAL == mState) {
-            view.toggle();
+            view.toggle()
         }
     }
 
-    private void showGoToDialog() {
-        Context context = getContext();
+    private fun showGoToDialog() {
+        val context = context
         if (null == context || null == mHelper) {
-            return;
+            return
         }
-
-        final int page = mHelper.getPageForTop();
-        final int pages = mHelper.getPages();
-        String hint = getString(R.string.go_to_hint, page + 1, pages);
-        final EditTextDialogBuilder builder = new EditTextDialogBuilder(context, null, hint);
-        builder.getEditText().setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_DECIMAL);
-        final AlertDialog dialog = builder.setTitle(R.string.go_to)
-                .setPositiveButton(android.R.string.ok, null)
-                .show();
-        dialog.getButton(DialogInterface.BUTTON_POSITIVE).setOnClickListener(v -> {
+        val page = mHelper!!.pageForTop
+        val pages = mHelper!!.pages
+        val hint = getString(R.string.go_to_hint, page + 1, pages)
+        val builder = EditTextDialogBuilder(context, null, hint)
+        builder.editText.inputType =
+            InputType.TYPE_CLASS_NUMBER or InputType.TYPE_NUMBER_FLAG_DECIMAL
+        val dialog = builder.setTitle(R.string.go_to)
+            .setPositiveButton(android.R.string.ok, null)
+            .show()
+        dialog.getButton(DialogInterface.BUTTON_POSITIVE).setOnClickListener { v: View? ->
             if (null == mHelper) {
-                dialog.dismiss();
-                return;
+                dialog.dismiss()
+                return@setOnClickListener
             }
-
-            String text = builder.getText().trim();
-            int goTo;
-            try {
-                goTo = Integer.parseInt(text) - 1;
-            } catch (NumberFormatException e) {
-                builder.setError(getString(R.string.error_invalid_number));
-                return;
+            val text = builder.text.trim { it <= ' ' }
+            val goTo: Int
+            goTo = try {
+                text.toInt() - 1
+            } catch (e: NumberFormatException) {
+                builder.setError(getString(R.string.error_invalid_number))
+                return@setOnClickListener
             }
             if (goTo < 0 || goTo >= pages) {
-                builder.setError(getString(R.string.error_out_of_range));
-                return;
+                builder.setError(getString(R.string.error_out_of_range))
+                return@setOnClickListener
             }
-            builder.setError(null);
-            mHelper.goTo(goTo);
-            dialog.dismiss();
-        });
+            builder.setError(null)
+            mHelper!!.goTo(goTo)
+            dialog.dismiss()
+        }
     }
 
-    @Override
-    public void onClickSecondaryFab(FabLayout view, FloatingActionButton fab, int position) {
+    override fun onClickSecondaryFab(view: FabLayout, fab: FloatingActionButton, position: Int) {
         if (null == mHelper) {
-            return;
+            return
         }
-
-        switch (position) {
-            case 0: // Open right
-                openDrawer(Gravity.RIGHT);
-                break;
-            case 1: // Go to
-                if (mHelper.canGoTo()) {
-                    showGoToDialog();
-                }
-                break;
-            case 2: // Refresh
-                mHelper.refresh();
-                break;
+        when (position) {
+            0 -> openDrawer(Gravity.RIGHT)
+            1 -> if (mHelper!!.canGoTo()) {
+                showGoToDialog()
+            }
+            2 -> mHelper!!.refresh()
         }
-
-        view.setExpanded(false);
+        view.isExpanded = false
     }
 
-    @Override
-    public void onExpand(boolean expanded) {
+    override fun onExpand(expanded: Boolean) {
         if (null == mActionFabDrawable) {
-            return;
+            return
         }
-
         if (expanded) {
-            setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED, Gravity.LEFT);
-            setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED, Gravity.RIGHT);
-            mActionFabDrawable.setDelete(ANIMATE_TIME);
+            setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED, Gravity.LEFT)
+            setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED, Gravity.RIGHT)
+            mActionFabDrawable!!.setDelete(ANIMATE_TIME)
         } else {
-            setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED, Gravity.LEFT);
-            setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED, Gravity.RIGHT);
-            mActionFabDrawable.setAdd(ANIMATE_TIME);
+            setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED, Gravity.LEFT)
+            setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED, Gravity.RIGHT)
+            mActionFabDrawable!!.setAdd(ANIMATE_TIME)
         }
     }
 
-    public boolean onItemLongClick(int position) {
-        final Context context = getContext();
-        final MainActivity activity = getMainActivity();
+    fun onItemLongClick(position: Int): Boolean {
+        val context = context
+        val activity = mainActivity
         if (null == context || null == activity || null == mHelper) {
-            return false;
+            return false
         }
-
-        final GalleryInfo gi = mHelper.getDataAtEx(position);
-        if (gi == null) {
-            return true;
-        }
-
-        boolean downloaded = mDownloadManager.getDownloadState(gi.gid) != DownloadInfo.STATE_INVALID;
-        boolean favourited = gi.favoriteSlot != -2;
-
-        CharSequence[] items = downloaded ? new CharSequence[]{
-                context.getString(R.string.read),
-                context.getString(R.string.delete_downloads),
-                context.getString(favourited ? R.string.remove_from_favourites : R.string.add_to_favourites),
-                context.getString(R.string.download_move_dialog_title),
-        } : new CharSequence[]{
-                context.getString(R.string.read),
-                context.getString(R.string.download),
-                context.getString(favourited ? R.string.remove_from_favourites : R.string.add_to_favourites),
-        };
-
-        int[] icons = downloaded ? new int[]{
-                R.drawable.v_book_open_x24,
-                R.drawable.v_delete_x24,
-                favourited ? R.drawable.v_heart_broken_x24 : R.drawable.v_heart_x24,
-                R.drawable.v_folder_move_x24,
-        } : new int[]{
-                R.drawable.v_book_open_x24,
-                R.drawable.v_download_x24,
-                favourited ? R.drawable.v_heart_broken_x24 : R.drawable.v_heart_x24,
-        };
-
-        new MaterialAlertDialogBuilder(context)
-                .setTitle(EhUtils.getSuitableTitle(gi))
-                .setAdapter(new SelectItemWithIconAdapter(context, items, icons), (dialog, which) -> {
-                    switch (which) {
-                        case 0: // Read
-                            Intent intent = new Intent(activity, GalleryActivity.class);
-                            intent.setAction(GalleryActivity.ACTION_EH);
-                            intent.putExtra(GalleryActivity.KEY_GALLERY_INFO, gi);
-                            startActivity(intent);
-                            break;
-                        case 1: // Download
-                            if (downloaded) {
-                                new MaterialAlertDialogBuilder(context)
-                                        .setTitle(R.string.download_remove_dialog_title)
-                                        .setMessage(getString(R.string.download_remove_dialog_message, gi.title))
-                                        .setPositiveButton(android.R.string.ok, (dialog1, which1) -> mDownloadManager.deleteDownload(gi.gid))
-                                        .show();
-                            } else {
-                                CommonOperations.startDownload(activity, gi, false);
-                            }
-                            break;
-                        case 2: // Favorites
-                            if (favourited) {
-                                CommonOperations.removeFromFavorites(activity, gi, new RemoveFromFavoriteListener(context, activity.getStageId(), getTag()));
-                            } else {
-                                CommonOperations.addToFavorites(activity, gi, new AddToFavoriteListener(context, activity.getStageId(), getTag()));
-                            }
-                            break;
-                        case 3: // Move
-                            List<DownloadLabel> labelRawList = EhApplication.getDownloadManager(context).getLabelList();
-                            List<String> labelList = new ArrayList<>(labelRawList.size() + 1);
-                            labelList.add(getString(R.string.default_download_label_name));
-                            for (int i = 0, n = labelRawList.size(); i < n; i++) {
-                                labelList.add(labelRawList.get(i).getLabel());
-                            }
-                            String[] labels = labelList.toArray(new String[0]);
-
-                            MoveDialogHelper helper = new MoveDialogHelper(labels, gi);
-
-                            new MaterialAlertDialogBuilder(context)
-                                    .setTitle(R.string.download_move_dialog_title)
-                                    .setItems(labels, helper)
-                                    .show();
-                            break;
+        val gi = mHelper!!.getDataAtEx(position) ?: return true
+        val downloaded = mDownloadManager!!.getDownloadState(gi.gid) != DownloadInfo.STATE_INVALID
+        val favourited = gi.favoriteSlot != -2
+        val items = if (downloaded) arrayOf<CharSequence>(
+            context.getString(R.string.read),
+            context.getString(R.string.delete_downloads),
+            context.getString(if (favourited) R.string.remove_from_favourites else R.string.add_to_favourites),
+            context.getString(R.string.download_move_dialog_title)
+        ) else arrayOf<CharSequence>(
+            context.getString(R.string.read),
+            context.getString(R.string.download),
+            context.getString(if (favourited) R.string.remove_from_favourites else R.string.add_to_favourites)
+        )
+        val icons = if (downloaded) intArrayOf(
+            R.drawable.v_book_open_x24,
+            R.drawable.v_delete_x24,
+            if (favourited) R.drawable.v_heart_broken_x24 else R.drawable.v_heart_x24,
+            R.drawable.v_folder_move_x24
+        ) else intArrayOf(
+            R.drawable.v_book_open_x24,
+            R.drawable.v_download_x24,
+            if (favourited) R.drawable.v_heart_broken_x24 else R.drawable.v_heart_x24
+        )
+        MaterialAlertDialogBuilder(context)
+            .setTitle(EhUtils.getSuitableTitle(gi))
+            .setAdapter(
+                SelectItemWithIconAdapter(
+                    context,
+                    items,
+                    icons
+                )
+            ) { dialog: DialogInterface?, which: Int ->
+                when (which) {
+                    0 -> {
+                        val intent = Intent(activity, GalleryActivity::class.java)
+                        intent.action = GalleryActivity.ACTION_EH
+                        intent.putExtra(GalleryActivity.KEY_GALLERY_INFO, gi)
+                        startActivity(intent)
                     }
-                }).show();
-        return true;
+                    1 -> if (downloaded) {
+                        MaterialAlertDialogBuilder(context)
+                            .setTitle(R.string.download_remove_dialog_title)
+                            .setMessage(
+                                getString(
+                                    R.string.download_remove_dialog_message,
+                                    gi.title
+                                )
+                            )
+                            .setPositiveButton(android.R.string.ok) { dialog1: DialogInterface?, which1: Int ->
+                                mDownloadManager!!.deleteDownload(
+                                    gi.gid
+                                )
+                            }
+                            .show()
+                    } else {
+                        CommonOperations.startDownload(activity, gi, false)
+                    }
+                    2 -> if (favourited) {
+                        CommonOperations.removeFromFavorites(
+                            activity,
+                            gi,
+                            RemoveFromFavoriteListener(context, activity.getStageId(), tag)
+                        )
+                    } else {
+                        CommonOperations.addToFavorites(
+                            activity,
+                            gi,
+                            AddToFavoriteListener(context, activity.getStageId(), tag)
+                        )
+                    }
+                    3 -> {
+                        val labelRawList = EhApplication.getDownloadManager(context).labelList
+                        val labelList: MutableList<String> = ArrayList(labelRawList.size + 1)
+                        labelList.add(getString(R.string.default_download_label_name))
+                        var i = 0
+                        val n = labelRawList.size
+                        while (i < n) {
+                            labelList.add(labelRawList[i].label)
+                            i++
+                        }
+                        val labels = labelList.toTypedArray()
+                        val helper: MoveDialogHelper = MoveDialogHelper(labels, gi)
+                        MaterialAlertDialogBuilder(context)
+                            .setTitle(R.string.download_move_dialog_title)
+                            .setItems(labels, helper)
+                            .show()
+                    }
+                }
+            }.show()
+        return true
     }
 
-    private void showActionFab() {
+    private fun showActionFab() {
         if (null != mFabLayout && STATE_NORMAL == mState && !mShowActionFab) {
-            mShowActionFab = true;
-            View fab = mFabLayout.getPrimaryFab();
+            mShowActionFab = true
+            val fab: View = mFabLayout!!.primaryFab
             if (fabAnimator != null) {
-                fabAnimator.cancel();
+                fabAnimator!!.cancel()
             }
-            fab.setVisibility(View.VISIBLE);
-            fab.setRotation(-45.0f);
+            fab.visibility = View.VISIBLE
+            fab.rotation = -45.0f
             fabAnimator = fab.animate().scaleX(1.0f).scaleY(1.0f).rotation(0.0f).setListener(null)
-                    .setDuration(ANIMATE_TIME).setStartDelay(0L)
-                    .setInterpolator(AnimationUtils.FAST_SLOW_INTERPOLATOR);
-            fabAnimator.start();
+                .setDuration(ANIMATE_TIME).setStartDelay(0L)
+                .setInterpolator(AnimationUtils.FAST_SLOW_INTERPOLATOR)
+            fabAnimator!!.start()
         }
     }
 
-    private void hideActionFab() {
+    private fun hideActionFab() {
         if (null != mFabLayout && STATE_NORMAL == mState && mShowActionFab) {
-            mShowActionFab = false;
-            View fab = mFabLayout.getPrimaryFab();
+            mShowActionFab = false
+            val fab: View = mFabLayout!!.primaryFab
             if (fabAnimator != null) {
-                fabAnimator.cancel();
+                fabAnimator!!.cancel()
             }
-            fabAnimator = fab.animate().scaleX(0.0f).scaleY(0.0f).setListener(mActionFabAnimatorListener)
-                    .setDuration(ANIMATE_TIME).setStartDelay(0L)
-                    .setInterpolator(AnimationUtils.SLOW_FAST_INTERPOLATOR);
-            fabAnimator.start();
-        }
-    }
-
-    private void selectSearchFab(boolean animation) {
-        if (null == mFabLayout || null == mSearchFab) {
-            return;
-        }
-
-        mShowActionFab = false;
-
-        if (animation) {
-            View fab = mFabLayout.getPrimaryFab();
-            long delay;
-            if (View.INVISIBLE == fab.getVisibility()) {
-                delay = 0L;
-            } else {
-                delay = ANIMATE_TIME;
-                mFabLayout.setExpanded(false, true);
+            fabAnimator =
                 fab.animate().scaleX(0.0f).scaleY(0.0f).setListener(mActionFabAnimatorListener)
-                        .setDuration(ANIMATE_TIME).setStartDelay(0L)
-                        .setInterpolator(AnimationUtils.SLOW_FAST_INTERPOLATOR).start();
-            }
-            mSearchFab.setVisibility(View.VISIBLE);
-            mSearchFab.setRotation(-45.0f);
-            mSearchFab.animate().scaleX(1.0f).scaleY(1.0f).rotation(0.0f).setListener(null)
-                    .setDuration(ANIMATE_TIME).setStartDelay(delay)
-                    .setInterpolator(AnimationUtils.FAST_SLOW_INTERPOLATOR).start();
-        } else {
-            mFabLayout.setExpanded(false, false);
-            View fab = mFabLayout.getPrimaryFab();
-            fab.setVisibility(View.INVISIBLE);
-            fab.setScaleX(0.0f);
-            fab.setScaleY(0.0f);
-            mSearchFab.setVisibility(View.VISIBLE);
-            mSearchFab.setScaleX(1.0f);
-            mSearchFab.setScaleY(1.0f);
+                    .setDuration(ANIMATE_TIME).setStartDelay(0L)
+                    .setInterpolator(AnimationUtils.SLOW_FAST_INTERPOLATOR)
+            fabAnimator!!.start()
         }
     }
 
-    private void selectActionFab(boolean animation) {
+    private fun selectSearchFab(animation: Boolean) {
         if (null == mFabLayout || null == mSearchFab) {
-            return;
+            return
         }
-
-        mShowActionFab = true;
-
+        mShowActionFab = false
         if (animation) {
-            long delay;
-            if (View.INVISIBLE == mSearchFab.getVisibility()) {
-                delay = 0L;
+            val fab: View = mFabLayout!!.primaryFab
+            val delay: Long
+            if (View.INVISIBLE == fab.visibility) {
+                delay = 0L
             } else {
-                delay = ANIMATE_TIME;
-                mSearchFab.animate().scaleX(0.0f).scaleY(0.0f).setListener(mSearchFabAnimatorListener)
-                        .setDuration(ANIMATE_TIME).setStartDelay(0L)
-                        .setInterpolator(AnimationUtils.SLOW_FAST_INTERPOLATOR).start();
+                delay = ANIMATE_TIME
+                mFabLayout!!.setExpanded(false, true)
+                fab.animate().scaleX(0.0f).scaleY(0.0f).setListener(mActionFabAnimatorListener)
+                    .setDuration(ANIMATE_TIME).setStartDelay(0L)
+                    .setInterpolator(AnimationUtils.SLOW_FAST_INTERPOLATOR).start()
             }
-            View fab = mFabLayout.getPrimaryFab();
-            fab.setVisibility(View.VISIBLE);
-            fab.setRotation(-45.0f);
+            mSearchFab!!.visibility = View.VISIBLE
+            mSearchFab!!.rotation = -45.0f
+            mSearchFab!!.animate().scaleX(1.0f).scaleY(1.0f).rotation(0.0f).setListener(null)
+                .setDuration(ANIMATE_TIME).setStartDelay(delay)
+                .setInterpolator(AnimationUtils.FAST_SLOW_INTERPOLATOR).start()
+        } else {
+            mFabLayout!!.setExpanded(false, false)
+            val fab: View = mFabLayout!!.primaryFab
+            fab.visibility = View.INVISIBLE
+            fab.scaleX = 0.0f
+            fab.scaleY = 0.0f
+            mSearchFab!!.visibility = View.VISIBLE
+            mSearchFab!!.scaleX = 1.0f
+            mSearchFab!!.scaleY = 1.0f
+        }
+    }
+
+    private fun selectActionFab(animation: Boolean) {
+        if (null == mFabLayout || null == mSearchFab) {
+            return
+        }
+        mShowActionFab = true
+        if (animation) {
+            val delay: Long
+            if (View.INVISIBLE == mSearchFab!!.visibility) {
+                delay = 0L
+            } else {
+                delay = ANIMATE_TIME
+                mSearchFab!!.animate().scaleX(0.0f).scaleY(0.0f)
+                    .setListener(mSearchFabAnimatorListener)
+                    .setDuration(ANIMATE_TIME).setStartDelay(0L)
+                    .setInterpolator(AnimationUtils.SLOW_FAST_INTERPOLATOR).start()
+            }
+            val fab: View = mFabLayout!!.primaryFab
+            fab.visibility = View.VISIBLE
+            fab.rotation = -45.0f
             fab.animate().scaleX(1.0f).scaleY(1.0f).rotation(0.0f).setListener(null)
-                    .setDuration(ANIMATE_TIME).setStartDelay(delay)
-                    .setInterpolator(AnimationUtils.FAST_SLOW_INTERPOLATOR).start();
-
+                .setDuration(ANIMATE_TIME).setStartDelay(delay)
+                .setInterpolator(AnimationUtils.FAST_SLOW_INTERPOLATOR).start()
         } else {
-            mFabLayout.setExpanded(false, false);
-            View fab = mFabLayout.getPrimaryFab();
-            fab.setVisibility(View.VISIBLE);
-            fab.setScaleX(1.0f);
-            fab.setScaleY(1.0f);
-            mSearchFab.setVisibility(View.INVISIBLE);
-            mSearchFab.setScaleX(0.0f);
-            mSearchFab.setScaleY(0.0f);
+            mFabLayout!!.setExpanded(false, false)
+            val fab: View = mFabLayout!!.primaryFab
+            fab.visibility = View.VISIBLE
+            fab.scaleX = 1.0f
+            fab.scaleY = 1.0f
+            mSearchFab!!.visibility = View.INVISIBLE
+            mSearchFab!!.scaleX = 0.0f
+            mSearchFab!!.scaleY = 0.0f
         }
     }
 
-    private void setState(@State int state) {
-        setState(state, true);
+    private fun setState(@State state: Int) {
+        setState(state, true)
     }
 
-    private void setState(@State int state, boolean animation) {
-        if (null == mSearchBar || null == mSearchBarMover ||
-                null == mViewTransition || null == mSearchLayout) {
-            return;
+    private fun setState(@State state: Int, animation: Boolean) {
+        if (null == mSearchBar || null == mSearchBarMover || null == mViewTransition || null == mSearchLayout) {
+            return
         }
-
         if (mState != state) {
-            int oldState = mState;
-            mState = state;
-
-            switch (oldState) {
-                case STATE_NORMAL:
-                    if (state == STATE_SIMPLE_SEARCH) {
-                        mSearchBar.setState(SearchBar.STATE_SEARCH_LIST, animation);
-                        mSearchBarMover.returnSearchBarPosition();
-                        selectSearchFab(animation);
-                    } else if (state == STATE_SEARCH) {
-                        mViewTransition.showView(1, animation);
-//                        mSearchLayout.scrollSearchContainerToTop();
-                        mSearchBar.setState(SearchBar.STATE_SEARCH, animation);
-                        mSearchBarMover.returnSearchBarPosition();
-                        selectSearchFab(animation);
-                    } else if (state == STATE_SEARCH_SHOW_LIST) {
-                        mViewTransition.showView(1, animation);
-//                        mSearchLayout.scrollSearchContainerToTop();
-                        mSearchBar.setState(SearchBar.STATE_SEARCH_LIST, animation);
-                        mSearchBarMover.returnSearchBarPosition();
-                        selectSearchFab(animation);
-                    }
-                    break;
-                case STATE_SIMPLE_SEARCH:
-                    if (state == STATE_NORMAL) {
-                        mSearchBar.setState(SearchBar.STATE_NORMAL, animation);
-                        mSearchBarMover.returnSearchBarPosition();
-                        selectActionFab(animation);
-                    } else if (state == STATE_SEARCH) {
-                        mViewTransition.showView(1, animation);
-//                        mSearchLayout.scrollSearchContainerToTop();
-                        mSearchBar.setState(SearchBar.STATE_SEARCH, animation);
-                        mSearchBarMover.returnSearchBarPosition();
-                    } else if (state == STATE_SEARCH_SHOW_LIST) {
-                        mViewTransition.showView(1, animation);
-//                        mSearchLayout.scrollSearchContainerToTop();
-                        mSearchBar.setState(SearchBar.STATE_SEARCH_LIST, animation);
-                        mSearchBarMover.returnSearchBarPosition();
-                    }
-                    break;
-                case STATE_SEARCH:
-                    if (state == STATE_NORMAL) {
-                        mViewTransition.showView(0, animation);
-                        mSearchBar.setState(SearchBar.STATE_NORMAL, animation);
-                        mSearchBarMover.returnSearchBarPosition();
-                        selectActionFab(animation);
-                    } else if (state == STATE_SIMPLE_SEARCH) {
-                        mViewTransition.showView(0, animation);
-                        mSearchBar.setState(SearchBar.STATE_SEARCH_LIST, animation);
-                        mSearchBarMover.returnSearchBarPosition();
-                    } else if (state == STATE_SEARCH_SHOW_LIST) {
-                        mSearchBar.setState(SearchBar.STATE_SEARCH_LIST, animation);
-                        mSearchBarMover.returnSearchBarPosition();
-                    }
-                    break;
-                case STATE_SEARCH_SHOW_LIST:
-                    if (state == STATE_NORMAL) {
-                        mViewTransition.showView(0, animation);
-                        mSearchBar.setState(SearchBar.STATE_NORMAL, animation);
-                        mSearchBarMover.returnSearchBarPosition();
-                        selectActionFab(animation);
-                    } else if (state == STATE_SIMPLE_SEARCH) {
-                        mViewTransition.showView(0, animation);
-                        mSearchBar.setState(SearchBar.STATE_SEARCH_LIST, animation);
-                        mSearchBarMover.returnSearchBarPosition();
-                    } else if (state == STATE_SEARCH) {
-                        mSearchBar.setState(SearchBar.STATE_SEARCH, animation);
-                        mSearchBarMover.returnSearchBarPosition();
-                    }
-                    break;
+            val oldState = mState
+            mState = state
+            when (oldState) {
+                STATE_NORMAL -> if (state == STATE_SIMPLE_SEARCH) {
+                    mSearchBar!!.setState(SearchBar.STATE_SEARCH_LIST, animation)
+                    mSearchBarMover!!.returnSearchBarPosition()
+                    selectSearchFab(animation)
+                } else if (state == STATE_SEARCH) {
+                    mViewTransition!!.showView(1, animation)
+                    //                        mSearchLayout.scrollSearchContainerToTop();
+                    mSearchBar!!.setState(SearchBar.STATE_SEARCH, animation)
+                    mSearchBarMover!!.returnSearchBarPosition()
+                    selectSearchFab(animation)
+                } else if (state == STATE_SEARCH_SHOW_LIST) {
+                    mViewTransition!!.showView(1, animation)
+                    //                        mSearchLayout.scrollSearchContainerToTop();
+                    mSearchBar!!.setState(SearchBar.STATE_SEARCH_LIST, animation)
+                    mSearchBarMover!!.returnSearchBarPosition()
+                    selectSearchFab(animation)
+                }
+                STATE_SIMPLE_SEARCH -> if (state == STATE_NORMAL) {
+                    mSearchBar!!.setState(SearchBar.STATE_NORMAL, animation)
+                    mSearchBarMover!!.returnSearchBarPosition()
+                    selectActionFab(animation)
+                } else if (state == STATE_SEARCH) {
+                    mViewTransition!!.showView(1, animation)
+                    //                        mSearchLayout.scrollSearchContainerToTop();
+                    mSearchBar!!.setState(SearchBar.STATE_SEARCH, animation)
+                    mSearchBarMover!!.returnSearchBarPosition()
+                } else if (state == STATE_SEARCH_SHOW_LIST) {
+                    mViewTransition!!.showView(1, animation)
+                    //                        mSearchLayout.scrollSearchContainerToTop();
+                    mSearchBar!!.setState(SearchBar.STATE_SEARCH_LIST, animation)
+                    mSearchBarMover!!.returnSearchBarPosition()
+                }
+                STATE_SEARCH -> if (state == STATE_NORMAL) {
+                    mViewTransition!!.showView(0, animation)
+                    mSearchBar!!.setState(SearchBar.STATE_NORMAL, animation)
+                    mSearchBarMover!!.returnSearchBarPosition()
+                    selectActionFab(animation)
+                } else if (state == STATE_SIMPLE_SEARCH) {
+                    mViewTransition!!.showView(0, animation)
+                    mSearchBar!!.setState(SearchBar.STATE_SEARCH_LIST, animation)
+                    mSearchBarMover!!.returnSearchBarPosition()
+                } else if (state == STATE_SEARCH_SHOW_LIST) {
+                    mSearchBar!!.setState(SearchBar.STATE_SEARCH_LIST, animation)
+                    mSearchBarMover!!.returnSearchBarPosition()
+                }
+                STATE_SEARCH_SHOW_LIST -> if (state == STATE_NORMAL) {
+                    mViewTransition!!.showView(0, animation)
+                    mSearchBar!!.setState(SearchBar.STATE_NORMAL, animation)
+                    mSearchBarMover!!.returnSearchBarPosition()
+                    selectActionFab(animation)
+                } else if (state == STATE_SIMPLE_SEARCH) {
+                    mViewTransition!!.showView(0, animation)
+                    mSearchBar!!.setState(SearchBar.STATE_SEARCH_LIST, animation)
+                    mSearchBarMover!!.returnSearchBarPosition()
+                } else if (state == STATE_SEARCH) {
+                    mSearchBar!!.setState(SearchBar.STATE_SEARCH, animation)
+                    mSearchBarMover!!.returnSearchBarPosition()
+                }
             }
         }
     }
 
-    @Override
-    public void onClickTitle() {
+    override fun onClickTitle() {
         if (mState == STATE_NORMAL) {
-            setState(STATE_SIMPLE_SEARCH);
+            setState(STATE_SIMPLE_SEARCH)
         }
     }
 
-    @Override
-    public void onClickLeftIcon() {
+    override fun onClickLeftIcon() {
         if (null == mSearchBar) {
-            return;
+            return
         }
-
-        if (mSearchBar.getState() == SearchBar.STATE_NORMAL) {
-            toggleDrawer(Gravity.LEFT);
+        if (mSearchBar!!.state == SearchBar.STATE_NORMAL) {
+            toggleDrawer(Gravity.LEFT)
         } else {
-            setState(STATE_NORMAL);
+            setState(STATE_NORMAL)
         }
     }
 
-    @Override
-    public void onClickRightIcon() {
+    override fun onClickRightIcon() {
         if (null == mSearchBar) {
-            return;
+            return
         }
-
-        if (mSearchBar.getState() == SearchBar.STATE_NORMAL) {
-            setState(STATE_SEARCH);
+        if (mSearchBar!!.state == SearchBar.STATE_NORMAL) {
+            setState(STATE_SEARCH)
         } else {
-            if (mSearchBar.getEditText().length() == 0) {
-                setState(STATE_NORMAL);
+            if (mSearchBar!!.editText.length() == 0) {
+                setState(STATE_NORMAL)
             } else {
                 // Clear
-                mSearchBar.setText("");
+                mSearchBar!!.text = ""
             }
         }
     }
 
-    @Override
-    public void onSearchEditTextClick() {
+    override fun onSearchEditTextClick() {
         if (mState == STATE_SEARCH) {
-            setState(STATE_SEARCH_SHOW_LIST);
+            setState(STATE_SEARCH_SHOW_LIST)
         }
     }
 
-    @Override
-    public void onApplySearch(String query) {
+    override fun onApplySearch(query: String) {
         if (null == mUrlBuilder || null == mHelper || null == mSearchLayout) {
-            return;
+            return
         }
-
         if (mState == STATE_SEARCH || mState == STATE_SEARCH_SHOW_LIST) {
             try {
-                mSearchLayout.formatListUrlBuilder(mUrlBuilder, query);
-            } catch (EhException e) {
-                showTip(e.getMessage(), LENGTH_LONG);
-                return;
+                mSearchLayout!!.formatListUrlBuilder(mUrlBuilder!!, query)
+            } catch (e: EhException) {
+                showTip(e.message, LENGTH_LONG)
+                return
             }
         } else {
-            int oldMode = mUrlBuilder.getMode();
+            val oldMode = mUrlBuilder!!.mode
             // If it's MODE_SUBSCRIPTION, keep it
-            int newMode = oldMode == ListUrlBuilder.MODE_SUBSCRIPTION
-                    ? ListUrlBuilder.MODE_SUBSCRIPTION
-                    : ListUrlBuilder.MODE_NORMAL;
-            mUrlBuilder.reset();
-            mUrlBuilder.setMode(newMode);
-            mUrlBuilder.setKeyword(query);
+            val newMode =
+                if (oldMode == ListUrlBuilder.MODE_SUBSCRIPTION) ListUrlBuilder.MODE_SUBSCRIPTION else ListUrlBuilder.MODE_NORMAL
+            mUrlBuilder!!.reset()
+            mUrlBuilder!!.mode = newMode
+            mUrlBuilder!!.keyword = query
         }
-        onUpdateUrlBuilder();
-        mHelper.refresh();
-        setState(STATE_NORMAL);
+        onUpdateUrlBuilder()
+        mHelper!!.refresh()
+        setState(STATE_NORMAL)
     }
 
-    @Override
-    public void onSearchEditTextBackPressed() {
-        onBackPressed();
+    override fun onSearchEditTextBackPressed() {
+        onBackPressed()
     }
 
-    @Override
-    public void onReceiveContent(Uri uri) {
+    override fun onReceiveContent(uri: Uri) {
         if (mSearchLayout == null || uri == null) {
-            return;
+            return
         }
         //Todo 这儿要改成compose版的修改SearchMode
 //        mSearchLayout.setSearchMode(SearchLayout.SEARCH_MODE_IMAGE);
-        mSearchLayout.setImageUri(uri);
-        setState(STATE_SEARCH);
+        mSearchLayout!!.setImageUri(uri)
+        setState(STATE_SEARCH)
     }
 
-    @Override
-    public void onStartDragHandler() {
+    override fun onStartDragHandler() {
         // Lock right drawer
-        setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED, Gravity.RIGHT);
+        setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED, Gravity.RIGHT)
     }
 
-    @Override
-    public void onEndDragHandler() {
+    override fun onEndDragHandler() {
         // Restore right drawer
-        setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED, Gravity.RIGHT);
-
+        setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED, Gravity.RIGHT)
         if (null != mSearchBarMover) {
-            mSearchBarMover.returnSearchBarPosition();
+            mSearchBarMover!!.returnSearchBarPosition()
         }
     }
 
-    @Override
-    public void onStateChange(SearchBar searchBar, int newState, int oldState, boolean animation) {
+    override fun onStateChange(
+        searchBar: SearchBar,
+        newState: Int,
+        oldState: Int,
+        animation: Boolean
+    ) {
         if (null == mLeftDrawable || null == mRightDrawable) {
-            return;
+            return
         }
-
-        switch (oldState) {
-            default:
-            case SearchBar.STATE_NORMAL:
-                mLeftDrawable.setArrow(animation ? ANIMATE_TIME : 0);
-                mRightDrawable.setDelete(animation ? ANIMATE_TIME : 0);
-                break;
-            case SearchBar.STATE_SEARCH:
-                if (newState == SearchBar.STATE_NORMAL) {
-                    mLeftDrawable.setMenu(animation ? ANIMATE_TIME : 0);
-                    mRightDrawable.setAdd(animation ? ANIMATE_TIME : 0);
-                }
-                break;
-            case SearchBar.STATE_SEARCH_LIST:
-                if (newState == STATE_NORMAL) {
-                    mLeftDrawable.setMenu(animation ? ANIMATE_TIME : 0);
-                    mRightDrawable.setAdd(animation ? ANIMATE_TIME : 0);
-                }
-                break;
+        when (oldState) {
+            SearchBar.STATE_NORMAL -> {
+                mLeftDrawable!!.setArrow(if (animation) ANIMATE_TIME else 0)
+                mRightDrawable!!.setDelete(if (animation) ANIMATE_TIME else 0)
+            }
+            SearchBar.STATE_SEARCH -> if (newState == SearchBar.STATE_NORMAL) {
+                mLeftDrawable!!.setMenu(if (animation) ANIMATE_TIME else 0)
+                mRightDrawable!!.setAdd(if (animation) ANIMATE_TIME else 0)
+            }
+            SearchBar.STATE_SEARCH_LIST -> if (newState == STATE_NORMAL) {
+                mLeftDrawable!!.setMenu(if (animation) ANIMATE_TIME else 0)
+                mRightDrawable!!.setAdd(if (animation) ANIMATE_TIME else 0)
+            }
+            else -> {
+                mLeftDrawable!!.setArrow(if (animation) ANIMATE_TIME else 0)
+                mRightDrawable!!.setDelete(if (animation) ANIMATE_TIME else 0)
+            }
         }
-
         if (newState == STATE_NORMAL || newState == STATE_SIMPLE_SEARCH) {
-            setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED, Gravity.LEFT);
-            setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED, Gravity.RIGHT);
+            setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED, Gravity.LEFT)
+            setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED, Gravity.RIGHT)
         } else {
-            setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED, Gravity.LEFT);
-            setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED, Gravity.RIGHT);
+            setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED, Gravity.LEFT)
+            setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED, Gravity.RIGHT)
         }
     }
 
-//    @Override
-//    public void onChangeSearchMode() {
-//        if (null != mSearchBarMover) {
-//            mSearchBarMover.showSearchBar();
-//        }
-//    }
-
-    @Override
-    public void onSelectImage() {
+    //    @Override
+    //    public void onChangeSearchMode() {
+    //        if (null != mSearchBarMover) {
+    //            mSearchBarMover.showSearchBar();
+    //        }
+    //    }
+    override fun onSelectImage() {
         try {
-            selectImageLauncher.launch(new String[]{"image/*"});
-        } catch (Throwable e) {
-            ExceptionUtils.throwIfFatal(e);
-            showTip(R.string.error_cant_find_activity, BaseScene.LENGTH_SHORT);
+            selectImageLauncher.launch(arrayOf("image/*"))
+        } catch (e: Throwable) {
+            ExceptionUtils.throwIfFatal(e)
+            showTip(R.string.error_cant_find_activity, LENGTH_SHORT)
         }
     }
 
     // SearchBarMover.Helper
-    @Override
-    public boolean isValidView(RecyclerView recyclerView) {
-        return (mState == STATE_NORMAL && recyclerView == mRecyclerView) ||
-                (mState == STATE_SEARCH );
+    override fun isValidView(recyclerView: RecyclerView): Boolean {
+        return mState == STATE_NORMAL && recyclerView === mRecyclerView || mState == STATE_SEARCH
     }
 
     // SearchBarMover.Helper
-    @Override
-    public RecyclerView getValidRecyclerView() {
-        if (mState == STATE_NORMAL || mState == STATE_SIMPLE_SEARCH) {
-            return mRecyclerView;
+    override fun getValidRecyclerView(): RecyclerView? {
+        return if (mState == STATE_NORMAL || mState == STATE_SIMPLE_SEARCH) {
+            mRecyclerView
         } else {
-            return null;
+            null
         }
     }
 
     // SearchBarMover.Helper
-    @Override
-    public boolean forceShowSearchBar() {
-        return mState == STATE_SIMPLE_SEARCH || mState == STATE_SEARCH_SHOW_LIST;
+    override fun forceShowSearchBar(): Boolean {
+        return mState == STATE_SIMPLE_SEARCH || mState == STATE_SEARCH_SHOW_LIST
     }
 
-    private void onGetGalleryListSuccess(GalleryListParser.Result result, int taskId) {
+    private fun onGetGalleryListSuccess(result: GalleryListParser.Result, taskId: Int) {
         if (mHelper != null && mSearchBarMover != null &&
-                mHelper.isCurrentTask(taskId)) {
-            String emptyString = getString(mUrlBuilder.getMode() == ListUrlBuilder.MODE_SUBSCRIPTION && result.noWatchedTags
-                    ? R.string.gallery_list_empty_hit_subscription
-                    : R.string.gallery_list_empty_hit);
-            mHelper.setEmptyString(emptyString);
-            mHelper.onGetPageData(taskId, result.pages, result.nextPage, result.galleryInfoList);
+            mHelper!!.isCurrentTask(taskId)
+        ) {
+            val emptyString =
+                getString(if (mUrlBuilder!!.mode == ListUrlBuilder.MODE_SUBSCRIPTION && result.noWatchedTags) R.string.gallery_list_empty_hit_subscription else R.string.gallery_list_empty_hit)
+            mHelper!!.setEmptyString(emptyString)
+            mHelper!!.onGetPageData(taskId, result.pages, result.nextPage, result.galleryInfoList)
         }
     }
 
-    private void onGetGalleryListFailure(Exception e, int taskId) {
+    private fun onGetGalleryListFailure(e: Exception, taskId: Int) {
         if (mHelper != null && mSearchBarMover != null &&
-                mHelper.isCurrentTask(taskId)) {
-            mHelper.onGetException(taskId, e);
+            mHelper!!.isCurrentTask(taskId)
+        ) {
+            mHelper!!.onGetException(taskId, e)
         }
     }
 
-    @IntDef({STATE_NORMAL, STATE_SIMPLE_SEARCH, STATE_SEARCH, STATE_SEARCH_SHOW_LIST})
-    @Retention(RetentionPolicy.SOURCE)
-    private @interface State {
-    }
+    @IntDef(STATE_NORMAL, STATE_SIMPLE_SEARCH, STATE_SEARCH, STATE_SEARCH_SHOW_LIST)
+    @kotlin.annotation.Retention(AnnotationRetention.SOURCE)
+    private annotation class State
 
-    private static class GetGalleryListListener extends EhCallback<GalleryListScene, GalleryListParser.Result> {
-
-        private final int mTaskId;
-
-        public GetGalleryListListener(Context context, int stageId, String sceneTag, int taskId) {
-            super(context, stageId, sceneTag);
-            mTaskId = taskId;
-        }
-
-        @Override
-        public void onSuccess(GalleryListParser.Result result) {
-            GalleryListScene scene = getScene();
-            if (scene != null) {
-                scene.onGetGalleryListSuccess(result, mTaskId);
+    private class GetGalleryListListener(
+        context: Context?,
+        stageId: Int,
+        sceneTag: String?,
+        private val mTaskId: Int
+    ) : EhCallback<GalleryListScene?, GalleryListParser.Result?>(context, stageId, sceneTag) {
+        override fun onSuccess(result: GalleryListParser.Result?) {
+            val scene = scene
+            if (result != null) {
+                scene?.onGetGalleryListSuccess(result, mTaskId)
             }
         }
 
-        @Override
-        public void onFailure(Exception e) {
-            GalleryListScene scene = getScene();
-            if (scene != null) {
-                scene.onGetGalleryListFailure(e, mTaskId);
-            }
+        override fun onFailure(e: Exception) {
+            val scene = scene
+            scene?.onGetGalleryListFailure(e, mTaskId)
         }
 
-        @Override
-        public void onCancel() {
-        }
-
-        @Override
-        public boolean isInstance(SceneFragment scene) {
-            return scene instanceof GalleryListScene;
+        override fun onCancel() {}
+        override fun isInstance(scene: SceneFragment): Boolean {
+            return scene is GalleryListScene
         }
     }
 
-    private static class AddToFavoriteListener extends EhCallback<GalleryListScene, Void> {
-
-        public AddToFavoriteListener(Context context, int stageId, String sceneTag) {
-            super(context, stageId, sceneTag);
+    private class AddToFavoriteListener(context: Context?, stageId: Int, sceneTag: String?) :
+        EhCallback<GalleryListScene?, Void?>(context, stageId, sceneTag) {
+        override fun onSuccess(result: Void?) {
+            showTip(R.string.add_to_favorite_success, LENGTH_SHORT)
         }
 
-        @Override
-        public void onSuccess(Void result) {
-            showTip(R.string.add_to_favorite_success, LENGTH_SHORT);
+        override fun onFailure(e: Exception) {
+            showTip(R.string.add_to_favorite_failure, LENGTH_LONG)
         }
 
-        @Override
-        public void onFailure(Exception e) {
-            showTip(R.string.add_to_favorite_failure, LENGTH_LONG);
-        }
-
-        @Override
-        public void onCancel() {
-        }
-
-        @Override
-        public boolean isInstance(SceneFragment scene) {
-            return scene instanceof GalleryListScene;
+        override fun onCancel() {}
+        override fun isInstance(scene: SceneFragment): Boolean {
+            return scene is GalleryListScene
         }
     }
 
-    private static class RemoveFromFavoriteListener extends EhCallback<GalleryListScene, Void> {
+    private class RemoveFromFavoriteListener(context: Context?, stageId: Int, sceneTag: String?) :
+        EhCallback<GalleryListScene?, Void?>(context, stageId, sceneTag) {
 
-        public RemoveFromFavoriteListener(Context context, int stageId, String sceneTag) {
-            super(context, stageId, sceneTag);
+        override fun onSuccess(result: Void?) {
+            showTip(R.string.remove_from_favorite_success, LENGTH_SHORT)
         }
 
-        @Override
-        public void onSuccess(Void result) {
-            showTip(R.string.remove_from_favorite_success, LENGTH_SHORT);
+        override fun onFailure(e: Exception) {
+            showTip(R.string.remove_from_favorite_failure, LENGTH_LONG)
         }
 
-        @Override
-        public void onFailure(Exception e) {
-            showTip(R.string.remove_from_favorite_failure, LENGTH_LONG);
-        }
-
-        @Override
-        public void onCancel() {
-        }
-
-        @Override
-        public boolean isInstance(SceneFragment scene) {
-            return scene instanceof GalleryListScene;
+        override fun onCancel() {}
+        override fun isInstance(scene: SceneFragment): Boolean {
+            return scene is GalleryListScene
         }
     }
 
-    private static class QsDrawerHolder extends AbstractDraggableItemViewHolder {
+    private class QsDrawerHolder(itemView: View) : AbstractDraggableItemViewHolder(itemView) {
+        val key: TextView
+        val option: ImageView
 
-        private final TextView key;
-        private final ImageView option;
-
-        private QsDrawerHolder(View itemView) {
-            super(itemView);
-            key = (TextView) ViewUtils.$$(itemView, R.id.tv_key);
-            option = (ImageView) ViewUtils.$$(itemView, R.id.iv_option);
+        init {
+            key = ViewUtils.`$$`(itemView, R.id.tv_key) as TextView
+            option = ViewUtils.`$$`(itemView, R.id.iv_option) as ImageView
         }
     }
 
-    private class MoveDialogHelper implements DialogInterface.OnClickListener {
-
-        private final String[] mLabels;
-        private final GalleryInfo mGi;
-
-        public MoveDialogHelper(String[] labels, GalleryInfo gi) {
-            mLabels = labels;
-            mGi = gi;
-        }
-
-        @Override
-        public void onClick(DialogInterface dialog, int which) {
+    private inner class MoveDialogHelper(
+        private val mLabels: Array<String>,
+        private val mGi: GalleryInfo
+    ) : DialogInterface.OnClickListener {
+        override fun onClick(dialog: DialogInterface, which: Int) {
             // Cancel check mode
-            Context context = getContext();
-            if (null == context) {
-                return;
-            }
+            val context = context ?: return
             if (null != mRecyclerView) {
-                mRecyclerView.outOfCustomChoiceMode();
+                mRecyclerView!!.outOfCustomChoiceMode()
             }
-
-            DownloadManager downloadManager = EhApplication.getDownloadManager(context);
-            DownloadInfo downloadInfo = downloadManager.getDownloadInfo(mGi.gid);
-            if (downloadInfo == null) {
-                return;
-            }
-
-            String label = which == 0 ? null : mLabels[which];
-
-            downloadManager.changeLabel(Collections.singletonList(downloadInfo), label);
+            val downloadManager = EhApplication.getDownloadManager(context)
+            val downloadInfo = downloadManager.getDownloadInfo(mGi.gid) ?: return
+            val label = if (which == 0) null else mLabels[which]
+            downloadManager.changeLabel(listOf(downloadInfo), label)
         }
     }
 
-    private class QsDrawerAdapter extends RecyclerView.Adapter<QsDrawerHolder> implements DraggableItemAdapter<QsDrawerHolder> {
-
-        private final LayoutInflater mInflater;
-
-        private QsDrawerAdapter(LayoutInflater inflater) {
-
-            this.mInflater = inflater;
+    private inner class QsDrawerAdapter (private val mInflater: LayoutInflater) :
+        RecyclerView.Adapter<QsDrawerHolder>(), DraggableItemAdapter<QsDrawerHolder> {
+        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): QsDrawerHolder {
+            return QsDrawerHolder(mInflater.inflate(R.layout.item_drawer_list, parent, false))
         }
 
-        @NonNull
-        @Override
-        public QsDrawerHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-            return new QsDrawerHolder(mInflater.inflate(R.layout.item_drawer_list, parent, false));
-        }
-
-        @Override
-        public void onBindViewHolder(@NonNull QsDrawerHolder holder, int position) {
+        override fun onBindViewHolder(holder: QsDrawerHolder, position: Int) {
             if (mQuickSearchList != null && !mIsTopList) {
-                holder.key.setText(mQuickSearchList.get(position).getName());
-                holder.itemView.setOnClickListener(v -> {
+                holder.key.text = mQuickSearchList!![position].getName()
+                holder.itemView.setOnClickListener { v: View? ->
                     if (null == mHelper || null == mUrlBuilder) {
-                        return;
+                        return@setOnClickListener
                     }
-
-                    mUrlBuilder.set(mQuickSearchList.get(position));
-                    mUrlBuilder.setPageIndex(0);
-                    onUpdateUrlBuilder();
-                    mHelper.refresh();
-                    setState(STATE_NORMAL);
-                    closeDrawer(Gravity.RIGHT);
-                });
-                holder.itemView.setOnLongClickListener(v -> {
-                    PopupMenu popupMenu = new PopupMenu(requireContext(), holder.option);
-                    popupMenu.inflate(R.menu.quicksearch_option);
-                    popupMenu.show();
-                    popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
-
-                        final QuickSearch quickSearch = mQuickSearchList.get(position);
-
-                        @Override
-                        public boolean onMenuItemClick(MenuItem item) {
-                            if (item.getItemId() == R.id.menu_qs_remove) {
-                                new MaterialAlertDialogBuilder(requireContext())
-                                        .setTitle(getString(R.string.delete_quick_search_title))
-                                        .setMessage(getString(R.string.delete_quick_search_message, quickSearch.name))
-                                        .setPositiveButton(R.string.delete, (dialog, which) -> {
-                                            EhDB.deleteQuickSearch(quickSearch);
-                                            mQuickSearchList.remove(position);
-                                            notifyDataSetChanged();
-                                        })
-                                        .setNegativeButton(android.R.string.cancel, null)
-                                        .show();
-                                return true;
+                    mUrlBuilder!!.set(mQuickSearchList!![position])
+                    mUrlBuilder!!.pageIndex = 0
+                    onUpdateUrlBuilder()
+                    mHelper!!.refresh()
+                    setState(STATE_NORMAL)
+                    closeDrawer(Gravity.RIGHT)
+                }
+                holder.itemView.setOnLongClickListener { v: View? ->
+                    val popupMenu = PopupMenu(requireContext(), holder.option)
+                    popupMenu.inflate(R.menu.quicksearch_option)
+                    popupMenu.show()
+                    popupMenu.setOnMenuItemClickListener(object :
+                        PopupMenu.OnMenuItemClickListener {
+                        val quickSearch = mQuickSearchList!![position]
+                        override fun onMenuItemClick(item: MenuItem): Boolean {
+                            if (item.itemId == R.id.menu_qs_remove) {
+                                MaterialAlertDialogBuilder(requireContext())
+                                    .setTitle(getString(R.string.delete_quick_search_title))
+                                    .setMessage(
+                                        getString(
+                                            R.string.delete_quick_search_message,
+                                            quickSearch.name
+                                        )
+                                    )
+                                    .setPositiveButton(R.string.delete) { dialog: DialogInterface?, which: Int ->
+                                        EhDB.deleteQuickSearch(quickSearch)
+                                        mQuickSearchList!!.removeAt(position)
+                                        notifyDataSetChanged()
+                                    }
+                                    .setNegativeButton(android.R.string.cancel, null)
+                                    .show()
+                                return true
                             }
-                            return false;
+                            return false
                         }
-                    });
-                    return true;
-                });
+                    })
+                    true
+                }
             } else {
-                int[] keywords = {11, 12, 13, 15};
-                int[] toplists = {R.string.toplist_alltime, R.string.toplist_pastyear, R.string.toplist_pastmonth, R.string.toplist_yesterday};
-                holder.key.setText(getString(toplists[position]));
-                holder.option.setVisibility(View.GONE);
-                holder.itemView.setOnClickListener(v -> {
+                val keywords = intArrayOf(11, 12, 13, 15)
+                val toplists = intArrayOf(
+                    R.string.toplist_alltime,
+                    R.string.toplist_pastyear,
+                    R.string.toplist_pastmonth,
+                    R.string.toplist_yesterday
+                )
+                holder.key.text = getString(toplists[position])
+                holder.option.visibility = View.GONE
+                holder.itemView.setOnClickListener { v: View? ->
                     if (null == mHelper || null == mUrlBuilder) {
-                        return;
+                        return@setOnClickListener
                     }
-
-                    mUrlBuilder.setKeyword(String.valueOf(keywords[position]));
-                    mUrlBuilder.setPageIndex(0);
-                    onUpdateUrlBuilder();
-                    mHelper.refresh();
-                    setState(STATE_NORMAL);
-                    closeDrawer(Gravity.RIGHT);
-                });
+                    mUrlBuilder!!.keyword = keywords[position].toString()
+                    mUrlBuilder!!.pageIndex = 0
+                    onUpdateUrlBuilder()
+                    mHelper!!.refresh()
+                    setState(STATE_NORMAL)
+                    closeDrawer(Gravity.RIGHT)
+                }
             }
         }
 
-        @Override
-        public long getItemId(int position) {
+        override fun getItemId(position: Int): Long {
             if (mIsTopList) {
-                return position;
+                return position.toLong()
             }
-            if (mQuickSearchList == null) {
-                return 0;
-            }
-            return mQuickSearchList.get(position).getId();
+            return if (mQuickSearchList == null) {
+                0
+            } else mQuickSearchList!![position].getId()
         }
 
-        @Override
-        public int getItemCount() {
-            return !mIsTopList ? mQuickSearchList != null ? mQuickSearchList.size() : 0 : 4;
+        override fun getItemCount(): Int {
+            return if (!mIsTopList) if (mQuickSearchList != null) mQuickSearchList!!.size else 0 else 4
         }
 
-        @Override
-        public boolean onCheckCanStartDrag(@NonNull QsDrawerHolder holder, int position, int x, int y) {
-            return !mIsTopList && x > holder.option.getX() && y > holder.option.getY();
+        override fun onCheckCanStartDrag(
+            holder: QsDrawerHolder,
+            position: Int,
+            x: Int,
+            y: Int
+        ): Boolean {
+            return !mIsTopList && x > holder.option.x && y > holder.option.y
         }
 
-        @Override
-        public ItemDraggableRange onGetItemDraggableRange(@NonNull QsDrawerHolder holder, int position) {
-            return null;
+        override fun onGetItemDraggableRange(
+            holder: QsDrawerHolder,
+            position: Int
+        ): ItemDraggableRange? {
+            return null
         }
 
-        @Override
-        public void onMoveItem(int fromPosition, int toPosition) {
+        override fun onMoveItem(fromPosition: Int, toPosition: Int) {
             if (fromPosition == toPosition) {
-                return;
+                return
             }
             if (null == mQuickSearchList) {
-                return;
+                return
             }
-            EhDB.moveQuickSearch(fromPosition, toPosition);
-            final QuickSearch item = mQuickSearchList.remove(fromPosition);
-            mQuickSearchList.add(toPosition, item);
+            EhDB.moveQuickSearch(fromPosition, toPosition)
+            val item = mQuickSearchList!!.removeAt(fromPosition)
+            mQuickSearchList!!.add(toPosition, item)
         }
 
-        @Override
-        public boolean onCheckCanDrop(int draggingPosition, int dropPosition) {
-            return true;
+        override fun onCheckCanDrop(draggingPosition: Int, dropPosition: Int): Boolean {
+            return true
         }
 
-        @Override
-        public void onItemDragStarted(int position) {
-            notifyDataSetChanged();
+        override fun onItemDragStarted(position: Int) {
+            notifyDataSetChanged()
         }
 
-        @Override
-        public void onItemDragFinished(int fromPosition, int toPosition, boolean result) {
-            notifyDataSetChanged();
+        override fun onItemDragFinished(fromPosition: Int, toPosition: Int, result: Boolean) {
+            notifyDataSetChanged()
         }
     }
 
-    private abstract class UrlSuggestion extends SearchBar.Suggestion {
-        @Override
-        public CharSequence getText(TextView textView) {
-            if (textView.getId() == android.R.id.text1) {
-                Drawable bookImage = ContextCompat.getDrawable(textView.getContext(), R.drawable.v_book_open_x24);
-                SpannableStringBuilder ssb = new SpannableStringBuilder("    ");
-                ssb.append(getString(R.string.gallery_list_search_bar_open_gallery));
-                int imageSize = (int) (textView.getTextSize() * 1.25);
+    private abstract inner class UrlSuggestion : Suggestion() {
+        override fun getText(textView: TextView): CharSequence {
+            return if (textView.id == android.R.id.text1) {
+                val bookImage =
+                    ContextCompat.getDrawable(textView.context, R.drawable.v_book_open_x24)
+                val ssb = SpannableStringBuilder("    ")
+                ssb.append(getString(R.string.gallery_list_search_bar_open_gallery))
+                val imageSize = (textView.textSize * 1.25).toInt()
                 if (bookImage != null) {
-                    bookImage.setBounds(0, 0, imageSize, imageSize);
-                    ssb.setSpan(new ImageSpan(bookImage), 1, 2, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                    bookImage.setBounds(0, 0, imageSize, imageSize)
+                    ssb.setSpan(ImageSpan(bookImage), 1, 2, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
                 }
-                return ssb;
+                ssb
             } else {
-                return null;
+                ""
             }
         }
 
-        @Override
-        public void onClick() {
-            startScene(createAnnouncer());
-
+        override fun onClick() {
+            startScene(createAnnouncer())
             if (mState == STATE_SIMPLE_SEARCH) {
-                setState(STATE_NORMAL);
+                setState(STATE_NORMAL)
             } else if (mState == STATE_SEARCH_SHOW_LIST) {
-                setState(STATE_SEARCH);
+                setState(STATE_SEARCH)
             }
         }
 
-        public abstract Announcer createAnnouncer();
-
+        abstract fun createAnnouncer(): Announcer?
     }
 
-    private class GalleryDetailUrlSuggestion extends UrlSuggestion {
-        private final long mGid;
-        private final String mToken;
-
-        private GalleryDetailUrlSuggestion(long gid, String token) {
-            mGid = gid;
-            mToken = token;
-        }
-
-        @Override
-        public Announcer createAnnouncer() {
-            Bundle args = new Bundle();
-            args.putString(GalleryDetailScene.KEY_ACTION, GalleryDetailScene.ACTION_GID_TOKEN);
-            args.putLong(GalleryDetailScene.KEY_GID, mGid);
-            args.putString(GalleryDetailScene.KEY_TOKEN, mToken);
-            return new Announcer(GalleryDetailScene.class).setArgs(args);
+    private inner class GalleryDetailUrlSuggestion (
+        private val mGid: Long,
+        private val mToken: String
+    ) : UrlSuggestion() {
+        override fun createAnnouncer(): Announcer? {
+            val args = Bundle()
+            args.putString(GalleryDetailScene.KEY_ACTION, GalleryDetailScene.ACTION_GID_TOKEN)
+            args.putLong(GalleryDetailScene.KEY_GID, mGid)
+            args.putString(GalleryDetailScene.KEY_TOKEN, mToken)
+            return Announcer(GalleryDetailScene::class.java).setArgs(args)
         }
     }
 
-    private class GalleryPageUrlSuggestion extends UrlSuggestion {
-        private final long mGid;
-        private final String mPToken;
-        private final int mPage;
-
-        private GalleryPageUrlSuggestion(long gid, String pToken, int page) {
-            mGid = gid;
-            mPToken = pToken;
-            mPage = page;
-        }
-
-        @Override
-        public Announcer createAnnouncer() {
-            Bundle args = new Bundle();
-            args.putString(ProgressScene.KEY_ACTION, ProgressScene.ACTION_GALLERY_TOKEN);
-            args.putLong(ProgressScene.KEY_GID, mGid);
-            args.putString(ProgressScene.KEY_PTOKEN, mPToken);
-            args.putInt(ProgressScene.KEY_PAGE, mPage);
-            return new Announcer(ProgressScene.class).setArgs(args);
+    private inner class GalleryPageUrlSuggestion (
+        private val mGid: Long,
+        private val mPToken: String,
+        private val mPage: Int
+    ) : UrlSuggestion() {
+        override fun createAnnouncer(): Announcer? {
+            val args = Bundle()
+            args.putString(ProgressScene.KEY_ACTION, ProgressScene.ACTION_GALLERY_TOKEN)
+            args.putLong(ProgressScene.KEY_GID, mGid)
+            args.putString(ProgressScene.KEY_PTOKEN, mPToken)
+            args.putInt(ProgressScene.KEY_PAGE, mPage)
+            return Announcer(ProgressScene::class.java).setArgs(args)
         }
     }
 
-    private class GalleryListAdapter extends GalleryAdapter {
-
-        public GalleryListAdapter(@NonNull LayoutInflater inflater,
-                                  @NonNull Resources resources, @NonNull RecyclerView recyclerView, int type) {
-            super(inflater, resources, recyclerView, type, true);
+    private inner class GalleryListAdapter(
+        inflater: LayoutInflater,
+        resources: Resources, recyclerView: RecyclerView, type: Int
+    ) : GalleryAdapter(inflater, resources, recyclerView, type, true) {
+        override fun getItemCount(): Int {
+            return if (null != mHelper) mHelper!!.size() else 0
         }
 
-        @Override
-        public int getItemCount() {
-            return null != mHelper ? mHelper.size() : 0;
+        public override fun onItemClick(view: View, position: Int) {
+            this@GalleryListScene.onItemClick(view, position)
         }
 
-        @Override
-        void onItemClick(View view, int position) {
-            GalleryListScene.this.onItemClick(view, position);
+        public override fun onItemLongClick(view: View, position: Int): Boolean {
+            return this@GalleryListScene.onItemLongClick(position)
         }
 
-        @Override
-        boolean onItemLongClick(View view, int position) {
-            return GalleryListScene.this.onItemLongClick(position);
-        }
-
-        @Nullable
-        @Override
-        public GalleryInfo getDataAt(int position) {
-            return null != mHelper ? mHelper.getDataAtEx(position) : null;
+        override fun getDataAt(position: Int): GalleryInfo? {
+            return if (null != mHelper) mHelper!!.getDataAtEx(position) else null
         }
     }
 
-    private class GalleryListHelper extends GalleryInfoContentHelper {
-
-        @Override
-        protected void getPageData(int taskId, int type, int page) {
-            MainActivity activity = getMainActivity();
+    private inner class GalleryListHelper : GalleryInfoContentHelper() {
+        override fun getPageData(taskId: Int, type: Int, page: Int) {
+            val activity = mainActivity
             if (null == activity || null == mClient || null == mUrlBuilder) {
-                return;
+                return
             }
-
-            mUrlBuilder.setPageIndex(page);
-            if (ListUrlBuilder.MODE_IMAGE_SEARCH == mUrlBuilder.getMode()) {
-                EhRequest request = new EhRequest();
-                request.setMethod(EhClient.METHOD_IMAGE_SEARCH);
-                request.setCallback(new GetGalleryListListener(getContext(),
-                        activity.getStageId(), getTag(), taskId));
-                request.setArgs(new File(StringUtils.avoidNull(mUrlBuilder.getImagePath())),
-                        mUrlBuilder.isUseSimilarityScan(),
-                        mUrlBuilder.isOnlySearchCovers(), mUrlBuilder.isShowExpunged());
-                mClient.execute(request);
+            mUrlBuilder!!.pageIndex = page
+            if (ListUrlBuilder.MODE_IMAGE_SEARCH == mUrlBuilder!!.mode) {
+                val request = EhRequest()
+                request.method = EhClient.METHOD_IMAGE_SEARCH
+                request.callback = GetGalleryListListener(
+                    context,
+                    activity.stageId, tag, taskId
+                )
+                request.setArgs(
+                    File(StringUtils.avoidNull(mUrlBuilder!!.imagePath)),
+                    mUrlBuilder!!.isUseSimilarityScan,
+                    mUrlBuilder!!.isOnlySearchCovers, mUrlBuilder!!.isShowExpunged
+                )
+                mClient!!.execute(request)
             } else {
-                String url = mUrlBuilder.build();
-                EhRequest request = new EhRequest();
-                request.setMethod(EhClient.METHOD_GET_GALLERY_LIST);
-                request.setCallback(new GetGalleryListListener(getContext(),
-                        activity.getStageId(), getTag(), taskId));
-                request.setArgs(url);
-                mClient.execute(request);
+                val url = mUrlBuilder!!.build()
+                val request = EhRequest()
+                request.method = EhClient.METHOD_GET_GALLERY_LIST
+                request.callback = GetGalleryListListener(
+                    context,
+                    activity.stageId, tag, taskId
+                )
+                request.setArgs(url)
+                mClient!!.execute(request)
             }
         }
 
-        @Override
-        protected Context getContext() {
-            return GalleryListScene.this.getContext();
+        override fun getContext(): Context {
+            return this@GalleryListScene.requireContext()
         }
 
-        @Override
-        protected void notifyDataSetChanged() {
+        override fun notifyDataSetChanged() {
             if (null != mAdapter) {
-                mAdapter.notifyDataSetChanged();
+                mAdapter!!.notifyDataSetChanged()
             }
         }
 
-        @Override
-        protected void notifyItemRangeRemoved(int positionStart, int itemCount) {
+        override fun notifyItemRangeRemoved(positionStart: Int, itemCount: Int) {
             if (null != mAdapter) {
-                mAdapter.notifyItemRangeRemoved(positionStart, itemCount);
+                mAdapter!!.notifyItemRangeRemoved(positionStart, itemCount)
             }
         }
 
-        @Override
-        protected void notifyItemRangeInserted(int positionStart, int itemCount) {
+        override fun notifyItemRangeInserted(positionStart: Int, itemCount: Int) {
             if (null != mAdapter) {
-                mAdapter.notifyItemRangeInserted(positionStart, itemCount);
+                mAdapter!!.notifyItemRangeInserted(positionStart, itemCount)
             }
         }
 
-        @Override
-        public void onShowView(View hiddenView, View shownView) {
+        override fun onShowView(hiddenView: View, shownView: View) {
             if (null != mSearchBarMover) {
-                mSearchBarMover.showSearchBar();
+                mSearchBarMover!!.showSearchBar()
             }
-            showActionFab();
+            showActionFab()
         }
 
-        @Override
-        protected boolean isDuplicate(GalleryInfo d1, GalleryInfo d2) {
-            return d1.gid == d2.gid;
+        override fun isDuplicate(d1: GalleryInfo, d2: GalleryInfo): Boolean {
+            return d1.gid == d2.gid
         }
 
-        @Override
-        protected void onScrollToPosition(int postion) {
+        override fun onScrollToPosition(postion: Int) {
             if (0 == postion) {
                 if (null != mSearchBarMover) {
-                    mSearchBarMover.showSearchBar();
+                    mSearchBarMover!!.showSearchBar()
                 }
-                showActionFab();
+                showActionFab()
             }
+        }
+    }
+
+    companion object {
+        const val KEY_ACTION = "action"
+        const val ACTION_HOMEPAGE = "action_homepage"
+        const val ACTION_SUBSCRIPTION = "action_subscription"
+        const val ACTION_WHATS_HOT = "action_whats_hot"
+        const val ACTION_TOP_LIST = "action_top_list"
+        const val ACTION_LIST_URL_BUILDER = "action_list_url_builder"
+        const val KEY_LIST_URL_BUILDER = "list_url_builder"
+        const val KEY_HAS_FIRST_REFRESH = "has_first_refresh"
+        const val KEY_STATE = "state"
+        private const val BACK_PRESSED_INTERVAL = 2000
+        private const val STATE_NORMAL = 0
+        private const val STATE_SIMPLE_SEARCH = 1
+        private const val STATE_SEARCH = 2
+        private const val STATE_SEARCH_SHOW_LIST = 3
+        private const val ANIMATE_TIME = 300L
+        private fun getSuitableTitleForUrlBuilder(
+            resources: Resources, urlBuilder: ListUrlBuilder, appName: Boolean
+        ): String? {
+            val keyword = urlBuilder.keyword
+            val category = urlBuilder.category
+            return if (ListUrlBuilder.MODE_NORMAL == urlBuilder.mode && EhUtils.NONE == category &&
+                TextUtils.isEmpty(keyword) && urlBuilder.advanceSearch == -1 && urlBuilder.minRating == -1 && urlBuilder.pageFrom == -1 && urlBuilder.pageTo == -1
+            ) {
+                resources.getString(if (appName) R.string.app_name else R.string.homepage)
+            } else if (ListUrlBuilder.MODE_SUBSCRIPTION == urlBuilder.mode && EhUtils.NONE == category &&
+                TextUtils.isEmpty(keyword) && urlBuilder.advanceSearch == -1 && urlBuilder.minRating == -1 && urlBuilder.pageFrom == -1 && urlBuilder.pageTo == -1
+            ) {
+                resources.getString(R.string.subscription)
+            } else if (ListUrlBuilder.MODE_WHATS_HOT == urlBuilder.mode) {
+                resources.getString(R.string.whats_hot)
+            } else if (ListUrlBuilder.MODE_TOPLIST == urlBuilder.mode) {
+                when (urlBuilder.keyword) {
+                    "11" -> return resources.getString(R.string.toplist_alltime)
+                    "12" -> return resources.getString(R.string.toplist_pastyear)
+                    "13" -> return resources.getString(R.string.toplist_pastmonth)
+                    "15" -> return resources.getString(R.string.toplist_yesterday)
+                }
+                null
+            } else if (!TextUtils.isEmpty(keyword)) {
+                keyword
+            } else if (MathUtils.hammingWeight(category) == 1) {
+                EhUtils.getCategory(category)
+            } else {
+                null
+            }
+        }
+
+        fun startScene(scene: SceneFragment, lub: ListUrlBuilder?) {
+            scene.startScene(getStartAnnouncer(lub))
+        }
+
+        fun getStartAnnouncer(lub: ListUrlBuilder?): Announcer {
+            val args = Bundle()
+            args.putString(KEY_ACTION, ACTION_LIST_URL_BUILDER)
+            args.putParcelable(KEY_LIST_URL_BUILDER, lub)
+            return Announcer(GalleryListScene::class.java).setArgs(args)
         }
     }
 }

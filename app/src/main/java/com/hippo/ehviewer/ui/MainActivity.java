@@ -239,7 +239,7 @@ public final class MainActivity extends StageActivity
             if ("text/plain".equals(type)) {
                 ListUrlBuilder builder = new ListUrlBuilder();
                 builder.setKeyword(intent.getStringExtra(Intent.EXTRA_TEXT));
-                startScene(processAnnouncer(GalleryListScene.getStartAnnouncer(builder)));
+                startScene(processAnnouncer(GalleryListScene.Companion.getStartAnnouncer(builder)));
                 return true;
             } else if (type != null && type.startsWith("image/")) {
                 Uri uri = intent.getParcelableExtra(Intent.EXTRA_STREAM);
@@ -252,7 +252,7 @@ public final class MainActivity extends StageActivity
                         builder.setImagePath(temp.getPath());
                         builder.setUseSimilarityScan(true);
                         builder.setShowExpunged(true);
-                        startScene(processAnnouncer(GalleryListScene.getStartAnnouncer(builder)));
+                        startScene(processAnnouncer(GalleryListScene.Companion.getStartAnnouncer(builder)));
                         return true;
                     }
                 }

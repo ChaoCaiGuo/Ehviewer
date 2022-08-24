@@ -1131,7 +1131,7 @@ public class GalleryDetailScene extends ToolbarScene implements View.OnClickList
             ListUrlBuilder lub = new ListUrlBuilder();
             lub.setMode(ListUrlBuilder.MODE_NORMAL);
             lub.setKeyword("\"" + keyword + "\"");
-            GalleryListScene.startScene(this, lub);
+            GalleryListScene.Companion.startScene(this, lub);
             return;
         }
         String artist = getArtist(gd.tags);
@@ -1139,14 +1139,14 @@ public class GalleryDetailScene extends ToolbarScene implements View.OnClickList
             ListUrlBuilder lub = new ListUrlBuilder();
             lub.setMode(ListUrlBuilder.MODE_TAG);
             lub.setKeyword("artist:" + artist);
-            GalleryListScene.startScene(this, lub);
+            GalleryListScene.Companion.startScene(this, lub);
             return;
         }
         if (null != gd.uploader) {
             ListUrlBuilder lub = new ListUrlBuilder();
             lub.setMode(ListUrlBuilder.MODE_UPLOADER);
             lub.setKeyword(gd.uploader);
-            GalleryListScene.startScene(this, lub);
+            GalleryListScene.Companion.startScene(this, lub);
         }
     }
 
@@ -1174,7 +1174,7 @@ public class GalleryDetailScene extends ToolbarScene implements View.OnClickList
                 lub.setImagePath(temp.getPath());
                 lub.setUseSimilarityScan(true);
                 lub.setShowExpunged(true);
-                GalleryListScene.startScene(this, lub);
+                GalleryListScene.Companion.startScene(this, lub);
             }
         } catch (FileNotFoundException e) {
             // Ignore
@@ -1203,7 +1203,7 @@ public class GalleryDetailScene extends ToolbarScene implements View.OnClickList
             ListUrlBuilder lub = new ListUrlBuilder();
             lub.setMode(ListUrlBuilder.MODE_UPLOADER);
             lub.setKeyword(uploader);
-            GalleryListScene.startScene(this, lub);
+            GalleryListScene.Companion.startScene(this, lub);
         } else if (mCategory == v) {
             int category = getCategory();
             if (category == -1) {
@@ -1211,7 +1211,7 @@ public class GalleryDetailScene extends ToolbarScene implements View.OnClickList
             }
             ListUrlBuilder lub = new ListUrlBuilder();
             lub.setCategory(category);
-            GalleryListScene.startScene(this, lub);
+            GalleryListScene.Companion.startScene(this, lub);
         } else if (mDownload == v) {
             GalleryInfo galleryInfo = getGalleryInfo();
             if (galleryInfo != null) {
@@ -1360,7 +1360,7 @@ public class GalleryDetailScene extends ToolbarScene implements View.OnClickList
                 ListUrlBuilder lub = new ListUrlBuilder();
                 lub.setMode(ListUrlBuilder.MODE_TAG);
                 lub.setKeyword(tag);
-                GalleryListScene.startScene(this, lub);
+                GalleryListScene.Companion.startScene(this, lub);
                 return;
             }
 

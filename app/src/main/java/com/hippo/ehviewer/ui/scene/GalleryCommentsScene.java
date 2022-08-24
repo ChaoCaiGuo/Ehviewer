@@ -892,7 +892,7 @@ public final class GalleryCommentsScene extends ToolbarScene
                 ListUrlBuilder lub = new ListUrlBuilder();
                 lub.setMode(ListUrlBuilder.MODE_UPLOADER);
                 lub.setKeyword(value.user);
-                GalleryListScene.startScene(GalleryCommentsScene.this, lub);
+                GalleryListScene.Companion.startScene(GalleryCommentsScene.this, lub);
             });
             time.setText(ReadableTime.getTimeAgo(value.time));
             comment.setText(generateComment(comment.getContext(), comment, value));
