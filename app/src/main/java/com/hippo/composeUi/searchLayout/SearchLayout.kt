@@ -8,7 +8,9 @@ import android.util.AttributeSet
 import android.util.Log
 import android.widget.LinearLayout
 import androidx.compose.animation.animateContentSize
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -19,7 +21,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
@@ -33,7 +34,6 @@ import com.hippo.ehviewer.R
 import com.hippo.ehviewer.client.EhConfig
 import com.hippo.ehviewer.client.data.ListUrlBuilder
 import com.hippo.ehviewer.client.exception.EhException
-import com.hippo.ehviewer.ui.MainActivity
 import com.hippo.io.UniFileInputStreamPipe
 import com.hippo.unifile.UniFile
 import com.hippo.util.BitmapUtils
@@ -68,30 +68,32 @@ class SearchLayout @JvmOverloads constructor(
 
     init {
         clipToPadding = false
-        addComposeView { ComposeSearchLayout(viewModel, onSelectImage) }
+        addComposeView { ComposeSearchLayout(viewModel!!, onSelectImage) }
     }
 
 
-    private val viewModel =
-        ViewModelProvider(mContext as MainActivity).get(SearchViewModel::class.java)
+    private var viewModel:SearchViewModel? = null
     private var mImagePath: String? = null
     private var onSelectImage:(()->Unit)? =null
 
+    fun setViewModel(viewModel:SearchViewModel){
+        this.viewModel =viewModel
+    }
 
     @SuppressLint("NonConstantResourceId")
     @Throws(EhException::class)
     fun formatListUrlBuilder(urlBuilder: ListUrlBuilder, query: String?) {
         urlBuilder.reset()
-        when (viewModel.mSearchMode) {
+        when (viewModel?.mSearchMode) {
             0 -> {
                 urlBuilder.mode = ListUrlBuilder.MODE_NORMAL
                 urlBuilder.keyword = query
-                urlBuilder.category = viewModel.getCategory()
-                if (viewModel.enabledAdvance) {
-                    urlBuilder.advanceSearch = viewModel.getAdvanceSearch()
-                    urlBuilder.minRating = viewModel.advance_minRating
-                    urlBuilder.pageFrom = viewModel.advance_pageMunber.PageFrom
-                    urlBuilder.pageTo = viewModel.advance_pageMunber.PageTo
+                urlBuilder.category = viewModel!!.getCategory()
+                if (viewModel!!.enabledAdvance) {
+                    urlBuilder.advanceSearch = viewModel!!.getAdvanceSearch()
+                    urlBuilder.minRating = viewModel!!.advance_minRating
+                    urlBuilder.pageFrom = viewModel!!.advance_pageMunber.PageFrom
+                    urlBuilder.pageTo = viewModel!!.advance_pageMunber.PageTo
                 }
             }
             1 -> {
@@ -107,16 +109,16 @@ class SearchLayout @JvmOverloads constructor(
             throw EhException(context.getString(R.string.select_image_first))
         }
         builder.imagePath = mImagePath
-        builder.isUseSimilarityScan = viewModel.image_selected[0]
-        builder.isOnlySearchCovers = viewModel.image_selected[1]
-        builder.isShowExpunged = viewModel.image_selected[2]
+        builder.isUseSimilarityScan = viewModel!!.image_selected[0]
+        builder.isOnlySearchCovers = viewModel!!.image_selected[1]
+        builder.isShowExpunged = viewModel!!.image_selected[2]
     }
 
     fun setImageUri(imageUri: Uri?) {
         if (null == imageUri) {
             return
         }
-        viewModel.image_path = imageUri
+        viewModel!!.image_path = imageUri
 
         val file = UniFile.fromUri(mContext, imageUri) ?: return
         try {

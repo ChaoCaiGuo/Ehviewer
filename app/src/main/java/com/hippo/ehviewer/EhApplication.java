@@ -89,6 +89,7 @@ import javax.net.ssl.TrustManager;
 import javax.net.ssl.TrustManagerFactory;
 import javax.net.ssl.X509TrustManager;
 
+import dagger.hilt.android.HiltAndroidApp;
 import okhttp3.Cache;
 import okhttp3.Call;
 import okhttp3.HttpUrl;
@@ -97,6 +98,7 @@ import okhttp3.Request;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
 
+@HiltAndroidApp
 public class EhApplication extends SceneApplication {
 
     public static final boolean BETA = false;

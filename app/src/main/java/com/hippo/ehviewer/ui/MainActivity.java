@@ -92,6 +92,9 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Map;
 
+import dagger.hilt.android.AndroidEntryPoint;
+
+@AndroidEntryPoint
 public final class MainActivity extends StageActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 

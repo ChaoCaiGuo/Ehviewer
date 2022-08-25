@@ -34,8 +34,10 @@ import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
 import java.util.List;
 
+import dagger.hilt.android.AndroidEntryPoint;
 import rikka.core.res.ResourcesKt;
 
+@AndroidEntryPoint
 public class SceneFragment extends Fragment {
 
     public static final int LAUNCH_MODE_STANDARD = 0;

@@ -24,6 +24,7 @@ import android.os.Bundle;
 import android.os.Parcelable;
 import android.util.AttributeSet;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
@@ -89,13 +90,13 @@ public class ContentLayout extends FrameLayout {
     }
 
     private void init(Context context) {
-        ((Activity) context).getLayoutInflater().inflate(R.layout.widget_content_layout, this);
+        View view =LayoutInflater.from(context).inflate(R.layout.widget_content_layout, this);
         setClipChildren(false);
         setClipToPadding(false);
 
-        mProgressView = findViewById(R.id.progress);
-        mTipView = findViewById(R.id.tip);
-        mContentView = findViewById(R.id.content_view);
+        mProgressView = view.findViewById(R.id.progress);
+        mTipView = view.findViewById(R.id.tip);
+        mContentView = view.findViewById(R.id.content_view);
 
         mRefreshLayout = mContentView.findViewById(R.id.refresh_layout);
         mBottomProgress = mContentView.findViewById(R.id.bottom_progress);

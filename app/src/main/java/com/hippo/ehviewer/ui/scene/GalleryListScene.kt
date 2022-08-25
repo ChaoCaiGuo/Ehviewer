@@ -39,6 +39,7 @@ import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsAnimationCompat
 import androidx.drawerlayout.widget.DrawerLayout
+import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
@@ -82,15 +83,19 @@ import com.hippo.scene.SceneFragment
 import com.hippo.util.ExceptionUtils
 import com.hippo.view.BringOutTransition
 import com.hippo.view.ViewTransition
+import com.hippo.viewModel.SearchViewModel
 import com.hippo.widget.ContentLayout
 import com.hippo.widget.FabLayout
 import com.hippo.widget.FabLayout.OnClickFabListener
 import com.hippo.widget.FabLayout.OnExpandListener
 import com.hippo.widget.SearchBarMover
 import com.hippo.yorozuya.*
+import dagger.hilt.android.AndroidEntryPoint
 import rikka.core.res.resolveColor
 import java.io.File
+import javax.inject.Inject
 
+@AndroidEntryPoint
 @SuppressLint("RtlHardcoded")
 class GalleryListScene : BaseScene(), SearchBar.Helper, OnStateChangeListener,
     OnDragHandlerListener, SearchBarMover.Helper, View.OnClickListener, OnClickFabListener,
@@ -98,9 +103,8 @@ class GalleryListScene : BaseScene(), SearchBar.Helper, OnStateChangeListener,
     /*---------------
      Whole life cycle
      ---------------*/
-    private var mClient: EhClient? = null
+    @Inject lateinit var mClient: EhClient
     private var mUrlBuilder: ListUrlBuilder? = null
-
     /*---------------
      View life cycle
      ---------------*/
@@ -209,8 +213,9 @@ class GalleryListScene : BaseScene(), SearchBar.Helper, OnStateChangeListener,
         super.onCreate(savedInstanceState)
         val context = context
         AssertUtils.assertNotNull(context)
-        mClient = EhApplication.getEhClient(context!!)
-        mDownloadManager = EhApplication.getDownloadManager(context)
+
+//        mClient = EhApplication.getEhClient(context!!)
+        mDownloadManager = EhApplication.getDownloadManager(context!!)
         mFavouriteStatusRouter = EhApplication.getFavouriteStatusRouter(context)
         mDownloadInfoListener = object : DownloadInfoListener {
             override fun onAdd(info: DownloadInfo, list: List<DownloadInfo>, position: Int) {
@@ -282,7 +287,7 @@ class GalleryListScene : BaseScene(), SearchBar.Helper, OnStateChangeListener,
 
     override fun onDestroy() {
         super.onDestroy()
-        mClient = null
+//        mClient = null
         mUrlBuilder = null
         mDownloadManager!!.removeDownloadInfoListener(mDownloadInfoListener)
         mFavouriteStatusRouter!!.removeListener(mFavouriteStatusRouterListener)
@@ -415,6 +420,7 @@ class GalleryListScene : BaseScene(), SearchBar.Helper, OnStateChangeListener,
         mRecyclerView = mContentLayout!!.recyclerView
         val fastScroller = mContentLayout!!.fastScroller
         mSearchLayout = ViewUtils.`$$`(mainLayout, R.id.search_layout) as SearchLayout
+        mSearchLayout!!.setViewModel(ViewModelProvider(this).get(SearchViewModel::class.java))
         mSearchBar = ViewUtils.`$$`(mainLayout, R.id.search_bar) as SearchBar
         mFabLayout = ViewUtils.`$$`(mainLayout, R.id.fab_layout) as FabLayout
         mSearchFab = ViewUtils.`$$`(mainLayout, R.id.search_fab)
