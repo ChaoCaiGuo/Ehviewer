@@ -24,7 +24,7 @@ import com.hippo.viewModel.SearchViewModel
 fun ComposeImageSearch(viewModel: SearchViewModel, onclick: (() -> Unit)?) {
     val imageSearchLayoutString = stringArrayResource(id = R.array.ImageSearchLayout)
     Column {
-        Text(text = stringResource(id = R.string.search_image), fontWeight = FontWeight.W900, fontSize = 14.sp)
+        Text(text = stringResource(id = R.string.search_image), fontWeight = FontWeight.W900, fontSize = 18.sp)
         Spacer(modifier = Modifier.height(17.dp))
         if(viewModel.image_path != null){
             Box(contentAlignment= Alignment.Center, modifier = Modifier.fillMaxWidth()){

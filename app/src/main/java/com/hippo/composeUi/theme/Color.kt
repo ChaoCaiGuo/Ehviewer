@@ -16,3 +16,6 @@ val TextlightColor =Color.Black
 
 val Light = Color(0xFFFFFFFF)
 val Dark = Color(0xFF000000)
+
+val MainColorLight = Color(0xFF5E35B1)
+val MainColorDark =  Color(0xFFEFB8C8)

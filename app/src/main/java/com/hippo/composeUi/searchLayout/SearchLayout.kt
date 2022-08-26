@@ -28,7 +28,7 @@ import com.google.accompanist.pager.PagerState
 import com.google.accompanist.pager.rememberPagerState
 import com.hippo.composeUi.composeExt.addComposeView
 import com.hippo.composeUi.composeExt.pagerTabIndicatorOffset
-import com.hippo.composeUi.theme.CheckBox
+import com.hippo.composeUi.theme.MainColor
 import com.hippo.ehviewer.AppConfig
 import com.hippo.ehviewer.R
 import com.hippo.ehviewer.client.EhConfig
@@ -127,8 +127,6 @@ class SearchLayout @JvmOverloads constructor(
                 BitmapUtils.decodeStream(UniFileInputStreamPipe(file), maxSize, maxSize) ?: return
             val temp = AppConfig.createTempFile() ?: return
 
-            // TODO ehentai image search is bad when I'm writing this line.
-            // Re-compress image will make image search failed.
             var os: OutputStream? = null
             try {
                 os = FileOutputStream(temp)
@@ -168,7 +166,6 @@ fun ComposeSearchLayout(viewModel: SearchViewModel = viewModel(),onSelectImage:(
         }
     }
 
-
     Column(modifier = Modifier.verticalScroll(viewModel.verticalScroll)) {
         HorizontalPager(
             count = pages.size,
@@ -201,7 +198,7 @@ private fun TabRow(
     scope: CoroutineScope = rememberCoroutineScope()
 ) {
     TabRow(
-        contentColor = MaterialTheme.colorScheme.CheckBox,
+        contentColor = MaterialTheme.colorScheme.MainColor,
         selectedTabIndex = pagerState.currentPage,
         indicator = { tabPositions ->
             TabRowDefaults.Indicator(

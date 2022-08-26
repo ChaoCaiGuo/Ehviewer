@@ -47,11 +47,11 @@ private fun SearchNormal(viewModel: SearchViewModel) {
 
 @Composable
 private fun SearchNormalTitle(viewModel: SearchViewModel) {
-    Row {
+    Row(verticalAlignment=Alignment.CenterVertically){
         Text(
             text = stringResource(id = R.string.search_normal),
             fontWeight = FontWeight.W900,
-            fontSize = 14.sp
+            fontSize = 18.sp
         )
         Spacer(modifier = Modifier.weight(1f))
         Text(text = stringResource(id = R.string.select_all),
@@ -139,7 +139,7 @@ fun ComAdvanceSearchTable(viewModel: SearchViewModel) {
         Text(
             text = stringResource(id = R.string.search_advance),
             fontWeight = FontWeight.W900,
-            fontSize = 14.sp
+            fontSize = 18.sp
         )
         Spacer(modifier = Modifier.height(12.dp))
 

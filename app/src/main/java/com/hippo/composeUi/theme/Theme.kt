@@ -1,13 +1,11 @@
 package com.hippo.composeUi.theme
 
-import android.app.Activity
 import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.ViewCompat
@@ -70,5 +68,5 @@ var isdarkTheme: Boolean = false
 val ColorScheme.TextColor:Color
     get() = if(isdarkTheme) TextdarkColor else TextlightColor
 
-val ColorScheme.CheckBox:Color
-    get() = Color(0xFF5E35B1)
+val ColorScheme.MainColor:Color
+    get() =  if(isdarkTheme) MainColorDark else MainColorLight
