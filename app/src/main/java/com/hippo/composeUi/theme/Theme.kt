@@ -70,3 +70,6 @@ val ColorScheme.TextColor:Color
 
 val ColorScheme.MainColor:Color
     get() =  if(isdarkTheme) MainColorDark else MainColorLight
+
+val ColorScheme.SystemBarsColor:Color
+    get() =  if(isdarkTheme) TextlightColor else TextdarkColor
