@@ -190,6 +190,7 @@ fun ComCategoryTableItem(text: String, selected: Boolean, onClick: () -> Unit) {
             }
     }
     ElevatedFilterChip(
+        modifier=Modifier.fillMaxWidth(),
         selected = selected,
         onClick = { onClick.invoke() },
         label = { Text(temText, color = if (selected) Color.White else Color.Unspecified) },

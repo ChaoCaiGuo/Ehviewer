@@ -1,5 +1,6 @@
 package com.hippo.composeUi.searchLayout
 
+import android.app.Activity
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -7,15 +8,19 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.itemsIndexed
 import androidx.compose.material3.*
+import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
+import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.google.accompanist.flowlayout.FlowRow
 import com.hippo.composeUi.theme.TextColor
 import com.hippo.ehviewer.R
 import com.hippo.viewModel.SearchViewModel
@@ -47,7 +52,7 @@ private fun SearchNormal(viewModel: SearchViewModel) {
 
 @Composable
 private fun SearchNormalTitle(viewModel: SearchViewModel) {
-    Row(verticalAlignment=Alignment.CenterVertically){
+    Row(verticalAlignment = Alignment.CenterVertically) {
         Text(
             text = stringResource(id = R.string.search_normal),
             fontWeight = FontWeight.W900,
@@ -81,7 +86,6 @@ private fun SearchNormalCategory(viewModel: SearchViewModel) {
     Column(
         Modifier
             .fillMaxWidth()
-            .height(270.dp)
     ) {
         ComCategoryTable(viewModel)
         Spacer(
@@ -106,21 +110,32 @@ private fun SearchNormalCategory(viewModel: SearchViewModel) {
 
 }
 
+@OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
 @Composable
 private fun ComCategoryTable(viewModel: SearchViewModel) {
     val categoryText = stringArrayResource(id = R.array.Category)
-    LazyVerticalGrid(
-        columns = GridCells.Fixed(2),
-        horizontalArrangement = Arrangement.spacedBy(10.dp),
-        modifier = Modifier.wrapContentSize(Alignment.TopCenter),
-        userScrollEnabled = false
-    ) {
-        itemsIndexed(viewModel.category_selected) { index: Int, item: Boolean ->
-            ComCategoryTableItem(categoryText[index], item) {
-                viewModel.category_selected[index] = !viewModel.category_selected[index]
+    val context =LocalContext.current
+    val columns = derivedStateOf{
+        if(context.resources.displayMetrics.let { it.heightPixels > it.widthPixels }){
+            0.5f
+        }
+        else
+            0.24f
+    }
+
+
+    FlowRow(modifier = Modifier.fillMaxWidth()) {
+        viewModel.category_selected.forEachIndexed { index, item ->
+            Row(modifier = Modifier.fillMaxWidth(columns.value).padding(horizontal = 5.dp)) {
+                ComCategoryTableItem(categoryText[index], item) {
+                    viewModel.category_selected[index] = !viewModel.category_selected[index]
+                }
+
             }
+
         }
     }
+
 }
 
 
@@ -134,7 +149,6 @@ fun ComAdvanceSearchTable(viewModel: SearchViewModel) {
     Column(
         Modifier
             .fillMaxWidth()
-            .height(300.dp)
     ) {
         Text(
             text = stringResource(id = R.string.search_advance),
@@ -143,13 +157,17 @@ fun ComAdvanceSearchTable(viewModel: SearchViewModel) {
         )
         Spacer(modifier = Modifier.height(12.dp))
 
-        LazyVerticalGrid(columns = GridCells.Fixed(2), userScrollEnabled = false) {
-            itemsIndexed(viewModel.advance_selected) { index, item ->
-                AdvanceSearchItem(advanceSearchString[index], item) {
-                    viewModel.advance_selected[index] = !viewModel.advance_selected[index]
+        FlowRow(modifier = Modifier.fillMaxWidth()) {
+            viewModel.advance_selected.forEachIndexed { index, item ->
+                Box(modifier = Modifier.fillMaxWidth(0.5f)) {
+                    AdvanceSearchItem(advanceSearchString[index], item) {
+                        viewModel.advance_selected[index] = !viewModel.advance_selected[index]
+                    }
                 }
+
             }
         }
+
         MinRating(viewModel)
         PageNumber(viewModel)
     }
