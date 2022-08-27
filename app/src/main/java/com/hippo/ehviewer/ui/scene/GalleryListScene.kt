@@ -33,23 +33,17 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.IntDef
-import androidx.appcompat.widget.PopupMenu
 import androidx.appcompat.widget.Toolbar
 import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsAnimationCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.lifecycle.ViewModelProvider
+import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.floatingactionbutton.FloatingActionButton
-import com.h6ah4i.android.widget.advrecyclerview.animator.DraggableItemAnimator
-import com.h6ah4i.android.widget.advrecyclerview.animator.GeneralItemAnimator
-import com.h6ah4i.android.widget.advrecyclerview.draggable.DraggableItemAdapter
-import com.h6ah4i.android.widget.advrecyclerview.draggable.ItemDraggableRange
-import com.h6ah4i.android.widget.advrecyclerview.draggable.RecyclerViewDragDropManager
-import com.h6ah4i.android.widget.advrecyclerview.utils.AbstractDraggableItemViewHolder
 import com.hippo.app.EditTextDialogBuilder
 import com.hippo.composeUi.searchLayout.SearchLayout
 import com.hippo.drawable.AddDeleteDrawable
@@ -612,18 +606,14 @@ class GalleryListScene : BaseScene(), SearchBar.Helper, OnStateChangeListener,
         val tip = ViewUtils.`$$`(view, R.id.tip) as TextView
         val context = context
         AssertUtils.assertNotNull(context)
-        val dragDropManager = RecyclerViewDragDropManager()
-        dragDropManager.setInitiateOnLongPress(true)
-        dragDropManager.setInitiateOnTouch(false)
-        dragDropManager.draggingItemAlpha = 0.8f
+
         val recyclerView = view.findViewById<EasyRecyclerView>(R.id.recycler_view_drawer)
         recyclerView.layoutManager = LinearLayoutManager(context)
         val qsDrawerAdapter: QsDrawerAdapter = QsDrawerAdapter(inflater)
         qsDrawerAdapter.setHasStableIds(true)
-        val animator: GeneralItemAnimator = DraggableItemAnimator()
-        recyclerView.itemAnimator = animator
-        recyclerView.adapter = dragDropManager.createWrappedAdapter(qsDrawerAdapter)
-        dragDropManager.attachRecyclerView(recyclerView)
+        recyclerView.adapter = qsDrawerAdapter
+        val itemTouchHelper = ItemTouchHelper(GalleryListQSItemTouchHelperCallback(qsDrawerAdapter))
+        itemTouchHelper.attachToRecyclerView(recyclerView)
         mQuickSearchList = EhDB.getAllQuickSearch()
         tip.setText(R.string.quick_search_tip)
         if (mIsTopList) {
@@ -1259,7 +1249,7 @@ class GalleryListScene : BaseScene(), SearchBar.Helper, OnStateChangeListener,
         }
     }
 
-    private class QsDrawerHolder(itemView: View) : AbstractDraggableItemViewHolder(itemView) {
+    private class QsDrawerHolder(itemView: View) :RecyclerView.ViewHolder(itemView) {
         val key: TextView
         val option: ImageView
 
@@ -1287,7 +1277,7 @@ class GalleryListScene : BaseScene(), SearchBar.Helper, OnStateChangeListener,
     }
 
     private inner class QsDrawerAdapter (private val mInflater: LayoutInflater) :
-        RecyclerView.Adapter<QsDrawerHolder>(), DraggableItemAdapter<QsDrawerHolder> {
+        RecyclerView.Adapter<QsDrawerHolder>() {
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): QsDrawerHolder {
             return QsDrawerHolder(mInflater.inflate(R.layout.item_drawer_list, parent, false))
         }
@@ -1305,37 +1295,6 @@ class GalleryListScene : BaseScene(), SearchBar.Helper, OnStateChangeListener,
                     mHelper!!.refresh()
                     setState(STATE_NORMAL)
                     closeDrawer(Gravity.RIGHT)
-                }
-                holder.itemView.setOnLongClickListener { v: View? ->
-                    val popupMenu = PopupMenu(requireContext(), holder.option)
-                    popupMenu.inflate(R.menu.quicksearch_option)
-                    popupMenu.show()
-                    popupMenu.setOnMenuItemClickListener(object :
-                        PopupMenu.OnMenuItemClickListener {
-                        val quickSearch = mQuickSearchList!![position]
-                        override fun onMenuItemClick(item: MenuItem): Boolean {
-                            if (item.itemId == R.id.menu_qs_remove) {
-                                MaterialAlertDialogBuilder(requireContext())
-                                    .setTitle(getString(R.string.delete_quick_search_title))
-                                    .setMessage(
-                                        getString(
-                                            R.string.delete_quick_search_message,
-                                            quickSearch.name
-                                        )
-                                    )
-                                    .setPositiveButton(R.string.delete) { dialog: DialogInterface?, which: Int ->
-                                        EhDB.deleteQuickSearch(quickSearch)
-                                        mQuickSearchList!!.removeAt(position)
-                                        notifyDataSetChanged()
-                                    }
-                                    .setNegativeButton(android.R.string.cancel, null)
-                                    .show()
-                                return true
-                            }
-                            return false
-                        }
-                    })
-                    true
                 }
             } else {
                 val keywords = intArrayOf(11, 12, 13, 15)
@@ -1374,45 +1333,6 @@ class GalleryListScene : BaseScene(), SearchBar.Helper, OnStateChangeListener,
             return if (!mIsTopList) if (mQuickSearchList != null) mQuickSearchList!!.size else 0 else 4
         }
 
-        override fun onCheckCanStartDrag(
-            holder: QsDrawerHolder,
-            position: Int,
-            x: Int,
-            y: Int
-        ): Boolean {
-            return !mIsTopList && x > holder.option.x && y > holder.option.y
-        }
-
-        override fun onGetItemDraggableRange(
-            holder: QsDrawerHolder,
-            position: Int
-        ): ItemDraggableRange? {
-            return null
-        }
-
-        override fun onMoveItem(fromPosition: Int, toPosition: Int) {
-            if (fromPosition == toPosition) {
-                return
-            }
-            if (null == mQuickSearchList) {
-                return
-            }
-            EhDB.moveQuickSearch(fromPosition, toPosition)
-            val item = mQuickSearchList!!.removeAt(fromPosition)
-            mQuickSearchList!!.add(toPosition, item)
-        }
-
-        override fun onCheckCanDrop(draggingPosition: Int, dropPosition: Int): Boolean {
-            return true
-        }
-
-        override fun onItemDragStarted(position: Int) {
-            notifyDataSetChanged()
-        }
-
-        override fun onItemDragFinished(fromPosition: Int, toPosition: Int, result: Boolean) {
-            notifyDataSetChanged()
-        }
     }
 
     private abstract inner class UrlSuggestion : Suggestion() {
@@ -1627,6 +1547,49 @@ class GalleryListScene : BaseScene(), SearchBar.Helper, OnStateChangeListener,
             args.putString(KEY_ACTION, ACTION_LIST_URL_BUILDER)
             args.putParcelable(KEY_LIST_URL_BUILDER, lub)
             return Announcer(GalleryListScene::class.java).setArgs(args)
+        }
+    }
+    private inner class GalleryListQSItemTouchHelperCallback(private val mAdapter: QsDrawerAdapter) :
+        ItemTouchHelper.Callback() {
+        override fun getMovementFlags(
+            recyclerView: RecyclerView,
+            viewHolder: RecyclerView.ViewHolder
+        ): Int {
+            return makeMovementFlags(
+                ItemTouchHelper.UP or ItemTouchHelper.DOWN,
+                ItemTouchHelper.LEFT
+            )
+        }
+
+        @SuppressLint("NotifyDataSetChanged")
+        override fun onMove(
+            recyclerView: RecyclerView,
+            viewHolder: RecyclerView.ViewHolder,
+            target: RecyclerView.ViewHolder
+        ): Boolean {
+            val fromPosition = viewHolder.bindingAdapterPosition
+            val toPosition = target.bindingAdapterPosition
+            if (fromPosition == toPosition) {
+                return false
+            }
+            if (null == mQuickSearchList) {
+                return false
+            }
+            EhDB.moveQuickSearch(fromPosition, toPosition)
+            val item: QuickSearch = mQuickSearchList!!.removeAt(fromPosition)
+            mQuickSearchList!!.add(toPosition, item)
+            mAdapter.notifyDataSetChanged()
+            return true
+        }
+
+        @SuppressLint("NotifyDataSetChanged")
+        override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+            if (mQuickSearchList == null) return
+            val position = viewHolder.bindingAdapterPosition
+            val quickSearch: QuickSearch = mQuickSearchList!!.get(position)
+            EhDB.deleteQuickSearch(quickSearch)
+            mQuickSearchList!!.removeAt(position)
+            mAdapter.notifyDataSetChanged()
         }
     }
 }
