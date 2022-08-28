@@ -45,7 +45,7 @@ import java.io.FileNotFoundException
 import java.io.FileOutputStream
 import java.io.OutputStream
 
-val TAG = " SearchLayout"
+val TAG = "SearchLayout"
 
 class SearchLayout @JvmOverloads constructor(
     private val mContext: Context,
@@ -55,19 +55,16 @@ class SearchLayout @JvmOverloads constructor(
 
 
     companion object {
-        val EhConfigs = listOf(
+        val CategoryEhConfigs = listOf(
             EhConfig.DOUJINSHI, EhConfig.MANGA,
             EhConfig.ARTIST_CG, EhConfig.GAME_CG,
             EhConfig.WESTERN, EhConfig.NON_H,
             EhConfig.IMAGE_SET, EhConfig.COSPLAY,
             EhConfig.ASIAN_PORN, EhConfig.MISC
         )
-
-
     }
 
     init {
-        clipToPadding = false
         addComposeView { ComposeSearchLayout(viewModel!!, onSelectImage) }
     }
 
@@ -91,9 +88,9 @@ class SearchLayout @JvmOverloads constructor(
                 urlBuilder.category = viewModel!!.getCategory()
                 if (viewModel!!.enabledAdvance) {
                     urlBuilder.advanceSearch = viewModel!!.getAdvanceSearch()
-                    urlBuilder.minRating = viewModel!!.advance_minRating
-                    urlBuilder.pageFrom = viewModel!!.advance_pageMunber.PageFrom
-                    urlBuilder.pageTo = viewModel!!.advance_pageMunber.PageTo
+                    urlBuilder.minRating = viewModel!!.minRating
+                    urlBuilder.pageFrom = viewModel!!.searchPageNumber.PageFrom
+                    urlBuilder.pageTo = viewModel!!.searchPageNumber.PageTo
                 }
             }
             1 -> {
@@ -109,16 +106,16 @@ class SearchLayout @JvmOverloads constructor(
             throw EhException(context.getString(R.string.select_image_first))
         }
         builder.imagePath = mImagePath
-        builder.isUseSimilarityScan = viewModel!!.image_selected[0]
-        builder.isOnlySearchCovers = viewModel!!.image_selected[1]
-        builder.isShowExpunged = viewModel!!.image_selected[2]
+        builder.isUseSimilarityScan = viewModel!!.imageSearchOptionsSelected[0]
+        builder.isOnlySearchCovers = viewModel!!.imageSearchOptionsSelected[1]
+        builder.isShowExpunged = viewModel!!.imageSearchOptionsSelected[2]
     }
 
     fun setImageUri(imageUri: Uri?) {
         if (null == imageUri) {
             return
         }
-        viewModel!!.image_path = imageUri
+        viewModel!!.imageUri = imageUri
 
         val file = UniFile.fromUri(mContext, imageUri) ?: return
         try {
@@ -154,7 +151,7 @@ class SearchLayout @JvmOverloads constructor(
 @Composable
 fun ComposeSearchLayout(viewModel: SearchViewModel = viewModel(),onSelectImage:(()->Unit)? = null) {
     val pagerState = rememberPagerState()
-    val pages = listOf(
+    val tabRowString = listOf(
         stringResource(id = R.string.keyword_search),
         stringResource(id = R.string.image_search)
     )
@@ -168,7 +165,7 @@ fun ComposeSearchLayout(viewModel: SearchViewModel = viewModel(),onSelectImage:(
 
     Column(modifier = Modifier.verticalScroll(viewModel.verticalScroll)) {
         HorizontalPager(
-            count = pages.size,
+            count = tabRowString.size,
             state = pagerState,
             modifier = Modifier.animateContentSize(),
             verticalAlignment = Alignment.Top
@@ -176,11 +173,11 @@ fun ComposeSearchLayout(viewModel: SearchViewModel = viewModel(),onSelectImage:(
             when (page) {
                 0 -> Column {
                     ComposeKeywordSearch(viewModel)
-                    TabRow(pagerState, pages)
+                    TabRow(pagerState, tabRowString)
                 }
                 1 -> Column {
                     CardPage { ComposeImageSearch(viewModel) { onSelectImage?.invoke() } }
-                    TabRow(pagerState, pages)
+                    TabRow(pagerState, tabRowString)
                 }
                 else -> {}
             }
@@ -194,7 +191,7 @@ fun ComposeSearchLayout(viewModel: SearchViewModel = viewModel(),onSelectImage:(
 @Composable
 private fun TabRow(
     pagerState: PagerState,
-    pages: List<String>,
+    tabRowString: List<String>,
     scope: CoroutineScope = rememberCoroutineScope()
 ) {
     TabRow(
@@ -207,7 +204,7 @@ private fun TabRow(
         },
 
         ) {
-        pages.forEachIndexed { index, title ->
+        tabRowString.forEachIndexed { index, title ->
             Tab(
                 text = { Text(title) },
                 selected = pagerState.currentPage == index,

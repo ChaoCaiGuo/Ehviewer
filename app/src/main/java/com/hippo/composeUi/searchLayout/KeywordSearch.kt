@@ -1,16 +1,14 @@
 package com.hippo.composeUi.searchLayout
 
-import android.app.Activity
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.itemsIndexed
-import androidx.compose.material3.*
-import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
-import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
-import androidx.compose.runtime.*
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -34,7 +32,7 @@ fun ComposeKeywordSearch(viewModel: SearchViewModel) {
         CardPage { SearchNormal(viewModel) }
 
         AnimatedVisibility(visible = viewModel.enabledAdvance) {
-            CardPage { ComAdvanceSearchTable(viewModel) }
+            CardPage { ComposeAdvanceSearchTable(viewModel) }
         }
 
     }
@@ -61,16 +59,16 @@ private fun SearchNormalTitle(viewModel: SearchViewModel) {
         Spacer(modifier = Modifier.weight(1f))
         Text(text = stringResource(id = R.string.select_all),
             modifier = Modifier.clickable {
-                (0 until viewModel.category_selected.size).forEach {
-                    viewModel.category_selected[it] = true
+                (0 until viewModel.categorySelected.size).forEach {
+                    viewModel.categorySelected[it] = true
                 }
             })
         Spacer(modifier = Modifier.width(20.dp))
 
         Text(text = stringResource(id = R.string.deselect_all),
             modifier = Modifier.clickable {
-                (0 until viewModel.category_selected.size).forEach {
-                    viewModel.category_selected[it] = false
+                (0 until viewModel.categorySelected.size).forEach {
+                    viewModel.categorySelected[it] = false
                 }
             })
     }
@@ -87,7 +85,7 @@ private fun SearchNormalCategory(viewModel: SearchViewModel) {
         Modifier
             .fillMaxWidth()
     ) {
-        ComCategoryTable(viewModel)
+        CategoryTable(viewModel)
         Spacer(
             modifier = Modifier
                 .fillMaxWidth()
@@ -110,25 +108,28 @@ private fun SearchNormalCategory(viewModel: SearchViewModel) {
 
 }
 
-@OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
 @Composable
-private fun ComCategoryTable(viewModel: SearchViewModel) {
+private fun CategoryTable(viewModel: SearchViewModel) {
     val categoryText = stringArrayResource(id = R.array.Category)
     val context =LocalContext.current
-    val columns = derivedStateOf{
-        if(context.resources.displayMetrics.let { it.heightPixels > it.widthPixels }){
-            0.5f
+    val columnsPercentage = remember {
+        derivedStateOf{
+            if(context.resources.displayMetrics.let { it.heightPixels > it.widthPixels }){
+                0.5f
+            }
+            else
+                0.24f
         }
-        else
-            0.24f
     }
 
 
     FlowRow(modifier = Modifier.fillMaxWidth()) {
-        viewModel.category_selected.forEachIndexed { index, item ->
-            Row(modifier = Modifier.fillMaxWidth(columns.value).padding(horizontal = 5.dp)) {
+        viewModel.categorySelected.forEachIndexed { index, item ->
+            Row(modifier = Modifier
+                .fillMaxWidth(columnsPercentage.value)
+                .padding(horizontal = 5.dp)) {
                 ComCategoryTableItem(categoryText[index], item) {
-                    viewModel.category_selected[index] = !viewModel.category_selected[index]
+                    viewModel.categorySelected[index] = !viewModel.categorySelected[index]
                 }
 
             }
@@ -143,8 +144,8 @@ private fun ComCategoryTable(viewModel: SearchViewModel) {
  * 下面是高级选项
  */
 @Composable
-fun ComAdvanceSearchTable(viewModel: SearchViewModel) {
-    val advanceSearchString = stringArrayResource(id = R.array.AdvanceSearch)
+fun ComposeAdvanceSearchTable(viewModel: SearchViewModel) {
+    val advanceSearchOptionsStringList = stringArrayResource(id = R.array.AdvanceSearchOptions)
 
     Column(
         Modifier
@@ -158,10 +159,10 @@ fun ComAdvanceSearchTable(viewModel: SearchViewModel) {
         Spacer(modifier = Modifier.height(12.dp))
 
         FlowRow(modifier = Modifier.fillMaxWidth()) {
-            viewModel.advance_selected.forEachIndexed { index, item ->
+            viewModel.advanceOptionsSelected.forEachIndexed { index, item ->
                 Box(modifier = Modifier.fillMaxWidth(0.5f)) {
-                    AdvanceSearchItem(advanceSearchString[index], item) {
-                        viewModel.advance_selected[index] = !viewModel.advance_selected[index]
+                    AdvanceSearchItem(advanceSearchOptionsStringList[index], item) {
+                        viewModel.advanceOptionsSelected[index] = !viewModel.advanceOptionsSelected[index]
                     }
                 }
 

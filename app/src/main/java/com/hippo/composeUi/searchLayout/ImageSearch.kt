@@ -22,14 +22,14 @@ import com.hippo.viewModel.SearchViewModel
 
 @Composable
 fun ComposeImageSearch(viewModel: SearchViewModel, onclick: (() -> Unit)?) {
-    val imageSearchLayoutString = stringArrayResource(id = R.array.ImageSearchLayout)
+    val imageSearchOptionsStringList = stringArrayResource(id = R.array.ImageSearchOptions)
     Column {
         Text(text = stringResource(id = R.string.search_image), fontWeight = FontWeight.W900, fontSize = 18.sp)
         Spacer(modifier = Modifier.height(17.dp))
-        if(viewModel.image_path != null){
+        if(viewModel.imageUri != null){
             Box(contentAlignment= Alignment.Center, modifier = Modifier.fillMaxWidth()){
                 AsyncImage(
-                    model = viewModel.image_path,
+                    model = viewModel.imageUri,
                     contentDescription = null
                 )
             }
@@ -43,9 +43,9 @@ fun ComposeImageSearch(viewModel: SearchViewModel, onclick: (() -> Unit)?) {
         }
 
         LazyVerticalGrid(columns = GridCells.Fixed(2), modifier = Modifier.height(90.dp),userScrollEnabled =false) {
-            itemsIndexed(viewModel.image_selected) { index, item ->
-                AdvanceSearchItem(imageSearchLayoutString[index], item) {
-                    viewModel.image_selected[index] = !viewModel.image_selected[index]
+            itemsIndexed(viewModel.imageSearchOptionsSelected) { index, item ->
+                AdvanceSearchItem(imageSearchOptionsStringList[index], item) {
+                    viewModel.imageSearchOptionsSelected[index] = !viewModel.imageSearchOptionsSelected[index]
                 }
             }
         }

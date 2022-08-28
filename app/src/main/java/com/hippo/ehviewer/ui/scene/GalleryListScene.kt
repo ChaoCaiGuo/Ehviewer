@@ -268,8 +268,7 @@ class GalleryListScene : BaseScene(), SearchBar.Helper, OnStateChangeListener,
 
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
-        val hasFirstRefresh: Boolean
-        hasFirstRefresh = if (mHelper != null && 1 == mHelper!!.shownViewIndex) {
+        val hasFirstRefresh: Boolean = if (mHelper != null && 1 == mHelper!!.shownViewIndex) {
             false
         } else {
             mHasFirstRefresh

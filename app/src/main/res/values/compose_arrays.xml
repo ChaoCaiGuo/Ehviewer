@@ -14,17 +14,8 @@
         <item>@string/misc</item>
     </string-array>
 
-    <!--    SearchRadio    item-->
-    <string-array name="SearchRadio">
-        <item>@string/search_normal_search</item>
-        <item>@string/search_subscription_search</item>
-        <item>@string/search_specify_uploader</item>
-        <item>@string/search_specify_tag</item>
-    </string-array>
-
-
     <!--    AdvanceSearchOptions-->
-    <string-array name="AdvanceSearch">
+    <string-array name="AdvanceSearchOptions">
         <item>@string/search_sname</item>
         <item>@string/search_stags</item>
         <item>@string/search_sdesc</item>
@@ -34,8 +25,8 @@
         <!--        <item>@string/search_sp</item>-->
     </string-array>
 
-    <!--    ImageSearchLayout-->
-    <string-array name="ImageSearchLayout">
+    <!--    ImageSearch   -->
+    <string-array name="ImageSearchOptions">
         <item>@string/search_uss</item>
         <item>@string/search_osc</item>
         <item>@string/search_se</item>

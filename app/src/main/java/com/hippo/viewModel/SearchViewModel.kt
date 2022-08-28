@@ -12,50 +12,51 @@ import com.hippo.ehviewer.EhApplication
 import com.hippo.ehviewer.R
 
 class SearchViewModel:ViewModel(){
-    val category_selected = mutableStateListOf<Boolean>()
-    val advance_selected  = mutableStateListOf<Boolean>()
-    val image_selected  = mutableStateListOf<Boolean>()
+    val categorySelected = mutableStateListOf<Boolean>()
+    val advanceOptionsSelected  = mutableStateListOf<Boolean>()
+    val imageSearchOptionsSelected  = mutableStateListOf<Boolean>()
 
-    var advance_minRating = -1
-    var advance_pageMunber =pageMunber(-1,-1)
-    var image_path by mutableStateOf<Uri?>(null)
+    var minRating = -1
+    var searchPageNumber =pageMunber(-1,-1)
+    var imageUri by mutableStateOf<Uri?>(null)
     var enabledAdvance by mutableStateOf(false)
     val verticalScroll = ScrollState(initial = 0)
     var mSearchMode = 0
 
 
     init{
-        if(image_selected.size == 0) {
-            image_selected.add(true)
-            image_selected.add(false)
-            image_selected.add(false)
+        if(imageSearchOptionsSelected.size == 0) {
+            imageSearchOptionsSelected.add(true)
+            imageSearchOptionsSelected.add(false)
+            imageSearchOptionsSelected.add(false)
         }
-        if(category_selected.size==0) {
+        if(categorySelected.size==0) {
             repeat(10){
-                category_selected.add(true)
+                categorySelected.add(true)
             }
         }
-        if(advance_selected.size == 0) {
-            (0 until EhApplication.getInstance().resources.getStringArray(R.array.AdvanceSearch).size).forEach {
+        if(advanceOptionsSelected.size == 0) {
+            (0 until EhApplication.getInstance().resources.getStringArray(R.array.AdvanceSearchOptions).size).forEach {
                 if(it<2)
-                    advance_selected.add(true)
+                    advanceOptionsSelected.add(true)
                 else
-                    advance_selected.add(false)
+                    advanceOptionsSelected.add(false)
             }
         }
     }
+
     fun getCategory(): Int {
         var category = 0
-        category_selected.forEachIndexed { index, boolean ->
+        categorySelected.forEachIndexed { index, boolean ->
             if (boolean)
-                category = category or SearchLayout.EhConfigs[index]
+                category = category or SearchLayout.CategoryEhConfigs[index]
         }
         return category
     }
 
     fun getAdvanceSearch(): Int {
         var advanceSearch = 0
-        advance_selected.forEachIndexed { index, b ->
+        advanceOptionsSelected.forEachIndexed { index, b ->
             if (b)
                 advanceSearch = advanceSearch or (1 shl index)
         }

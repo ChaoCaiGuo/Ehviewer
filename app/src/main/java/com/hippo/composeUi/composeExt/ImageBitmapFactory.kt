@@ -9,7 +9,7 @@ import java.io.InputStream
  * 谷歌官方的解决方案也是这样bitmap转ImageBitmap (ˉ▽ˉ；)...
  */
 object ImageBitmapFactory {
-    fun docodeFiles(pathName:String): ImageBitmap {
+    fun decodeFiles(pathName:String): ImageBitmap {
         return  BitmapFactory.decodeFile(pathName).asImageBitmap()
     }
 

@@ -75,7 +75,7 @@ public class Settings {
      ********************/
     public static final String KEY_DOWNLOAD_SAVE_SCHEME = "image_scheme";
     public static final String KEY_DOWNLOAD_SAVE_AUTHORITY = "image_authority";
-    public static final String KEY_DOWNLOAD_SAVE_PATH = "image_path";
+    public static final String KEY_DOWNLOAD_SAVE_PATH = "imageUri";
     public static final String KEY_DOWNLOAD_SAVE_QUERY = "image_query";
     public static final String KEY_DOWNLOAD_SAVE_FRAGMENT = "image_fragment";
     public static final String KEY_MEDIA_SCAN = "media_scan";

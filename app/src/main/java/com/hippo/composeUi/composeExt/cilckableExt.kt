@@ -48,22 +48,22 @@ fun Modifier.clickable2(
 /**
  *  监听手指 按下 和 抬起 事件
  */
-fun Modifier.pressLift(onPress: () -> Unit = {}, onLift: () -> Unit = {}): Modifier =
+fun Modifier.touchEvent(onTouchDown: () -> Unit = {}, onTouchUp: () -> Unit = {}): Modifier =
     this.pointerInput(Unit) {
         forEachGesture {
             awaitPointerEventScope {
 
-                var downPointer = awaitFirstDown()
+                val downPointer = awaitFirstDown()
                 if (downPointer.changedToDown()) {
                     Log.i("ACTION", "ACTION: 按下")
-                    onPress.invoke()
+                    onTouchDown.invoke()
                 }
                 while (true) {
-                    var event = awaitDragOrCancellation(downPointer.id) ?: break
+                    val event = awaitDragOrCancellation(downPointer.id) ?: break
                     if (event.changedToUp()) {
                         Log.i("ACTION", "ACTION: 抬起")
                         // 所有手指均已抬起
-                        onLift.invoke()
+                        onTouchUp.invoke()
                         break
                     }
                 }

@@ -55,30 +55,30 @@ fun AdvanceSearchItem(text: String, checked: Boolean, onClick: () -> Unit) {
 @Composable
 fun PageNumber(viewModel: SearchViewModel) {
     Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-        var enablePageMunber by rememberSaveable { mutableStateOf(!((viewModel.advance_pageMunber.PageFrom == -1) and (viewModel.advance_pageMunber.PageTo == -1))) }
-        var pageFrom by remember { mutableStateOf(  if(viewModel.advance_pageMunber.PageFrom !=-1) viewModel.advance_pageMunber.PageFrom.toString() else "") }
-        var pageTo   by remember { mutableStateOf(  if(viewModel.advance_pageMunber.PageTo   !=-1) viewModel.advance_pageMunber.PageTo.toString() else "") }
+        var enablePageMunber by rememberSaveable { mutableStateOf(!((viewModel.searchPageNumber.PageFrom == -1) and (viewModel.searchPageNumber.PageTo == -1))) }
+        var pageFrom by remember { mutableStateOf(  if(viewModel.searchPageNumber.PageFrom !=-1) viewModel.searchPageNumber.PageFrom.toString() else "") }
+        var pageTo   by remember { mutableStateOf(  if(viewModel.searchPageNumber.PageTo   !=-1) viewModel.searchPageNumber.PageTo.toString() else "") }
 
         AdvanceSearchItem(stringResource(id = R.string.search_sp), enablePageMunber) {
             enablePageMunber = !enablePageMunber
             if (!enablePageMunber) {
                 pageFrom = ""
                 pageTo = ""
-                viewModel.advance_pageMunber.PageFrom = -1
-                viewModel.advance_pageMunber.PageTo = -1
+                viewModel.searchPageNumber.PageFrom = -1
+                viewModel.searchPageNumber.PageTo = -1
             }
 
         }
         if (enablePageMunber) {
             pageTextField(pageFrom) { text ->
                 pageFrom = text
-                viewModel.advance_pageMunber.PageFrom =
+                viewModel.searchPageNumber.PageFrom =
                     NumberUtils.parseIntSafely(text, -1)
             }
             Text(text = stringResource(id = R.string.search_sp_to))
             pageTextField(pageTo) { text ->
                 pageTo = text
-                viewModel.advance_pageMunber.PageTo =
+                viewModel.searchPageNumber.PageTo =
                     NumberUtils.parseIntSafely(text, -1)
             }
         }
@@ -123,13 +123,13 @@ private fun pageTextField(text: String, setText: (text: String) -> Unit) {
 @Composable
 fun MinRating(viewModel: SearchViewModel) {
     var expanded by remember { mutableStateOf(false) }
-    var enableMinRating by rememberSaveable { mutableStateOf(viewModel.advance_minRating != -1) }
+    var enableMinRating by rememberSaveable { mutableStateOf(viewModel.minRating != -1) }
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier.clickable2(enabledIndication = false) {
             expanded = true
             if (!enableMinRating) {
-                viewModel.advance_minRating = 2
+                viewModel.minRating = 2
             }
             enableMinRating = true
         }
@@ -137,15 +137,15 @@ fun MinRating(viewModel: SearchViewModel) {
         AdvanceSearchItem(stringResource(id = R.string.search_sr), enableMinRating) {
             enableMinRating = !enableMinRating
             if (!enableMinRating) {
-                viewModel.advance_minRating = -1
+                viewModel.minRating = -1
             } else {
-                viewModel.advance_minRating = 2
+                viewModel.minRating = 2
             }
         }
         if (enableMinRating) {
             Box(Modifier.wrapContentSize(Alignment.TopStart)) {
                 Text(
-                    text = "${viewModel.advance_minRating} Star",
+                    text = "${viewModel.minRating} Star",
                     color = Color.White,
                     modifier = Modifier
                         .clip(RoundedCornerShape(25))
@@ -162,7 +162,7 @@ fun MinRating(viewModel: SearchViewModel) {
                             text = { Text(" ${it + 2} 星") },
                             onClick = {
                                 expanded = false
-                                viewModel.advance_minRating = it + 2
+                                viewModel.minRating = it + 2
                             },
                         )
                     }
@@ -181,7 +181,7 @@ fun MinRating(viewModel: SearchViewModel) {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ComCategoryTableItem(text: String, selected: Boolean, onClick: () -> Unit) {
-    val temText = buildAnnotatedString {
+    val textWithStyle = buildAnnotatedString {
         if (selected)
             append(text)
         else
@@ -193,7 +193,7 @@ fun ComCategoryTableItem(text: String, selected: Boolean, onClick: () -> Unit) {
         modifier=Modifier.fillMaxWidth(),
         selected = selected,
         onClick = { onClick.invoke() },
-        label = { Text(temText, color = if (selected) Color.White else Color.Unspecified) },
+        label = { Text(textWithStyle, color = if (selected) Color.White else Color.Unspecified) },
         leadingIcon = {
             if (!selected) {
                 Icon(
