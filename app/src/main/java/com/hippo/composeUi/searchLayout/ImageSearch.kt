@@ -26,10 +26,10 @@ fun ComposeImageSearch(viewModel: SearchViewModel, onclick: (() -> Unit)?) {
     Column {
         Text(text = stringResource(id = R.string.search_image), fontWeight = FontWeight.W900, fontSize = 18.sp)
         Spacer(modifier = Modifier.height(17.dp))
-        if(viewModel.imageUri != null){
+        if(viewModel.mImageUri != null){
             Box(contentAlignment= Alignment.Center, modifier = Modifier.fillMaxWidth()){
                 AsyncImage(
-                    model = viewModel.imageUri,
+                    model = viewModel.mImageUri,
                     contentDescription = null
                 )
             }

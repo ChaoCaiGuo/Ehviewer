@@ -38,7 +38,7 @@ import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsAnimationCompat
 import androidx.drawerlayout.widget.DrawerLayout
-import androidx.lifecycle.ViewModelProvider
+import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -99,6 +99,7 @@ class GalleryListScene : BaseScene(), SearchBar.Helper, OnStateChangeListener,
      ---------------*/
     @Inject lateinit var mClient: EhClient
     private var mUrlBuilder: ListUrlBuilder? = null
+    private val viewModel by viewModels<SearchViewModel>()
     /*---------------
      View life cycle
      ---------------*/
@@ -107,7 +108,7 @@ class GalleryListScene : BaseScene(), SearchBar.Helper, OnStateChangeListener,
     private var mSearchLayout: SearchLayout? = null
     var selectImageLauncher = registerForActivityResult<Array<String>, Uri>(
         ActivityResultContracts.OpenDocument()
-    ) { result: Uri? -> mSearchLayout!!.setImageUri(result) }
+    ) { result: Uri? -> viewModel!!.setImageUri(result) }
     private var mSearchBar: SearchBar? = null
     private var mSearchFab: View? = null
     private val mSearchFabAnimatorListener: Animator.AnimatorListener? =
@@ -413,7 +414,7 @@ class GalleryListScene : BaseScene(), SearchBar.Helper, OnStateChangeListener,
         mRecyclerView = mContentLayout!!.recyclerView
         val fastScroller = mContentLayout!!.fastScroller
         mSearchLayout = ViewUtils.`$$`(mainLayout, R.id.search_layout) as SearchLayout
-        mSearchLayout!!.setViewModel(ViewModelProvider(this).get(SearchViewModel::class.java))
+        mSearchLayout!!.viewModel = viewModel
         mSearchBar = ViewUtils.`$$`(mainLayout, R.id.search_bar) as SearchBar
         mFabLayout = ViewUtils.`$$`(mainLayout, R.id.fab_layout) as FabLayout
         mSearchFab = ViewUtils.`$$`(mainLayout, R.id.search_fab)
@@ -452,7 +453,7 @@ class GalleryListScene : BaseScene(), SearchBar.Helper, OnStateChangeListener,
         mSearchBar!!.setOnStateChangeListener(this)
         setSearchBarHint(mSearchBar)
         setSearchBarSuggestionProvider(mSearchBar)
-        mSearchLayout!!.onSelectImage{
+        viewModel!!.onSelectImage{
             try {
             selectImageLauncher.launch(arrayOf("image/*"))
         } catch (e: Throwable) {
@@ -1060,7 +1061,7 @@ class GalleryListScene : BaseScene(), SearchBar.Helper, OnStateChangeListener,
         }
         if (mState == STATE_SEARCH || mState == STATE_SEARCH_SHOW_LIST) {
             try {
-                mSearchLayout!!.formatListUrlBuilder(mUrlBuilder!!, query)
+                viewModel!!.formatListUrlBuilder(mUrlBuilder!!, query)
             } catch (e: EhException) {
                 showTip(e.message, LENGTH_LONG)
                 return
@@ -1089,7 +1090,7 @@ class GalleryListScene : BaseScene(), SearchBar.Helper, OnStateChangeListener,
         }
         //Todo 这儿要改成compose版的修改SearchMode
 //        mSearchLayout.setSearchMode(SearchLayout.SEARCH_MODE_IMAGE);
-        mSearchLayout!!.setImageUri(uri)
+        viewModel!!.setImageUri(uri)
         setState(STATE_SEARCH)
     }
 

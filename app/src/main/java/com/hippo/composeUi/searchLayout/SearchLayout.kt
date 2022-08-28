@@ -1,11 +1,7 @@
 package com.hippo.composeUi.searchLayout
 
-import android.annotation.SuppressLint
 import android.content.Context
-import android.graphics.Bitmap
-import android.net.Uri
 import android.util.AttributeSet
-import android.util.Log
 import android.widget.LinearLayout
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.layout.Box
@@ -29,21 +25,11 @@ import com.google.accompanist.pager.rememberPagerState
 import com.hippo.composeUi.composeExt.addComposeView
 import com.hippo.composeUi.composeExt.pagerTabIndicatorOffset
 import com.hippo.composeUi.theme.MainColor
-import com.hippo.ehviewer.AppConfig
 import com.hippo.ehviewer.R
 import com.hippo.ehviewer.client.EhConfig
-import com.hippo.ehviewer.client.data.ListUrlBuilder
-import com.hippo.ehviewer.client.exception.EhException
-import com.hippo.io.UniFileInputStreamPipe
-import com.hippo.unifile.UniFile
-import com.hippo.util.BitmapUtils
 import com.hippo.viewModel.SearchViewModel
-import com.hippo.yorozuya.IOUtils
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
-import java.io.FileNotFoundException
-import java.io.FileOutputStream
-import java.io.OutputStream
 
 val TAG = "SearchLayout"
 
@@ -65,91 +51,17 @@ class SearchLayout @JvmOverloads constructor(
     }
 
     init {
-        addComposeView { ComposeSearchLayout(viewModel!!, onSelectImage) }
+        addComposeView { ComposeSearchLayout(viewModel!!) }
     }
 
-
-    private var viewModel:SearchViewModel? = null
-    private var mImagePath: String? = null
-    private var onSelectImage:(()->Unit)? =null
-
-    fun setViewModel(viewModel:SearchViewModel){
-        this.viewModel =viewModel
-    }
-
-    @SuppressLint("NonConstantResourceId")
-    @Throws(EhException::class)
-    fun formatListUrlBuilder(urlBuilder: ListUrlBuilder, query: String?) {
-        urlBuilder.reset()
-        when (viewModel?.mSearchMode) {
-            0 -> {
-                urlBuilder.mode = ListUrlBuilder.MODE_NORMAL
-                urlBuilder.keyword = query
-                urlBuilder.category = viewModel!!.getCategory()
-                if (viewModel!!.enabledAdvance) {
-                    urlBuilder.advanceSearch = viewModel!!.getAdvanceSearch()
-                    urlBuilder.minRating = viewModel!!.minRating
-                    urlBuilder.pageFrom = viewModel!!.searchPageNumber.PageFrom
-                    urlBuilder.pageTo = viewModel!!.searchPageNumber.PageTo
-                }
-            }
-            1 -> {
-                urlBuilder.mode = ListUrlBuilder.MODE_IMAGE_SEARCH
-                formatListUrlBuilder(urlBuilder)
-            }
-        }
-    }
-
-    @Throws(EhException::class)
-    fun formatListUrlBuilder(builder: ListUrlBuilder) {
-        if (null == mImagePath) {
-            throw EhException(context.getString(R.string.select_image_first))
-        }
-        builder.imagePath = mImagePath
-        builder.isUseSimilarityScan = viewModel!!.imageSearchOptionsSelected[0]
-        builder.isOnlySearchCovers = viewModel!!.imageSearchOptionsSelected[1]
-        builder.isShowExpunged = viewModel!!.imageSearchOptionsSelected[2]
-    }
-
-    fun setImageUri(imageUri: Uri?) {
-        if (null == imageUri) {
-            return
-        }
-        viewModel!!.imageUri = imageUri
-
-        val file = UniFile.fromUri(mContext, imageUri) ?: return
-        try {
-            val maxSize = context.resources.getDimensionPixelOffset(R.dimen.image_search_max_size)
-            val bitmap =
-                BitmapUtils.decodeStream(UniFileInputStreamPipe(file), maxSize, maxSize) ?: return
-            val temp = AppConfig.createTempFile() ?: return
-
-            var os: OutputStream? = null
-            try {
-                os = FileOutputStream(temp)
-                bitmap.compress(Bitmap.CompressFormat.JPEG, 90, os)
-                mImagePath = temp.path
-            } catch (e: FileNotFoundException) {
-                e.printStackTrace()
-            } finally {
-                IOUtils.closeQuietly(os)
-            }
-        } catch (e: OutOfMemoryError) {
-            Log.e(TAG, "Out of memory ${e.message}")
-        }
-    }
-
-
-    fun onSelectImage(event:(()->Unit)?){
-        onSelectImage = event
-    }
+    var viewModel: SearchViewModel? = null
 
 }
 
 
 @OptIn(ExperimentalPagerApi::class)
 @Composable
-fun ComposeSearchLayout(viewModel: SearchViewModel = viewModel(),onSelectImage:(()->Unit)? = null) {
+fun ComposeSearchLayout(viewModel: SearchViewModel = viewModel()) {
     val pagerState = rememberPagerState()
     val tabRowString = listOf(
         stringResource(id = R.string.keyword_search),
@@ -176,7 +88,7 @@ fun ComposeSearchLayout(viewModel: SearchViewModel = viewModel(),onSelectImage:(
                     TabRow(pagerState, tabRowString)
                 }
                 1 -> Column {
-                    CardPage { ComposeImageSearch(viewModel) { onSelectImage?.invoke() } }
+                    CardPage { ComposeImageSearch(viewModel) { viewModel.onSelectImage?.invoke() } }
                     TabRow(pagerState, tabRowString)
                 }
                 else -> {}
