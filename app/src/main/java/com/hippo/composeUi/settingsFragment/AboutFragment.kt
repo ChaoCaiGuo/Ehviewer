@@ -22,11 +22,11 @@ import com.hippo.ehviewer.UrlOpener
 
 const val TAG = "AboutFragment"
 
-class AboutFragment : BaseComposeFragment(R.string.settings_about, { composeAboutFragmentUI() })
+class AboutFragment : BaseComposeFragment(R.string.settings_about, { ComposeAboutFragmentUI() })
 
 
 @Composable
-fun composeAboutFragmentUI() {
+fun ComposeAboutFragmentUI() {
     val systemUiController = rememberSystemUiController()
     val systemBarsColor =MaterialTheme.colorScheme.SystemBarsColor
     SideEffect {
@@ -41,7 +41,7 @@ fun composeAboutFragmentUI() {
     val context = LocalContext.current
 
 
-    Column(Modifier.padding(vertical = 8.dp)) {
+    Column(Modifier.padding(top= 6.dp)) {
         aboutTitle.forEachIndexed { index, s ->
 
             val event: (() -> Unit)? = if (index in 2..3) {

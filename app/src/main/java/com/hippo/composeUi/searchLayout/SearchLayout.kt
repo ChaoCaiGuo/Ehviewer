@@ -3,7 +3,6 @@ package com.hippo.composeUi.searchLayout
 import android.content.Context
 import android.util.AttributeSet
 import android.widget.LinearLayout
-import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
@@ -79,7 +78,6 @@ fun ComposeSearchLayout(viewModel: SearchViewModel = viewModel()) {
         HorizontalPager(
             count = tabRowString.size,
             state = pagerState,
-            modifier = Modifier.animateContentSize(),
             verticalAlignment = Alignment.Top
         ) { page ->
             when (page) {
