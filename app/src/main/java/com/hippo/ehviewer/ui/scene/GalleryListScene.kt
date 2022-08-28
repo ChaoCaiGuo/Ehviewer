@@ -108,10 +108,10 @@ class GalleryListScene : BaseScene(), SearchBar.Helper, OnStateChangeListener,
     private var mSearchLayout: SearchLayout? = null
     var selectImageLauncher = registerForActivityResult<Array<String>, Uri>(
         ActivityResultContracts.OpenDocument()
-    ) { result: Uri? -> viewModel!!.setImageUri(result) }
+    ) { result: Uri? -> viewModel.setImageUri(result) }
     private var mSearchBar: SearchBar? = null
     private var mSearchFab: View? = null
-    private val mSearchFabAnimatorListener: Animator.AnimatorListener? =
+    private val mSearchFabAnimatorListener: Animator.AnimatorListener =
         object : SimpleAnimatorListener() {
             override fun onAnimationEnd(animation: Animator) {
                 if (null != mSearchFab) {
@@ -120,7 +120,7 @@ class GalleryListScene : BaseScene(), SearchBar.Helper, OnStateChangeListener,
             }
         }
     private var mFabLayout: FabLayout? = null
-    private val mActionFabAnimatorListener: Animator.AnimatorListener? =
+    private val mActionFabAnimatorListener: Animator.AnimatorListener =
         object : SimpleAnimatorListener() {
             override fun onAnimationEnd(animation: Animator) {
                 if (null != mFabLayout) {
@@ -142,7 +142,7 @@ class GalleryListScene : BaseScene(), SearchBar.Helper, OnStateChangeListener,
 
     @State
     private var mState = STATE_NORMAL
-    private val mOnScrollListener: RecyclerView.OnScrollListener? =
+    private val mOnScrollListener: RecyclerView.OnScrollListener =
         object : RecyclerView.OnScrollListener() {
             override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {}
             override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
@@ -426,7 +426,6 @@ class GalleryListScene : BaseScene(), SearchBar.Helper, OnStateChangeListener,
             )
         )
         val paddingTopSB = resources.getDimensionPixelOffset(R.dimen.gallery_padding_top_search_bar)
-        val paddingBottomFab = resources.getDimensionPixelOffset(R.dimen.gallery_padding_bottom_fab)
         mViewTransition = BringOutTransition(mContentLayout, mSearchLayout)
         mHelper = GalleryListHelper()
         mContentLayout!!.setHelper(mHelper)
@@ -438,7 +437,7 @@ class GalleryListScene : BaseScene(), SearchBar.Helper, OnStateChangeListener,
         )
         mRecyclerView!!.clipToPadding = false
         mRecyclerView!!.clipChildren = false
-        mRecyclerView!!.addOnScrollListener(mOnScrollListener!!)
+        mRecyclerView!!.addOnScrollListener(mOnScrollListener)
         fastScroller.setPadding(
             fastScroller.paddingLeft, fastScroller.paddingTop + paddingTopSB,
             fastScroller.paddingRight, fastScroller.paddingBottom
@@ -453,7 +452,7 @@ class GalleryListScene : BaseScene(), SearchBar.Helper, OnStateChangeListener,
         mSearchBar!!.setOnStateChangeListener(this)
         setSearchBarHint(mSearchBar)
         setSearchBarSuggestionProvider(mSearchBar)
-        viewModel!!.onSelectImage{
+        viewModel.onSelectImage{
             try {
             selectImageLauncher.launch(arrayOf("image/*"))
         } catch (e: Throwable) {
@@ -522,10 +521,7 @@ class GalleryListScene : BaseScene(), SearchBar.Helper, OnStateChangeListener,
         mActionFabDrawable = null
     }
 
-    private fun showQuickSearchTipDialog(
-        adapter: QsDrawerAdapter,
-        recyclerView: EasyRecyclerView, tip: TextView
-    ) {
+    private fun showQuickSearchTipDialog() {
         val context = context ?: return
         val builder = MaterialAlertDialogBuilder(context)
         builder.setMessage(R.string.add_quick_search_tip)
@@ -609,7 +605,7 @@ class GalleryListScene : BaseScene(), SearchBar.Helper, OnStateChangeListener,
 
         val recyclerView = view.findViewById<EasyRecyclerView>(R.id.recycler_view_drawer)
         recyclerView.layoutManager = LinearLayoutManager(context)
-        val qsDrawerAdapter: QsDrawerAdapter = QsDrawerAdapter(inflater)
+        val qsDrawerAdapter = QsDrawerAdapter(inflater)
         qsDrawerAdapter.setHasStableIds(true)
         recyclerView.adapter = qsDrawerAdapter
         val itemTouchHelper = ItemTouchHelper(GalleryListQSItemTouchHelperCallback(qsDrawerAdapter))
@@ -627,7 +623,7 @@ class GalleryListScene : BaseScene(), SearchBar.Helper, OnStateChangeListener,
             if (id == R.id.action_add) {
                 showAddQuickSearchDialog(qsDrawerAdapter, recyclerView, tip)
             } else if (id == R.id.action_help) {
-                showQuickSearchTipDialog(qsDrawerAdapter, recyclerView, tip)
+                showQuickSearchTipDialog()
             }
             true
         }
@@ -653,7 +649,7 @@ class GalleryListScene : BaseScene(), SearchBar.Helper, OnStateChangeListener,
         }
     }
 
-    fun onItemClick(view: View?, position: Int): Boolean {
+    fun onItemClick(position: Int): Boolean {
         if (null == mHelper || null == mRecyclerView) {
             return false
         }
@@ -832,7 +828,7 @@ class GalleryListScene : BaseScene(), SearchBar.Helper, OnStateChangeListener,
                             i++
                         }
                         val labels = labelList.toTypedArray()
-                        val helper: MoveDialogHelper = MoveDialogHelper(labels, gi)
+                        val helper= MoveDialogHelper(labels, gi)
                         MaterialAlertDialogBuilder(context)
                             .setTitle(R.string.download_move_dialog_title)
                             .setItems(labels, helper)
@@ -1061,7 +1057,7 @@ class GalleryListScene : BaseScene(), SearchBar.Helper, OnStateChangeListener,
         }
         if (mState == STATE_SEARCH || mState == STATE_SEARCH_SHOW_LIST) {
             try {
-                viewModel!!.formatListUrlBuilder(mUrlBuilder!!, query)
+                viewModel.formatListUrlBuilder(mUrlBuilder!!, query)
             } catch (e: EhException) {
                 showTip(e.message, LENGTH_LONG)
                 return
@@ -1084,13 +1080,13 @@ class GalleryListScene : BaseScene(), SearchBar.Helper, OnStateChangeListener,
         onBackPressed()
     }
 
-    override fun onReceiveContent(uri: Uri) {
+    override fun onReceiveContent(uri: Uri?) {
         if (mSearchLayout == null || uri == null) {
             return
         }
         //Todo 这儿要改成compose版的修改SearchMode
 //        mSearchLayout.setSearchMode(SearchLayout.SEARCH_MODE_IMAGE);
-        viewModel!!.setImageUri(uri)
+        viewModel.setImageUri(uri)
         setState(STATE_SEARCH)
     }
 
@@ -1189,7 +1185,7 @@ class GalleryListScene : BaseScene(), SearchBar.Helper, OnStateChangeListener,
     }
 
     @IntDef(STATE_NORMAL, STATE_SIMPLE_SEARCH, STATE_SEARCH, STATE_SEARCH_SHOW_LIST)
-    @kotlin.annotation.Retention(AnnotationRetention.SOURCE)
+    @Retention(AnnotationRetention.SOURCE)
     private annotation class State
 
     private class GetGalleryListListener(
@@ -1402,7 +1398,7 @@ class GalleryListScene : BaseScene(), SearchBar.Helper, OnStateChangeListener,
         }
 
         public override fun onItemClick(view: View, position: Int) {
-            this@GalleryListScene.onItemClick(view, position)
+            this@GalleryListScene.onItemClick(position)
         }
 
         public override fun onItemLongClick(view: View, position: Int): Boolean {
@@ -1417,7 +1413,7 @@ class GalleryListScene : BaseScene(), SearchBar.Helper, OnStateChangeListener,
     private inner class GalleryListHelper : GalleryInfoContentHelper() {
         override fun getPageData(taskId: Int, type: Int, page: Int) {
             val activity = mainActivity
-            if (null == activity || null == mClient || null == mUrlBuilder) {
+            if (null == activity || null == mUrlBuilder) {
                 return
             }
             mUrlBuilder!!.pageIndex = page
@@ -1433,7 +1429,7 @@ class GalleryListScene : BaseScene(), SearchBar.Helper, OnStateChangeListener,
                     mUrlBuilder!!.isUseSimilarityScan,
                     mUrlBuilder!!.isOnlySearchCovers, mUrlBuilder!!.isShowExpunged
                 )
-                mClient!!.execute(request)
+                mClient.execute(request)
             } else {
                 val url = mUrlBuilder!!.build()
                 val request = EhRequest()
@@ -1443,7 +1439,7 @@ class GalleryListScene : BaseScene(), SearchBar.Helper, OnStateChangeListener,
                     activity.stageId, tag, taskId
                 )
                 request.setArgs(url)
-                mClient!!.execute(request)
+                mClient.execute(request)
             }
         }
 
