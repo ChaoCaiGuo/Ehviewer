@@ -71,7 +71,7 @@ import com.hippo.ehviewer.ui.scene.SecurityScene;
 import com.hippo.ehviewer.ui.scene.SelectSiteScene;
 import com.hippo.ehviewer.ui.scene.SignInScene;
 import com.hippo.ehviewer.ui.scene.SolidScene;
-import com.hippo.ehviewer.ui.scene.WarningScene;
+import com.hippo.composeUi.signInScene.WarningScene;
 import com.hippo.ehviewer.ui.scene.WebViewSignInScene;
 import com.hippo.ehviewer.widget.EhStageLayout;
 import com.hippo.io.UniFileInputStreamPipe;
