@@ -49,6 +49,7 @@ import com.hippo.util.WebViewUtil;
 import com.hippo.yorozuya.AssertUtils;
 import com.hippo.yorozuya.IntIdGenerator;
 import com.hippo.yorozuya.ViewUtils;
+import com.hippo.composeUi.signInScene.CookieSignInScene;
 
 public final class SignInScene extends SolidScene implements EditText.OnEditorActionListener,
         View.OnClickListener {
