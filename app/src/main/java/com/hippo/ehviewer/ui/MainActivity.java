@@ -68,7 +68,7 @@ import com.hippo.ehviewer.ui.scene.GalleryPreviewsScene;
 import com.hippo.ehviewer.ui.scene.HistoryScene;
 import com.hippo.ehviewer.ui.scene.ProgressScene;
 import com.hippo.ehviewer.ui.scene.SecurityScene;
-import com.hippo.ehviewer.ui.scene.SelectSiteScene;
+import com.hippo.composeUi.signInScene.SelectSiteScene;
 import com.hippo.ehviewer.ui.scene.SignInScene;
 import com.hippo.ehviewer.ui.scene.SolidScene;
 import com.hippo.composeUi.signInScene.WarningScene;

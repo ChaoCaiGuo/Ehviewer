@@ -22,6 +22,7 @@ import com.hippo.composeUi.signInScene.WarningScene;
 import com.hippo.ehviewer.Settings;
 import com.hippo.ehviewer.client.EhUtils;
 import com.hippo.scene.Announcer;
+import com.hippo.composeUi.signInScene.SelectSiteScene;
 
 /**
  * Scene for safety, can't be covered
