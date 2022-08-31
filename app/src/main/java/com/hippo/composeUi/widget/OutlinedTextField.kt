@@ -1,7 +1,6 @@
 package com.hippo.composeUi.widget
 
 import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.interaction.collectIsFocusedAsState
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -27,7 +26,7 @@ import com.hippo.ehviewer.R
 fun OutlinedTextFieldFix(
     value: String,
     onValueChange: (String) -> Unit,
-    focusRequester: FocusRequester = remember { FocusRequester() },
+    focusRequester: FocusRequester ,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
     readOnly: Boolean = false,
@@ -50,8 +49,6 @@ fun OutlinedTextFieldFix(
     LaunchedEffect(isError){
         if(isError)
             focusRequester.requestFocus()
-        else
-            focusRequester.freeFocus()
     }
     Column {
         OutlinedTextField(

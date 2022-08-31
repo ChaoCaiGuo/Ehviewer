@@ -8,6 +8,8 @@ import android.view.ViewGroup
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -15,12 +17,14 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
@@ -70,14 +74,16 @@ class CookieSignInScene : SolidScene() {
         val (igneous, setIgneous) = rememberSaveable {
             mutableStateOf("")
         }
-        val isError = rememberSaveable {
+        val isError = remember {
             mutableStateListOf(false, false, false)
         }
         var showAlertDialog by rememberSaveable {
             mutableStateOf(false)
         }
         val softwareKeyboard = LocalSoftwareKeyboardController.current
-
+        val focusRequesterList = remember {
+            mutableStateListOf(FocusRequester(), FocusRequester(), FocusRequester())
+        }
 
         Column(
             modifier = Modifier
@@ -85,7 +91,7 @@ class CookieSignInScene : SolidScene() {
                 .padding(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
 
-        ) {
+            ) {
             Image(
                 painter = painterResource(id = R.drawable.v_cookie_brown_x48),
                 contentDescription = null,
@@ -118,7 +124,17 @@ class CookieSignInScene : SolidScene() {
                         .padding(bottom = 4.dp)
                         .width(260.dp),
                     singleLine = true,
-                    isError = isError[0]
+                    isError = isError[0],
+                    focusRequester = focusRequesterList[0],
+                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
+                    keyboardActions = KeyboardActions(onAny = {
+                        if (TextUtils.isEmpty(ipbMemberId.trim { it <= ' ' })) {
+                            isError[0] = true
+                            return@KeyboardActions
+                        }else{
+                            focusRequesterList[1].requestFocus()
+                        }
+                    })
                 )
 
                 OutlinedTextFieldFix(
@@ -132,7 +148,17 @@ class CookieSignInScene : SolidScene() {
                         .padding(bottom = 4.dp)
                         .width(260.dp),
                     singleLine = true,
-                    isError = isError[1]
+                    isError = isError[1],
+                    focusRequester = focusRequesterList[1],
+                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
+                    keyboardActions = KeyboardActions(onAny = {
+                        if (TextUtils.isEmpty(ipbPassHash.trim { it <= ' ' })) {
+                            isError[1] = true
+                            return@KeyboardActions
+                        }else{
+                            focusRequesterList[2].requestFocus()
+                        }
+                    })
                 )
 
                 OutlinedTextFieldFix(
@@ -146,7 +172,17 @@ class CookieSignInScene : SolidScene() {
                         .padding(bottom = 4.dp)
                         .width(260.dp),
                     singleLine = true,
-                    isError = isError[2]
+                    isError = isError[2],
+                    focusRequester = focusRequesterList[2],
+                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+                    keyboardActions = KeyboardActions(onAny = {
+                        if (TextUtils.isEmpty(igneous.trim { it <= ' ' })) {
+                            isError[2] = true
+                            return@KeyboardActions
+                        }else{
+                            softwareKeyboard?.hide()
+                        }
+                    })
                 )
             }
             Spacer(modifier = Modifier.weight(1f))
@@ -179,7 +215,7 @@ class CookieSignInScene : SolidScene() {
                     },
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    Text(text = stringResource(id = android.R.string.ok), fontSize = 18.sp)
+                    Text(text = stringResource(id = android.R.string.ok), fontSize = 14.sp)
                 }
 
                 TextButton(onClick = {
@@ -291,7 +327,7 @@ class CookieSignInScene : SolidScene() {
         }
     }
 
-    fun enter(ipbMemberId: String, ipbPassHash: String, igneous: String,showAlert:()->Unit) {
+    fun enter(ipbMemberId: String, ipbPassHash: String, igneous: String, showAlert: () -> Unit) {
         if (!checkIpbMemberId(ipbMemberId) || !checkIpbPassHash(ipbPassHash)) {
             showAlert.invoke()
         } else {
