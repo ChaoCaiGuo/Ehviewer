@@ -33,12 +33,12 @@ class SearchViewModel @Inject constructor() : ViewModel() {
     val advanceOptionsSelected = mutableStateListOf<Boolean>()
     val imageSearchOptionsSelected = mutableStateListOf<Boolean>()
 
-    var minRating = -1
+    var minRating by mutableStateOf( -1)
     var searchPageNumber = pageMunber(-1, -1)
     var mImageUri by mutableStateOf<Uri?>(null)
     var enabledAdvance by mutableStateOf(false)
     val verticalScroll = ScrollState(initial = 0)
-    var mSearchMode = 0
+    var mSearchMode by mutableStateOf(0)
     private var mImagePath: String? = null
     var onSelectImage: (() -> Unit)? = null
 
