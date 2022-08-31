@@ -11,6 +11,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -60,19 +61,19 @@ class CookieSignInScene : SolidScene() {
     fun ComposeCookieSignInScene() {
 
 
-        val (ipbMemberId, setIpbMemberId) = remember {
+        val (ipbMemberId, setIpbMemberId) = rememberSaveable {
             mutableStateOf("")
         }
-        val (ipbPassHash, setIpbPassHash) = remember {
+        val (ipbPassHash, setIpbPassHash) = rememberSaveable {
             mutableStateOf("")
         }
-        val (igneous, setIgneous) = remember {
+        val (igneous, setIgneous) = rememberSaveable {
             mutableStateOf("")
         }
-        val isError = remember {
+        val isError = rememberSaveable {
             mutableStateListOf(false, false, false)
         }
-        var showAlertDialog by remember {
+        var showAlertDialog by rememberSaveable {
             mutableStateOf(false)
         }
         val softwareKeyboard = LocalSoftwareKeyboardController.current
