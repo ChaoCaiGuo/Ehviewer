@@ -5,6 +5,7 @@ import android.graphics.Bitmap
 import android.net.Uri
 import android.util.Log
 import androidx.compose.foundation.ScrollState
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
@@ -40,7 +41,7 @@ class SearchViewModel @Inject constructor() : ViewModel() {
     val verticalScroll = ScrollState(initial = 0)
     var mSearchMode by mutableStateOf(0)
     private var mImagePath: String? = null
-    var onSelectImage: (() -> Unit)? = null
+    val snackbarHostState = SnackbarHostState()
 
 
     init {
@@ -80,9 +81,6 @@ class SearchViewModel @Inject constructor() : ViewModel() {
         return advanceSearch
     }
 
-    fun onSelectImage(event: (() -> Unit)?) {
-        onSelectImage = event
-    }
 
     @SuppressLint("NonConstantResourceId")
     @Throws(EhException::class)

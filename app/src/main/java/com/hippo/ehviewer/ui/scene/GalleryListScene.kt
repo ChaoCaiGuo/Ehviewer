@@ -31,7 +31,6 @@ import android.text.style.ImageSpan
 import android.view.*
 import android.widget.ImageView
 import android.widget.TextView
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.IntDef
 import androidx.appcompat.widget.Toolbar
 import androidx.core.content.ContextCompat
@@ -74,7 +73,6 @@ import com.hippo.ehviewer.widget.SearchBar.OnStateChangeListener
 import com.hippo.ehviewer.widget.SearchBar.Suggestion
 import com.hippo.scene.Announcer
 import com.hippo.scene.SceneFragment
-import com.hippo.util.ExceptionUtils
 import com.hippo.view.BringOutTransition
 import com.hippo.view.ViewTransition
 import com.hippo.viewModel.SearchViewModel
@@ -106,9 +104,6 @@ class GalleryListScene : BaseScene(), SearchBar.Helper, OnStateChangeListener,
     private var mContentLayout: ContentLayout? = null
     private var mRecyclerView: EasyRecyclerView? = null
     private var mSearchLayout: SearchLayout? = null
-    var selectImageLauncher = registerForActivityResult<Array<String>, Uri>(
-        ActivityResultContracts.OpenDocument()
-    ) { result: Uri? -> viewModel.setImageUri(result) }
     private var mSearchBar: SearchBar? = null
     private var mSearchFab: View? = null
     private val mSearchFabAnimatorListener: Animator.AnimatorListener =
@@ -452,13 +447,7 @@ class GalleryListScene : BaseScene(), SearchBar.Helper, OnStateChangeListener,
         mSearchBar!!.setOnStateChangeListener(this)
         setSearchBarHint(mSearchBar)
         setSearchBarSuggestionProvider(mSearchBar)
-        viewModel.onSelectImage{
-            try {
-            selectImageLauncher.launch(arrayOf("image/*"))
-        } catch (e: Throwable) {
-            ExceptionUtils.throwIfFatal(e)
-            showTip(R.string.error_cant_find_activity, LENGTH_SHORT)
-        }}
+
         mSearchLayout!!.setPadding(
             mSearchLayout!!.paddingLeft, mSearchLayout!!.paddingTop + paddingTopSB,
             mSearchLayout!!.paddingRight, mSearchLayout!!.paddingBottom

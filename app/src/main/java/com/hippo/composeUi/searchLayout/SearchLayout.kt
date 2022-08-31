@@ -1,5 +1,6 @@
 package com.hippo.composeUi.searchLayout
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.util.AttributeSet
 import android.widget.LinearLayout
@@ -32,8 +33,10 @@ import kotlinx.coroutines.launch
 
 val TAG = "SearchLayout"
 
+@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
+@OptIn(ExperimentalMaterial3Api::class)
 class SearchLayout @JvmOverloads constructor(
-    private val mContext: Context,
+    mContext: Context,
     attrs: AttributeSet? = null,
     defStyleAttr: Int = 0
 ) : LinearLayout(mContext, attrs, defStyleAttr) {
@@ -50,7 +53,12 @@ class SearchLayout @JvmOverloads constructor(
     }
 
     init {
-        addComposeView { ComposeSearchLayout(viewModel!!) }
+        addComposeView {
+            Scaffold(snackbarHost = { SnackbarHost(viewModel!!.snackbarHostState) }) {
+                ComposeSearchLayout(viewModel!!)
+            }
+
+        }
     }
 
     var viewModel: SearchViewModel? = null
@@ -86,7 +94,7 @@ fun ComposeSearchLayout(viewModel: SearchViewModel = viewModel()) {
                     TabRow(pagerState, tabRowString)
                 }
                 1 -> Column {
-                    CardPage { ComposeImageSearch(viewModel) { viewModel.onSelectImage?.invoke() } }
+                    CardPage { ComposeImageSearch(viewModel)  }
                     TabRow(pagerState, tabRowString)
                 }
                 else -> {}
