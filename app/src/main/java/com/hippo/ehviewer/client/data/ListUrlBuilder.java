@@ -37,6 +37,8 @@ import java.lang.annotation.RetentionPolicy;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 
+import javax.inject.Inject;
+
 public class ListUrlBuilder implements Cloneable, Parcelable {
 
     // Mode
@@ -79,6 +81,7 @@ public class ListUrlBuilder implements Cloneable, Parcelable {
     private boolean mOnlySearchCovers;
     private boolean mShowExpunged;
 
+    @Inject
     public ListUrlBuilder() {
     }
 
