@@ -40,7 +40,7 @@ class AboutFragment : Fragment(){
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        return (inflater.inflate(R.layout.compose_xml, container, false) as ComposeView)
+        return ComposeView(requireContext())
             .apply {
                 setContent { EhViewerTheme { ComposeAboutFragmentUI() } }
             }
