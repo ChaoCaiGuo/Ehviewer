@@ -770,4 +770,5 @@
     <string name="passwd_cannot_be_empty">密碼不能為空</string>
     <string name="search_disable_advance">關閉進階選項</string>
 
+    <string name="list_tile_thumb_size">詳情模式下縮圖大小</string>
 </resources>
