@@ -24,6 +24,7 @@ import com.google.accompanist.pager.PagerState
 import com.google.accompanist.pager.rememberPagerState
 import com.hippo.composeUi.composeExt.addComposeView
 import com.hippo.composeUi.composeExt.pagerTabIndicatorOffset
+import com.hippo.composeUi.theme.CardColor
 import com.hippo.composeUi.theme.MainColor
 import com.hippo.ehviewer.R
 import com.hippo.ehviewer.client.EhConfig
@@ -94,7 +95,7 @@ fun ComposeSearchLayout(viewModel: SearchViewModel = viewModel()) {
                     TabRow(pagerState, tabRowString)
                 }
                 1 -> Column {
-                    CardPage { ComposeImageSearch(viewModel)  }
+                    CardPage { ComposeImageSearch(viewModel) }
                     TabRow(pagerState, tabRowString)
                 }
                 else -> {}
@@ -139,7 +140,11 @@ private fun TabRow(
 
 @Composable
 fun CardPage(content: @Composable () -> Unit) {
-    Card(modifier = Modifier.padding(4.dp)) {
+    Card(
+        modifier = Modifier.padding(4.dp),
+        colors =  CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.CardColor),
+        elevation = CardDefaults.cardElevation(1.dp)
+    ) {
         Box(modifier = Modifier.padding(15.dp)) {
             content.invoke()
         }

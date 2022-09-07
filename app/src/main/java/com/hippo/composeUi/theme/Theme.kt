@@ -39,7 +39,7 @@ fun EhViewerTheme(
     dynamicColor: Boolean = true,
     content: @Composable () -> Unit
 ) {
-    isdarkTheme =darkTheme
+    isDarkTheme =darkTheme
     val colorScheme = when {
         dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
             val context = LocalContext.current
@@ -63,13 +63,19 @@ fun EhViewerTheme(
     )
 }
 
-var isdarkTheme: Boolean = false
+/**
+ *  下面是主题颜色的扩展变量
+ */
+var isDarkTheme: Boolean = false
 
 val ColorScheme.TextColor:Color
-    get() = if(isdarkTheme) TextdarkColor else TextlightColor
+    get() = if(isDarkTheme) TextdarkColor else TextlightColor
 
 val ColorScheme.MainColor:Color
-    get() =  if(isdarkTheme) MainColorDark else MainColorLight
+    get() =  if(isDarkTheme) MainColorDark else MainColorLight
 
 val ColorScheme.SystemBarsColor:Color
-    get() =  if(isdarkTheme) TextlightColor else TextdarkColor
+    get() =  if(isDarkTheme) TextlightColor else TextdarkColor
+
+val ColorScheme.CardColor:Color
+    get() =  if(isDarkTheme) Color(0xFF37353C) else Color(0xFFE6DEF7)
