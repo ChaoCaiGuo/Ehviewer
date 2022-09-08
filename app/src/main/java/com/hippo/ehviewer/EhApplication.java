@@ -89,6 +89,10 @@ import javax.net.ssl.TrustManager;
 import javax.net.ssl.TrustManagerFactory;
 import javax.net.ssl.X509TrustManager;
 
+import coil.Coil;
+import coil.ImageLoader;
+import coil.memory.MemoryCache;
+import coil.request.CachePolicy;
 import dagger.hilt.android.HiltAndroidApp;
 import okhttp3.Cache;
 import okhttp3.Call;
@@ -392,6 +396,17 @@ public class EhApplication extends SceneApplication {
         if (DEBUG_PRINT_NATIVE_MEMORY || DEBUG_PRINT_IMAGE_COUNT) {
             debugPrint();
         }
+
+        //Coil config:
+        var imageLoader = new ImageLoader.Builder(this)
+                .memoryCache( new MemoryCache.Builder(this).maxSizePercent(0.3f).build()) //内存缓存占比
+                .diskCachePolicy(CachePolicy.ENABLED)  //磁盘缓策略 ENABLED、READ_ONLY、WRITE_ONLY、DISABLED
+                .crossfade(true) //淡入淡出
+                .crossfade(500)  //淡入淡出时间
+                .okHttpClient(getOkHttpClient(this)) //设置OkHttpClient
+                .build();
+        Coil.setImageLoader(imageLoader);
+
 
         initialized = true;
         theDawnOfNewDay();
