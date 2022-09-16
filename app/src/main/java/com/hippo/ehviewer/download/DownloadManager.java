@@ -51,7 +51,11 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import javax.inject.Inject;
+import javax.inject.Singleton;
+import dagger.hilt.android.qualifiers.ApplicationContext;
 
+@Singleton
 public class DownloadManager implements SpiderQueen.OnSpiderListener {
 
     private static final String TAG = DownloadManager.class.getSimpleName();
@@ -79,7 +83,8 @@ public class DownloadManager implements SpiderQueen.OnSpiderListener {
     @Nullable
     private SpiderQueen mCurrentSpider;
 
-    public DownloadManager(Context context) {
+    @Inject
+    public DownloadManager(@ApplicationContext Context context) {
         mContext = context;
 
         // Get all labels

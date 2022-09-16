@@ -26,7 +26,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.inject.Inject;
+
 public class FavouriteStatusRouter {
+
+    @Inject
+    public FavouriteStatusRouter(){}
 
     private static final String KEY_DATA_MAP_NEXT_ID = "data_map_next_id";
 

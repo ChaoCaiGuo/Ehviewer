@@ -55,7 +55,7 @@ class SearchLayout @JvmOverloads constructor(
 
     init {
         addComposeView {
-            Scaffold(snackbarHost = { SnackbarHost(viewModel!!.snackbarHostState) }) {
+            Scaffold(snackbarHost = { SnackbarHost(viewModel!!.snackBarHostState) }) {
                 ComposeSearchLayout(viewModel!!)
             }
 

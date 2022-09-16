@@ -29,9 +29,6 @@ public class WebViewUtil {
     private static final String TAG = "WebViewUtil";
 
     public static boolean available(Context context) {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
-            return false;
-        }
         PackageInfo webViewPackageInfo = WebViewCompat.getCurrentWebViewPackage(context);
         if (webViewPackageInfo == null) {
             Log.d(TAG, "WebView not available");

@@ -58,7 +58,7 @@ fun ComposeImageSearch(viewModel: SearchViewModel) {
             } catch (e: Throwable) {
                 ExceptionUtils.throwIfFatal(e)
                 scope.launch {
-                    viewModel.snackbarHostState.showSnackbar(errorSnackBar)
+                    viewModel.snackBarHostState.showSnackbar(errorSnackBar)
                 }
             }
         }, modifier = Modifier.fillMaxWidth()) {

@@ -27,34 +27,41 @@ import com.hippo.ehviewer.download.DownloadManager.DownloadInfoListener
 import com.hippo.ehviewer.ui.CommonOperations
 import com.hippo.ehviewer.ui.GalleryActivity
 import com.hippo.ehviewer.ui.dialog.SelectItemWithIconAdapter
-import com.hippo.ehviewer.ui.scene.*
+import com.hippo.ehviewer.ui.scene.EhCallback
+import com.hippo.ehviewer.ui.scene.GalleryDetailScene
+import com.hippo.ehviewer.ui.scene.GalleryListScene
+import com.hippo.ehviewer.ui.scene.ToolbarScene
 import com.hippo.scene.Announcer
 import com.hippo.scene.SceneFragment
 import com.hippo.view.ViewTransition
 import com.hippo.widget.recyclerview.AutoStaggeredGridLayoutManager
 import com.hippo.yorozuya.AssertUtils
 import com.hippo.yorozuya.ViewUtils
+import dagger.hilt.android.AndroidEntryPoint
 import rikka.core.res.resolveColor
+import javax.inject.Inject
 
-
+@AndroidEntryPoint
 class HistoryScene : ToolbarScene() {
     /*---------------
      View life cycle
      ---------------*/
+    @Inject lateinit var mDownloadManager: DownloadManager
+
     private var mTip: TextView? = null
     private var mFastScroller: FastScroller? = null
     private var mRecyclerView: EasyRecyclerView? = null
     private var mViewTransition: ViewTransition? = null
     private var mAdapter: RecyclerView.Adapter<*>? = null
     private var mLazyList: List<HistoryInfo>? = null
-    private var mDownloadManager: DownloadManager? = null
+
     private var mDownloadInfoListener: DownloadInfoListener? = null
     private var mFavouriteStatusRouter: FavouriteStatusRouter? = null
     private var mFavouriteStatusRouterListener: FavouriteStatusRouter.Listener? = null
 
     override fun onDestroy() {
         super.onDestroy()
-        mDownloadManager!!.removeDownloadInfoListener(mDownloadInfoListener)
+        mDownloadManager.removeDownloadInfoListener(mDownloadInfoListener)
         mFavouriteStatusRouter!!.removeListener(mFavouriteStatusRouterListener)
     }
 
@@ -65,8 +72,6 @@ class HistoryScene : ToolbarScene() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val context = requireContext()
-        mDownloadManager = EhApplication.getDownloadManager(context)
-        mDownloadManager = EhApplication.getDownloadManager(context)
         mFavouriteStatusRouter = EhApplication.getFavouriteStatusRouter(context)
         mDownloadInfoListener = object : DownloadInfoListener {
             override fun onAdd(info: DownloadInfo, list: List<DownloadInfo>, position: Int) {
@@ -98,7 +103,7 @@ class HistoryScene : ToolbarScene() {
 
             override fun onUpdateLabels() {}
         }
-        mDownloadManager!!.addDownloadInfoListener(mDownloadInfoListener)
+        mDownloadManager.addDownloadInfoListener(mDownloadInfoListener)
         mFavouriteStatusRouterListener =
             FavouriteStatusRouter.Listener { _, _ ->
                 if (mAdapter != null) {
@@ -243,7 +248,7 @@ class HistoryScene : ToolbarScene() {
             return false
         }
         val gi = mLazyList?.get(position) ?: return true
-        val downloaded = mDownloadManager!!.getDownloadState(gi.gid) != DownloadInfo.STATE_INVALID
+        val downloaded = mDownloadManager.getDownloadState(gi.gid) != DownloadInfo.STATE_INVALID
         val favourited = gi.favoriteSlot != -2
         val items = if (downloaded) arrayOf<CharSequence>(
             context.getString(R.string.read),
@@ -292,8 +297,8 @@ class HistoryScene : ToolbarScene() {
                             )
                             .setPositiveButton(
                                 android.R.string.ok
-                            ) { dialog1: DialogInterface?, which1: Int ->
-                                mDownloadManager!!.deleteDownload(
+                            ) { _, _->
+                                mDownloadManager.deleteDownload(
                                     gi.gid
                                 )
                             }
@@ -399,7 +404,7 @@ class HistoryScene : ToolbarScene() {
             val gi = mLazyList!![position]
 
             holder.composeView.setContent {
-                HistoryAdapterView(gi, mDownloadManager!!.containDownloadInfo(gi.gid),
+                HistoryAdapterView(gi, mDownloadManager.containDownloadInfo(gi.gid),
                     { onItemClick(position) }, { onItemLongClick(position) })
             }
 

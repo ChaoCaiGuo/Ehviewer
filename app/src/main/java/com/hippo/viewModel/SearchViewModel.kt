@@ -30,6 +30,10 @@ import javax.inject.Inject
 
 @HiltViewModel
 class SearchViewModel @Inject constructor() : ViewModel() {
+
+    val verticalScroll = ScrollState(initial = 0)
+    val snackBarHostState = SnackbarHostState()
+
     val categorySelected = mutableStateListOf<Boolean>()
     val advanceOptionsSelected = mutableStateListOf<Boolean>()
     val imageSearchOptionsSelected = mutableStateListOf<Boolean>()
@@ -38,10 +42,9 @@ class SearchViewModel @Inject constructor() : ViewModel() {
     var searchPageNumber = pageMunber(-1, -1)
     var mImageUri by mutableStateOf<Uri?>(null)
     var enabledAdvance by mutableStateOf(false)
-    val verticalScroll = ScrollState(initial = 0)
     var mSearchMode by mutableStateOf(0)
     private var mImagePath: String? = null
-    val snackbarHostState = SnackbarHostState()
+
 
 
     init {

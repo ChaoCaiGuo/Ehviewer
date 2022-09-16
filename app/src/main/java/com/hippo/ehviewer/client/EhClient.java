@@ -30,9 +30,14 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
+
+import dagger.hilt.android.qualifiers.ApplicationContext;
 import okhttp3.Call;
 import okhttp3.OkHttpClient;
 
+@Singleton
 public class EhClient {
 
     public static final String TAG = EhClient.class.getSimpleName();
@@ -59,7 +64,8 @@ public class EhClient {
     private final ThreadPoolExecutor mRequestThreadPool;
     private final OkHttpClient mOkHttpClient;
 
-    public EhClient(Context context) {
+    @Inject
+    public EhClient(@ApplicationContext Context context) {
         mRequestThreadPool = IoThreadPoolExecutor.getInstance();
         mOkHttpClient = EhApplication.getOkHttpClient(context);
     }

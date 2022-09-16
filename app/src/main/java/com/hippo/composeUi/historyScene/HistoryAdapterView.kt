@@ -42,101 +42,105 @@ fun HistoryAdapterView(
 
     val ratio = 3
     EhViewerTheme {
-        val sliderPosition = remember { getInt(KEY_LIST_THUMB_SIZE, 40) }
-        val maxLines = remember { derivedStateOf { if (sliderPosition >= 40) 2 else 1 } }
-        Column(
+
+        val listCardSize = remember { getInt(KEY_LIST_THUMB_SIZE, 40) }
+        val maxLines = remember { derivedStateOf { if (listCardSize >= 35) 2 else 1 } }
+
+        Card(
             Modifier
                 .combinedClickable(
                     onLongClick = onItemLongClick,
                     onClick = onItemClick
                 )
                 .padding(vertical = 3.dp, horizontal = 3.dp)
-                .fillMaxWidth()
+                .fillMaxWidth(),
+            elevation = CardDefaults.cardElevation(3.dp)
         ) {
+            Row(modifier = Modifier.height((listCardSize * ratio).dp)) {
+                //这儿是封面图片
+                SubcomposeAsyncImage(
+                    model = gi.thumb,
+                    contentDescription = "",
+                    contentScale = ContentScale.FillHeight,
+                    alignment = Alignment.CenterStart,
+                    modifier = Modifier
+                        .width((listCardSize * ratio * (2 / 3f)).dp)
+                        .height((listCardSize * ratio).dp)
+                )
 
-            Card(
-                Modifier.fillMaxWidth(),
-                elevation = CardDefaults.cardElevation(4.dp)
-            ) {
-                Row(modifier = Modifier.height((sliderPosition * ratio).dp)) {
-                    //这儿是封面图片
-                    SubcomposeAsyncImage(
-                        model = gi.thumb,
-                        loading = {
-                            CircularProgressIndicator()
-                        },
-                        contentDescription = "",
-                        contentScale = ContentScale.FillHeight,
-                        alignment = Alignment.CenterStart,
-                        modifier = Modifier
-                            .width((sliderPosition * ratio * (2 / 3f)).dp)
-                            .height((sliderPosition * ratio).dp)
+                Column(Modifier.padding(4.dp, 5.dp)) {
+                    //这儿是标题
+                    Text(
+                        text = buildAnnotatedString {
+                            withStyle(
+                                style = SpanStyle(fontWeight = FontWeight.W600)
+                            ) {
+                                append(EhUtils.getSuitableTitle(gi))
+                            }
+                        }, maxLines = maxLines.value,
+                        modifier = Modifier.fillMaxWidth(),
+                        overflow = TextOverflow.Ellipsis,
+                        fontSize = 14.sp,
+                        lineHeight = 18.sp
                     )
+                    Spacer(modifier = Modifier.weight(1f))
+                    Row(verticalAlignment = Alignment.Bottom) {
+                        FlowColumn {
+                            //这儿是上传者
+                            Text(
+                                text = gi.uploader ?: "(DISOWNED)",
+                                fontSize = 12.sp,
+                                fontWeight = FontWeight.W500
 
-                    Column(Modifier.padding(4.dp, 5.dp)) {
-                        //这儿是标题
-                        Text(
-                            text = buildAnnotatedString {
-                                withStyle(
-                                    style = SpanStyle(fontWeight = FontWeight.W600)
-                                ) {
-                                    append(EhUtils.getSuitableTitle(gi))
+                            )
+                            //这儿是评分
+                            AndroidView(factory = { context ->
+                                SimpleRatingView(context).also {
+                                    it.rating = gi.rating
                                 }
-                            }, maxLines = maxLines.value,
-                            modifier = Modifier.fillMaxWidth(),
-                            overflow = TextOverflow.Ellipsis,
-                            fontSize = 14.sp,
-                            lineHeight = 18.sp
-                        )
-                        Spacer(modifier = Modifier.weight(1f))
-                        Row(verticalAlignment = Alignment.Bottom) {
-                            FlowColumn {
-                                //这儿是上传者
-                                Text(text = gi.uploader)
-                                //这儿是评分
-                                AndroidView(factory = { context ->
-                                    SimpleRatingView(context).also {
-                                        it.rating = gi.rating
-                                    }
-                                })
-                                //这儿是分类
-                                Text(
-                                    text = EhUtils.getCategory(gi.category),
-                                    modifier = Modifier
-                                        .padding(2.dp)
-                                        .background(Color(EhUtils.getCategoryColor(gi.category)))
-                                        .padding(vertical = 3.dp, horizontal = 4.dp),
-                                    color = Color.White,
-                                    textAlign = TextAlign.Center,
-                                    fontWeight = FontWeight.W600
-                                )
-                            }
-
-                            Spacer(modifier = Modifier.weight(1f))
-
-                            Column(horizontalAlignment = Alignment.End) {
-                                Row(verticalAlignment = Alignment.CenterVertically) {
-
-                                    //这儿是下载图标
-                                    if (isShowDownloaded) {
-                                        Icon(
-                                            painterResource(id = R.drawable.v_download_x16),
-                                            contentDescription = null
-                                        )
-                                    }
-
-                                    //这儿是语言
-                                    Text(text = if (TextUtils.isEmpty(gi.simpleLanguage)) "" else gi.simpleLanguage)
-                                }
-                                Text(text = gi.posted)
-                            }
-
+                            })
+                            //这儿是分类
+                            Text(
+                                text = EhUtils.getCategory(gi.category),
+                                modifier = Modifier
+                                    .padding(2.dp)
+                                    .background(Color(EhUtils.getCategoryColor(gi.category)))
+                                    .padding(vertical = 3.dp, horizontal = 4.dp),
+                                color = Color.White,
+                                textAlign = TextAlign.Center,
+                                fontWeight = FontWeight.W600
+                            )
                         }
 
+                        Spacer(modifier = Modifier.weight(1f))
+
+                        Column(horizontalAlignment = Alignment.End) {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+
+                                //这儿是下载图标
+                                if (isShowDownloaded) {
+                                    Icon(
+                                        painterResource(id = R.drawable.v_download_x16),
+                                        contentDescription = null
+                                    )
+                                }
+
+                                //这儿是语言
+                                Text(
+                                    text = if (TextUtils.isEmpty(gi.simpleLanguage)) "" else gi.simpleLanguage,
+                                    fontSize = 14.sp
+                                )
+                            }
+                            //这是上传时间
+                            Text(text = gi.posted, fontSize = 14.sp)
+                        }
 
                     }
+
+
                 }
             }
         }
+
     }
 }
