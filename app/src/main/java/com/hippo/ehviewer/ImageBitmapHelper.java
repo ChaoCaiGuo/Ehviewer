@@ -25,9 +25,16 @@ import com.hippo.streampipe.InputStreamPipe;
 
 import java.io.IOException;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
+
+@Singleton
 public class ImageBitmapHelper implements ValueHelper<ImageBitmap> {
 
     private static final int MAX_CACHE_SIZE = 512 * 512;
+
+    @Inject
+    public ImageBitmapHelper(){}
 
     @Nullable
     @Override

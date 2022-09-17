@@ -1,8 +1,8 @@
 package com.hippo
 
 import android.content.Context
-import com.hippo.ehviewer.EhApplication
 import com.hippo.ehviewer.EhProxySelector
+import com.hippo.ehviewer.client.EhCookieStore
 import com.hippo.ehviewer.client.EhDns
 import com.hippo.ehviewer.client.EhSSLSocketFactory
 import com.hippo.ehviewer.client.EhX509TrustManager
@@ -28,23 +28,28 @@ import javax.net.ssl.X509TrustManager
 object HiltModule {
     @Singleton
     @Provides
-    fun provideOkHttpClient(@ApplicationContext context: Context,mEhProxySelector: EhProxySelector): OkHttpClient {
+    fun provideOkHttpClient(
+        @ApplicationContext context: Context,
+        mEhProxySelector: EhProxySelector,
+        mEhDns: EhDns,
+        mEhCookieStore: EhCookieStore
+    ): OkHttpClient {
 
         val builder = OkHttpClient.Builder()
             .connectTimeout(5, TimeUnit.SECONDS)
             .readTimeout(5, TimeUnit.SECONDS)
             .writeTimeout(5, TimeUnit.SECONDS)
             .callTimeout(10, TimeUnit.SECONDS)
-            .cookieJar(EhApplication.getEhCookieStore(context))
+            .cookieJar(mEhCookieStore)
             .cache(Cache(File(context.applicationContext.cacheDir, "http_cache"), 50L * 1024L * 1024L))
-            .dns(EhDns(context))
-            .addNetworkInterceptor(Interceptor { chain: Interceptor.Chain ->
+            .dns(mEhDns)
+            .addNetworkInterceptor { chain: Interceptor.Chain ->
                 try {
-                    return@Interceptor chain.proceed(chain.request())
+                    return@addNetworkInterceptor chain.proceed(chain.request())
                 } catch (e: NullPointerException) {
                     throw IOException(e.message)
                 }
-            })
+            }
             .proxySelector(mEhProxySelector)
 
         try {

@@ -36,10 +36,12 @@ import java.util.List;
 import java.util.Map;
 
 import javax.inject.Inject;
+import javax.inject.Singleton;
 
 import dagger.hilt.android.qualifiers.ApplicationContext;
 import okhttp3.Dns;
 
+@Singleton
 public class EhDns implements Dns {
 
     private static final Map<String, List<InetAddress>> builtInHosts;
@@ -66,12 +68,10 @@ public class EhDns implements Dns {
         builtInHosts = map;
     }
 
-    private final Hosts hosts;
+    @Inject Hosts hosts;
 
     @Inject
-    public EhDns(@ApplicationContext Context context) {
-        hosts = EhApplication.getHosts(context);
-    }
+    public EhDns() {}
 
     private static void put(Map<String, List<InetAddress>> map, String host, String... ips) {
         List<InetAddress> addresses = new ArrayList<>();

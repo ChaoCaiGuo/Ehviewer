@@ -49,12 +49,9 @@ import com.hippo.beerbelly.SimpleDiskCache;
 import com.hippo.conaco.Conaco;
 import com.hippo.ehviewer.client.EhClient;
 import com.hippo.ehviewer.client.EhCookieStore;
-import com.hippo.ehviewer.client.EhDns;
 import com.hippo.ehviewer.client.EhEngine;
 import com.hippo.ehviewer.client.EhRequestBuilder;
-import com.hippo.ehviewer.client.EhSSLSocketFactory;
 import com.hippo.ehviewer.client.EhUrl;
-import com.hippo.ehviewer.client.EhX509TrustManager;
 import com.hippo.ehviewer.client.data.GalleryDetail;
 import com.hippo.ehviewer.client.parser.EventPaneParser;
 import com.hippo.ehviewer.download.DownloadManager;
@@ -76,26 +73,18 @@ import com.hippo.yorozuya.OSUtils;
 import com.hippo.yorozuya.SimpleHandler;
 
 import java.io.File;
-import java.io.IOException;
-import java.security.KeyStore;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.TrustManagerFactory;
-import javax.net.ssl.X509TrustManager;
 
 import coil.Coil;
 import coil.ImageLoader;
 import coil.memory.MemoryCache;
 import coil.request.CachePolicy;
 import dagger.hilt.android.HiltAndroidApp;
-import okhttp3.Cache;
 import okhttp3.Call;
 import okhttp3.HttpUrl;
 import okhttp3.OkHttpClient;
@@ -121,17 +110,17 @@ public class EhApplication extends SceneApplication {
     private final IntIdGenerator mIdGenerator = new IntIdGenerator();
     private final HashMap<Integer, Object> mGlobalStuffMap = new HashMap<>();
     private final List<Activity> mActivityList = new ArrayList<>();
-    private EhCookieStore mEhCookieStore;
+    @Inject EhCookieStore mEhCookieStore;
     @Inject EhClient mEhClient;
     @Inject  EhProxySelector mEhProxySelector;
     @Inject OkHttpClient mOkHttpClient;
-    private ImageBitmapHelper mImageBitmapHelper;
+    @Inject ImageBitmapHelper mImageBitmapHelper;
     private Conaco<ImageBitmap> mConaco;
     private LruCache<Long, GalleryDetail> mGalleryDetailCache;
     private SimpleDiskCache mSpiderInfoCache;
     @Inject DownloadManager mDownloadManager;
-    private Hosts mHosts;
-    private FavouriteStatusRouter mFavouriteStatusRouter;
+    @Inject Hosts mHosts;
+    @Inject FavouriteStatusRouter mFavouriteStatusRouter;
     private boolean initialized = false;
 
     public static EhApplication getInstance() {
@@ -140,9 +129,6 @@ public class EhApplication extends SceneApplication {
 
     public static EhCookieStore getEhCookieStore(@NonNull Context context) {
         EhApplication application = ((EhApplication) context.getApplicationContext());
-        if (application.mEhCookieStore == null) {
-            application.mEhCookieStore = new EhCookieStore(context);
-        }
         return application.mEhCookieStore;
     }
 
@@ -168,9 +154,6 @@ public class EhApplication extends SceneApplication {
     @NonNull
     public static ImageBitmapHelper getImageBitmapHelper(@NonNull Context context) {
         EhApplication application = ((EhApplication) context.getApplicationContext());
-        if (application.mImageBitmapHelper == null) {
-            application.mImageBitmapHelper = new ImageBitmapHelper();
-        }
         return application.mImageBitmapHelper;
     }
 
@@ -232,9 +215,6 @@ public class EhApplication extends SceneApplication {
     @NonNull
     public static Hosts getHosts(@NonNull Context context) {
         EhApplication application = ((EhApplication) context.getApplicationContext());
-        if (application.mHosts == null) {
-            application.mHosts = new Hosts(application, "hosts.db");
-        }
         return application.mHosts;
     }
 
@@ -246,9 +226,6 @@ public class EhApplication extends SceneApplication {
     @NonNull
     public static FavouriteStatusRouter getFavouriteStatusRouter(@NonNull Context context) {
         EhApplication application = ((EhApplication) context.getApplicationContext());
-        if (application.mFavouriteStatusRouter == null) {
-            application.mFavouriteStatusRouter = new FavouriteStatusRouter();
-        }
         return application.mFavouriteStatusRouter;
     }
 

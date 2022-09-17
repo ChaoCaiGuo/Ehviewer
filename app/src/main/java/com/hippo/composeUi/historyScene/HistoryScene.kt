@@ -47,6 +47,7 @@ class HistoryScene : ToolbarScene() {
      View life cycle
      ---------------*/
     @Inject lateinit var mDownloadManager: DownloadManager
+    @Inject lateinit var mFavouriteStatusRouter: FavouriteStatusRouter
 
     private var mTip: TextView? = null
     private var mFastScroller: FastScroller? = null
@@ -55,14 +56,47 @@ class HistoryScene : ToolbarScene() {
     private var mAdapter: RecyclerView.Adapter<*>? = null
     private var mLazyList: List<HistoryInfo>? = null
 
-    private var mDownloadInfoListener: DownloadInfoListener? = null
-    private var mFavouriteStatusRouter: FavouriteStatusRouter? = null
-    private var mFavouriteStatusRouterListener: FavouriteStatusRouter.Listener? = null
+    private var mDownloadInfoListener: DownloadInfoListener= object : DownloadInfoListener {
+        override fun onAdd(info: DownloadInfo, list: List<DownloadInfo>, position: Int) {
+            if (mAdapter != null) {
+                mAdapter!!.notifyDataSetChanged()
+            }
+        }
+
+        override fun onUpdate(info: DownloadInfo, list: List<DownloadInfo>) {}
+        override fun onUpdateAll() {}
+        override fun onReload() {
+            if (mAdapter != null) {
+                mAdapter!!.notifyDataSetChanged()
+            }
+        }
+
+        override fun onChange() {
+            if (mAdapter != null) {
+                mAdapter!!.notifyDataSetChanged()
+            }
+        }
+
+        override fun onRenameLabel(from: String, to: String) {}
+        override fun onRemove(info: DownloadInfo, list: List<DownloadInfo>, position: Int) {
+            if (mAdapter != null) {
+                mAdapter!!.notifyDataSetChanged()
+            }
+        }
+
+        override fun onUpdateLabels() {}
+    }
+    private var mFavouriteStatusRouterListener: FavouriteStatusRouter.Listener =
+        FavouriteStatusRouter.Listener { _, _ ->
+            if (mAdapter != null) {
+                mAdapter!!.notifyDataSetChanged()
+            }
+        }
 
     override fun onDestroy() {
         super.onDestroy()
         mDownloadManager.removeDownloadInfoListener(mDownloadInfoListener)
-        mFavouriteStatusRouter!!.removeListener(mFavouriteStatusRouterListener)
+        mFavouriteStatusRouter.removeListener(mFavouriteStatusRouterListener)
     }
 
     override fun getNavCheckedItem(): Int {
@@ -71,46 +105,8 @@ class HistoryScene : ToolbarScene() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val context = requireContext()
-        mFavouriteStatusRouter = EhApplication.getFavouriteStatusRouter(context)
-        mDownloadInfoListener = object : DownloadInfoListener {
-            override fun onAdd(info: DownloadInfo, list: List<DownloadInfo>, position: Int) {
-                if (mAdapter != null) {
-                    mAdapter!!.notifyDataSetChanged()
-                }
-            }
-
-            override fun onUpdate(info: DownloadInfo, list: List<DownloadInfo>) {}
-            override fun onUpdateAll() {}
-            override fun onReload() {
-                if (mAdapter != null) {
-                    mAdapter!!.notifyDataSetChanged()
-                }
-            }
-
-            override fun onChange() {
-                if (mAdapter != null) {
-                    mAdapter!!.notifyDataSetChanged()
-                }
-            }
-
-            override fun onRenameLabel(from: String, to: String) {}
-            override fun onRemove(info: DownloadInfo, list: List<DownloadInfo>, position: Int) {
-                if (mAdapter != null) {
-                    mAdapter!!.notifyDataSetChanged()
-                }
-            }
-
-            override fun onUpdateLabels() {}
-        }
         mDownloadManager.addDownloadInfoListener(mDownloadInfoListener)
-        mFavouriteStatusRouterListener =
-            FavouriteStatusRouter.Listener { _, _ ->
-                if (mAdapter != null) {
-                    mAdapter!!.notifyDataSetChanged()
-                }
-            }
-        mFavouriteStatusRouter!!.addListener(mFavouriteStatusRouterListener)
+        mFavouriteStatusRouter.addListener(mFavouriteStatusRouterListener)
     }
 
     override fun onCreateViewWithToolbar(

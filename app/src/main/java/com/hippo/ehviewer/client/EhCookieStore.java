@@ -26,9 +26,14 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
+
+import dagger.hilt.android.qualifiers.ApplicationContext;
 import okhttp3.Cookie;
 import okhttp3.HttpUrl;
 
+@Singleton
 public class EhCookieStore extends CookieRepository {
 
     public static final String KEY_IPD_MEMBER_ID = "ipb_member_id";
@@ -44,7 +49,8 @@ public class EhCookieStore extends CookieRepository {
                     .expiresAt(Long.MAX_VALUE)
                     .build();
 
-    public EhCookieStore(Context context) {
+    @Inject
+    public EhCookieStore(@ApplicationContext Context context) {
         super(context, "okhttp3-cookie.db");
     }
 

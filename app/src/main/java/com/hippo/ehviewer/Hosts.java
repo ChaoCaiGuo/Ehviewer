@@ -37,6 +37,12 @@ import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
+
+import dagger.hilt.android.qualifiers.ApplicationContext;
+
+@Singleton
 public class Hosts {
 
     private static final int VERSION_1 = 1;
@@ -48,6 +54,16 @@ public class Hosts {
 
     private final SQLiteDatabase db;
 
+    @Inject
+    public Hosts(@ApplicationContext Context context) {
+        SQLiteOpenHelper helper = new MSQLiteBuilder()
+                .version(VERSION_1)
+                .createTable(TABLE_HOSTS)
+                .insertColumn(TABLE_HOSTS, COLUMN_HOST, String.class)
+                .insertColumn(TABLE_HOSTS, COLUMN_IP, String.class)
+                .build(context, "hosts.db", DB_VERSION);
+        db = helper.getWritableDatabase();
+    }
     public Hosts(Context context, String name) {
         SQLiteOpenHelper helper = new MSQLiteBuilder()
                 .version(VERSION_1)

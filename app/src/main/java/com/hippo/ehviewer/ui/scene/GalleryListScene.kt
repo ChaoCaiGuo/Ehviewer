@@ -98,6 +98,7 @@ class GalleryListScene : BaseScene(), SearchBar.Helper, OnStateChangeListener,
     @Inject lateinit var mClient: EhClient
     @Inject lateinit var mUrlBuilder: ListUrlBuilder
     @Inject lateinit var mDownloadManager: DownloadManager
+    @Inject lateinit var mFavouriteStatusRouter: FavouriteStatusRouter
     private val viewModel by viewModels<SearchViewModel>()
     /*---------------
      View life cycle
@@ -156,7 +157,7 @@ class GalleryListScene : BaseScene(), SearchBar.Helper, OnStateChangeListener,
     private var mNavCheckedId = 0
 
     private var mDownloadInfoListener: DownloadInfoListener? = null
-    private var mFavouriteStatusRouter: FavouriteStatusRouter? = null
+
     private var mFavouriteStatusRouterListener: FavouriteStatusRouter.Listener? = null
     private var mIsTopList = false
     override fun getNavCheckedItem(): Int {
@@ -203,8 +204,6 @@ class GalleryListScene : BaseScene(), SearchBar.Helper, OnStateChangeListener,
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-
-        mFavouriteStatusRouter = EhApplication.getFavouriteStatusRouter(requireContext())
         mDownloadInfoListener = object : DownloadInfoListener {
             override fun onAdd(info: DownloadInfo, list: List<DownloadInfo>, position: Int) {
                 if (mAdapter != null) {
@@ -241,7 +240,7 @@ class GalleryListScene : BaseScene(), SearchBar.Helper, OnStateChangeListener,
                 mAdapter!!.notifyDataSetChanged()
             }
         }
-        mFavouriteStatusRouter!!.addListener(mFavouriteStatusRouterListener)
+        mFavouriteStatusRouter.addListener(mFavouriteStatusRouterListener)
         if (savedInstanceState == null) {
             onInit()
         } else {
@@ -273,7 +272,7 @@ class GalleryListScene : BaseScene(), SearchBar.Helper, OnStateChangeListener,
         super.onDestroy()
 
         mDownloadManager.removeDownloadInfoListener(mDownloadInfoListener)
-        mFavouriteStatusRouter!!.removeListener(mFavouriteStatusRouterListener)
+        mFavouriteStatusRouter.removeListener(mFavouriteStatusRouterListener)
     }
 
     private fun setSearchBarHint(searchBar: SearchBar?) {
@@ -1244,7 +1243,7 @@ class GalleryListScene : BaseScene(), SearchBar.Helper, OnStateChangeListener,
     ) : DialogInterface.OnClickListener {
         override fun onClick(dialog: DialogInterface, which: Int) {
             // Cancel check mode
-            val context = context ?: return
+            context ?: return
             if (null != mRecyclerView) {
                 mRecyclerView!!.outOfCustomChoiceMode()
             }
