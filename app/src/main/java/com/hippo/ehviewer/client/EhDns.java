@@ -35,6 +35,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.inject.Inject;
+
+import dagger.hilt.android.qualifiers.ApplicationContext;
 import okhttp3.Dns;
 
 public class EhDns implements Dns {
@@ -65,7 +68,8 @@ public class EhDns implements Dns {
 
     private final Hosts hosts;
 
-    public EhDns(Context context) {
+    @Inject
+    public EhDns(@ApplicationContext Context context) {
         hosts = EhApplication.getHosts(context);
     }
 

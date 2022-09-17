@@ -339,7 +339,7 @@ class HistoryScene : ToolbarScene() {
                     }
                     4 -> {
                         val labelRawList =
-                            EhApplication.getDownloadManager(context).labelList
+                            mDownloadManager.labelList
                         val labelList: MutableList<String> =
                             ArrayList(labelRawList.size + 1)
                         labelList.add(getString(R.string.default_download_label_name))
@@ -369,15 +369,12 @@ class HistoryScene : ToolbarScene() {
         private val mGi: GalleryInfo
     ) : DialogInterface.OnClickListener {
         override fun onClick(dialog: DialogInterface, which: Int) {
-            // Cancel check mode
-            val context = context ?: return
             if (null != mRecyclerView) {
                 mRecyclerView!!.outOfCustomChoiceMode()
             }
-            val downloadManager = EhApplication.getDownloadManager(context)
-            val downloadInfo = downloadManager.getDownloadInfo(mGi.gid) ?: return
+            val downloadInfo = mDownloadManager.getDownloadInfo(mGi.gid) ?: return
             val label = if (which == 0) null else mLabels[which]
-            downloadManager.changeLabel(listOf(downloadInfo), label)
+            mDownloadManager.changeLabel(listOf(downloadInfo), label)
         }
     }
 

@@ -31,6 +31,10 @@ import java.net.URI;
 import java.util.Collections;
 import java.util.List;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
+
+@Singleton
 public class EhProxySelector extends ProxySelector {
 
     public static final int TYPE_DIRECT = 0;
@@ -41,6 +45,7 @@ public class EhProxySelector extends ProxySelector {
     private ProxySelector delegation;
     private ProxySelector alternative;
 
+    @Inject
     EhProxySelector() {
         alternative = ProxySelector.getDefault();
         if (alternative == null) {

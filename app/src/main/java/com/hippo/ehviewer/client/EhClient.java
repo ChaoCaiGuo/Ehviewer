@@ -16,10 +16,8 @@
 
 package com.hippo.ehviewer.client;
 
-import android.content.Context;
 import android.os.AsyncTask;
 
-import com.hippo.ehviewer.EhApplication;
 import com.hippo.ehviewer.client.exception.CancelledException;
 import com.hippo.util.ExceptionUtils;
 import com.hippo.util.IoThreadPoolExecutor;
@@ -33,7 +31,6 @@ import java.util.concurrent.atomic.AtomicReference;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import dagger.hilt.android.qualifiers.ApplicationContext;
 import okhttp3.Call;
 import okhttp3.OkHttpClient;
 
@@ -65,9 +62,9 @@ public class EhClient {
     private final OkHttpClient mOkHttpClient;
 
     @Inject
-    public EhClient(@ApplicationContext Context context) {
+    public EhClient(OkHttpClient okHttpClient) {
         mRequestThreadPool = IoThreadPoolExecutor.getInstance();
-        mOkHttpClient = EhApplication.getOkHttpClient(context);
+        mOkHttpClient = okHttpClient;
     }
 
     public void execute(EhRequest request) {

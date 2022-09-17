@@ -97,6 +97,7 @@ class GalleryListScene : BaseScene(), SearchBar.Helper, OnStateChangeListener,
      ---------------*/
     @Inject lateinit var mClient: EhClient
     @Inject lateinit var mUrlBuilder: ListUrlBuilder
+    @Inject lateinit var mDownloadManager: DownloadManager
     private val viewModel by viewModels<SearchViewModel>()
     /*---------------
      View life cycle
@@ -153,7 +154,7 @@ class GalleryListScene : BaseScene(), SearchBar.Helper, OnStateChangeListener,
     private val mPressBackTime: Long = 0
     private var mHasFirstRefresh = false
     private var mNavCheckedId = 0
-    private var mDownloadManager: DownloadManager? = null
+
     private var mDownloadInfoListener: DownloadInfoListener? = null
     private var mFavouriteStatusRouter: FavouriteStatusRouter? = null
     private var mFavouriteStatusRouterListener: FavouriteStatusRouter.Listener? = null
@@ -201,12 +202,9 @@ class GalleryListScene : BaseScene(), SearchBar.Helper, OnStateChangeListener,
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val context = context
-        AssertUtils.assertNotNull(context)
 
-//        mClient = EhApplication.getEhClient(context!!)
-        mDownloadManager = EhApplication.getDownloadManager(context!!)
-        mFavouriteStatusRouter = EhApplication.getFavouriteStatusRouter(context)
+
+        mFavouriteStatusRouter = EhApplication.getFavouriteStatusRouter(requireContext())
         mDownloadInfoListener = object : DownloadInfoListener {
             override fun onAdd(info: DownloadInfo, list: List<DownloadInfo>, position: Int) {
                 if (mAdapter != null) {
@@ -237,7 +235,7 @@ class GalleryListScene : BaseScene(), SearchBar.Helper, OnStateChangeListener,
 
             override fun onUpdateLabels() {}
         }
-        mDownloadManager!!.addDownloadInfoListener(mDownloadInfoListener)
+        mDownloadManager.addDownloadInfoListener(mDownloadInfoListener)
         mFavouriteStatusRouterListener = FavouriteStatusRouter.Listener { gid: Long, slot: Int ->
             if (mAdapter != null) {
                 mAdapter!!.notifyDataSetChanged()
@@ -274,7 +272,7 @@ class GalleryListScene : BaseScene(), SearchBar.Helper, OnStateChangeListener,
     override fun onDestroy() {
         super.onDestroy()
 
-        mDownloadManager!!.removeDownloadInfoListener(mDownloadInfoListener)
+        mDownloadManager.removeDownloadInfoListener(mDownloadInfoListener)
         mFavouriteStatusRouter!!.removeListener(mFavouriteStatusRouterListener)
     }
 
@@ -733,7 +731,7 @@ class GalleryListScene : BaseScene(), SearchBar.Helper, OnStateChangeListener,
             return false
         }
         val gi = mHelper!!.getDataAtEx(position) ?: return true
-        val downloaded = mDownloadManager!!.getDownloadState(gi.gid) != DownloadInfo.STATE_INVALID
+        val downloaded = mDownloadManager.getDownloadState(gi.gid) != DownloadInfo.STATE_INVALID
         val favourited = gi.favoriteSlot != -2
         val items = if (downloaded) arrayOf<CharSequence>(
             context.getString(R.string.read),
@@ -781,7 +779,7 @@ class GalleryListScene : BaseScene(), SearchBar.Helper, OnStateChangeListener,
                                 )
                             )
                             .setPositiveButton(android.R.string.ok) { dialog1: DialogInterface?, which1: Int ->
-                                mDownloadManager!!.deleteDownload(
+                                mDownloadManager.deleteDownload(
                                     gi.gid
                                 )
                             }
@@ -803,7 +801,7 @@ class GalleryListScene : BaseScene(), SearchBar.Helper, OnStateChangeListener,
                         )
                     }
                     3 -> {
-                        val labelRawList = EhApplication.getDownloadManager(context).labelList
+                        val labelRawList = mDownloadManager.labelList
                         val labelList: MutableList<String> = ArrayList(labelRawList.size + 1)
                         labelList.add(getString(R.string.default_download_label_name))
                         var i = 0
@@ -1250,10 +1248,9 @@ class GalleryListScene : BaseScene(), SearchBar.Helper, OnStateChangeListener,
             if (null != mRecyclerView) {
                 mRecyclerView!!.outOfCustomChoiceMode()
             }
-            val downloadManager = EhApplication.getDownloadManager(context)
-            val downloadInfo = downloadManager.getDownloadInfo(mGi.gid) ?: return
+            val downloadInfo = mDownloadManager.getDownloadInfo(mGi.gid) ?: return
             val label = if (which == 0) null else mLabels[which]
-            downloadManager.changeLabel(listOf(downloadInfo), label)
+            mDownloadManager.changeLabel(listOf(downloadInfo), label)
         }
     }
 

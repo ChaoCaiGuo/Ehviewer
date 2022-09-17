@@ -85,6 +85,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+import javax.inject.Inject;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.TrustManagerFactory;
 import javax.net.ssl.X509TrustManager;
@@ -121,15 +122,14 @@ public class EhApplication extends SceneApplication {
     private final HashMap<Integer, Object> mGlobalStuffMap = new HashMap<>();
     private final List<Activity> mActivityList = new ArrayList<>();
     private EhCookieStore mEhCookieStore;
-    private EhClient mEhClient;
-    private EhProxySelector mEhProxySelector;
-    private OkHttpClient mOkHttpClient;
-    private Cache mOkHttpCache;
+    @Inject EhClient mEhClient;
+    @Inject  EhProxySelector mEhProxySelector;
+    @Inject OkHttpClient mOkHttpClient;
     private ImageBitmapHelper mImageBitmapHelper;
     private Conaco<ImageBitmap> mConaco;
     private LruCache<Long, GalleryDetail> mGalleryDetailCache;
     private SimpleDiskCache mSpiderInfoCache;
-    private DownloadManager mDownloadManager;
+    @Inject DownloadManager mDownloadManager;
     private Hosts mHosts;
     private FavouriteStatusRouter mFavouriteStatusRouter;
     private boolean initialized = false;
@@ -149,70 +149,21 @@ public class EhApplication extends SceneApplication {
     @NonNull
     public static EhClient getEhClient(@NonNull Context context) {
         EhApplication application = ((EhApplication) context.getApplicationContext());
-        if (application.mEhClient == null) {
-            application.mEhClient = new EhClient(application);
-        }
         return application.mEhClient;
     }
 
     @NonNull
     public static EhProxySelector getEhProxySelector(@NonNull Context context) {
         EhApplication application = ((EhApplication) context.getApplicationContext());
-        if (application.mEhProxySelector == null) {
-            application.mEhProxySelector = new EhProxySelector();
-        }
         return application.mEhProxySelector;
     }
 
     @NonNull
     public static OkHttpClient getOkHttpClient(@NonNull Context context) {
         EhApplication application = ((EhApplication) context.getApplicationContext());
-        if (application.mOkHttpClient == null) {
-            OkHttpClient.Builder builder = new OkHttpClient.Builder()
-                    .connectTimeout(5, TimeUnit.SECONDS)
-                    .readTimeout(5, TimeUnit.SECONDS)
-                    .writeTimeout(5, TimeUnit.SECONDS)
-                    .callTimeout(10, TimeUnit.SECONDS)
-                    .cookieJar(getEhCookieStore(application))
-                    .cache(getOkHttpCache(application))
-                    .dns(new EhDns(application))
-                    .addNetworkInterceptor(chain -> {
-                        try {
-                            return chain.proceed(chain.request());
-                        } catch (NullPointerException e) {
-                            // crash on meizu devices due to old Android version
-                            // https://github.com/square/okhttp/issues/3301#issuecomment-348415095
-                            throw new IOException(e.getMessage());
-                        }
-                    })
-                    .proxySelector(getEhProxySelector(application));
-            try {
-                TrustManagerFactory trustManagerFactory = TrustManagerFactory.getInstance(
-                        TrustManagerFactory.getDefaultAlgorithm());
-                trustManagerFactory.init((KeyStore) null);
-                TrustManager[] trustManagers = trustManagerFactory.getTrustManagers();
-                if (trustManagers.length != 1 || !(trustManagers[0] instanceof X509TrustManager)) {
-                    throw new IllegalStateException("Unexpected default trust managers:" + Arrays.toString(trustManagers));
-                }
-                X509TrustManager trustManager = (X509TrustManager) trustManagers[0];
-                builder.sslSocketFactory(new EhSSLSocketFactory(), trustManager);
-            } catch (Exception e) {
-                e.printStackTrace();
-                builder.sslSocketFactory(new EhSSLSocketFactory(), new EhX509TrustManager());
-            }
-            application.mOkHttpClient = builder.build();
-        }
         return application.mOkHttpClient;
     }
 
-    @NonNull
-    public static Cache getOkHttpCache(@NonNull Context context) {
-        EhApplication application = ((EhApplication) context.getApplicationContext());
-        if (application.mOkHttpCache == null) {
-            application.mOkHttpCache = new Cache(new File(application.getCacheDir(), "http_cache"), 50L * 1024L * 1024L);
-        }
-        return application.mOkHttpCache;
-    }
 
     @NonNull
     public static ImageBitmapHelper getImageBitmapHelper(@NonNull Context context) {
@@ -271,17 +222,10 @@ public class EhApplication extends SceneApplication {
         return application.mSpiderInfoCache;
     }
 
-    @NonNull
-    public static DownloadManager getDownloadManager() {
-        return getDownloadManager(instance);
-    }
 
     @NonNull
     public static DownloadManager getDownloadManager(@NonNull Context context) {
         EhApplication application = ((EhApplication) context.getApplicationContext());
-        if (application.mDownloadManager == null) {
-            application.mDownloadManager = new DownloadManager(application);
-        }
         return application.mDownloadManager;
     }
 
@@ -329,7 +273,6 @@ public class EhApplication extends SceneApplication {
             }
         });
 
-        super.onCreate();
 
         Native.initialize();
         ClipboardUtil.initialize(this);
@@ -342,6 +285,8 @@ public class EhApplication extends SceneApplication {
         EhDB.initialize(this);
         EhEngine.initialize();
         BitmapUtils.initialize(this);
+
+        super.onCreate();
 
         if (EhDB.needMerge()) {
             EhDB.mergeOldDB(this);
