@@ -15,7 +15,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
@@ -27,7 +26,6 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.hippo.composeUi.composeExt.clickable2
-import com.hippo.composeUi.theme.MainColor
 import com.hippo.composeUi.theme.TextColor
 import com.hippo.ehviewer.R
 import com.hippo.viewModel.SearchViewModel
@@ -42,7 +40,6 @@ fun AdvanceSearchItem(text: String, checked: Boolean, onClick: () -> Unit) {
         Checkbox(
             checked = checked,
             onCheckedChange = { onClick.invoke() },
-            colors = CheckboxDefaults.colors(checkedColor = MaterialTheme.colorScheme.MainColor)
         )
         Text(text = text, color = MaterialTheme.colorScheme.TextColor, fontSize = 15.sp)
 
@@ -94,13 +91,11 @@ private fun pageTextField(text: String, setText: (text: String) -> Unit) {
     val controller = TextStyle(
         fontSize = 16.sp,
         textAlign = TextAlign.Center,
-        color = MaterialTheme.colorScheme.MainColor
     )
     BasicTextField(
         value = text,
         onValueChange = setText,
         textStyle = controller,
-        cursorBrush= SolidColor( MaterialTheme.colorScheme.MainColor),
         singleLine = true,
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
         modifier = Modifier
@@ -108,7 +103,7 @@ private fun pageTextField(text: String, setText: (text: String) -> Unit) {
         decorationBox = { innerTextField ->
             Box(
                 contentAlignment = Alignment.Center,
-                modifier = Modifier.border(3.dp, MaterialTheme.colorScheme.MainColor, RoundedCornerShape(25))
+                modifier = Modifier.border(3.dp, MaterialTheme.colorScheme.primary, RoundedCornerShape(25))
             ) {
                 innerTextField()
             }
@@ -149,7 +144,7 @@ fun MinRating(viewModel: SearchViewModel) {
                     color = Color.White,
                     modifier = Modifier
                         .clip(RoundedCornerShape(25))
-                        .background(MaterialTheme.colorScheme.MainColor)
+                        .background(MaterialTheme.colorScheme.primary)
                         .padding(4.dp)
 
                 )

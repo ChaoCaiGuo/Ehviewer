@@ -71,11 +71,7 @@ var isDarkTheme: Boolean = false
 val ColorScheme.TextColor:Color
     get() = if(isDarkTheme) TextdarkColor else TextlightColor
 
-val ColorScheme.MainColor:Color
-    get() =  if(isDarkTheme) MainColorDark else MainColorLight
 
 val ColorScheme.SystemBarsColor:Color
     get() =  if(isDarkTheme) TextlightColor else TextdarkColor
 
-val ColorScheme.CardColor:Color
-    get() =  if(isDarkTheme) Color(0xFF37353C) else Color(0xFFE6DEF7)

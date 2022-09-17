@@ -24,8 +24,6 @@ import com.google.accompanist.pager.PagerState
 import com.google.accompanist.pager.rememberPagerState
 import com.hippo.composeUi.composeExt.addComposeView
 import com.hippo.composeUi.composeExt.pagerTabIndicatorOffset
-import com.hippo.composeUi.theme.CardColor
-import com.hippo.composeUi.theme.MainColor
 import com.hippo.ehviewer.R
 import com.hippo.ehviewer.client.EhConfig
 import com.hippo.viewModel.SearchViewModel
@@ -114,7 +112,6 @@ private fun TabRow(
     scope: CoroutineScope = rememberCoroutineScope()
 ) {
     TabRow(
-        contentColor = MaterialTheme.colorScheme.MainColor,
         selectedTabIndex = pagerState.currentPage,
         indicator = { tabPositions ->
             TabRowDefaults.Indicator(
@@ -142,7 +139,6 @@ private fun TabRow(
 fun CardPage(content: @Composable () -> Unit) {
     Card(
         modifier = Modifier.padding(4.dp),
-        colors =  CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.CardColor),
         elevation = CardDefaults.cardElevation(1.dp)
     ) {
         Box(modifier = Modifier.padding(15.dp)) {

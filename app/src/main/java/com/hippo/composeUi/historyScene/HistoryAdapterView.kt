@@ -89,7 +89,7 @@ fun HistoryAdapterView(
                             //这儿是上传者
                             Text(
                                 text = gi.uploader ?: "(DISOWNED)",
-                                fontSize = 12.sp,
+                                fontSize = 13.sp,
                                 fontWeight = FontWeight.W500
 
                             )
@@ -105,10 +105,10 @@ fun HistoryAdapterView(
                                 modifier = Modifier
                                     .padding(2.dp)
                                     .background(Color(EhUtils.getCategoryColor(gi.category)))
-                                    .padding(vertical = 3.dp, horizontal = 4.dp),
+                                    .padding(vertical = 3.dp, horizontal = 3.dp),
                                 color = Color.White,
                                 textAlign = TextAlign.Center,
-                                fontWeight = FontWeight.W600
+                                fontWeight = FontWeight.W500
                             )
                         }
 
@@ -132,7 +132,7 @@ fun HistoryAdapterView(
                                 )
                             }
                             //这是上传时间
-                            Text(text = gi.posted, fontSize = 14.sp)
+                            Text(text = gi.posted, fontSize = 14.sp,fontWeight = FontWeight.W300)
                         }
 
                     }
