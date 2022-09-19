@@ -309,6 +309,7 @@ public class EhApplication extends SceneApplication {
         try {
             PackageInfo pi = getPackageManager().getPackageInfo(getPackageName(), 0);
             Settings.putVersionCode(pi.versionCode);
+            Settings.putVersionName(pi.versionName);
         } catch (PackageManager.NameNotFoundException e) {
             // Ignore
         }

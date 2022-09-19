@@ -97,6 +97,8 @@ public class Settings {
     public static final String KEY_APP_LANGUAGE = "app_language";
     private static final String TAG = Settings.class.getSimpleName();
     private static final String KEY_VERSION_CODE = "version_code";
+
+    private static final String KEY_VERSION_Name = "version_name";
     private static final int DEFAULT_VERSION_CODE = 0;
     private static final String KEY_DISPLAY_NAME = "display_name";
     private static final String DEFAULT_DISPLAY_NAME = null;
@@ -137,7 +139,7 @@ public class Settings {
     private static final String DEFAULT_EXCLUDED_LANGUAGES = null;
     private static final String KEY_METERED_NETWORK_WARNING = "cellular_network_warning";
     private static final boolean DEFAULT_METERED_NETWORK_WARNING = false;
-    private static final String KEY_APP_LINK_VERIFY_TIP = "app_link_verify_tip";
+
     private static final boolean DEFAULT_APP_LINK_VERIFY_TIP = false;
     private static final String KEY_NIGHT_MODE = "night_mode";
     private static final String DEFAULT_NIGHT_MODE = "-1";
@@ -431,6 +433,14 @@ public class Settings {
         putInt(KEY_VERSION_CODE, value);
     }
 
+    public static String getVersionName() {
+        return getString(KEY_VERSION_Name, "");
+    }
+
+    public static void putVersionName(String value) {
+        putString(KEY_VERSION_Name, value);
+    }
+
     public static String getDisplayName() {
         return getString(KEY_DISPLAY_NAME, DEFAULT_DISPLAY_NAME);
     }
@@ -616,13 +626,7 @@ public class Settings {
         return getBoolean(KEY_METERED_NETWORK_WARNING, DEFAULT_METERED_NETWORK_WARNING);
     }
 
-    public static boolean getAppLinkVerifyTip() {
-        return getBoolean(KEY_APP_LINK_VERIFY_TIP, DEFAULT_APP_LINK_VERIFY_TIP);
-    }
 
-    public static void putAppLinkVerifyTip(boolean value) {
-        putBoolean(KEY_APP_LINK_VERIFY_TIP, value);
-    }
 
     public static int getScreenRotation() {
         return getIntFromStr(KEY_SCREEN_ROTATION, DEFAULT_SCREEN_ROTATION);
