@@ -7,17 +7,29 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.*
 import android.widget.TextView
+import androidx.compose.material3.Text
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.hippo.composeUi.widget.ComposeDialogWithSelectItem
+import com.hippo.composeUi.widget.DialogBaseSelectItemWithIconAdapter
 import com.hippo.easyrecyclerview.EasyRecyclerView
 import com.hippo.easyrecyclerview.FastScroller
 import com.hippo.easyrecyclerview.HandlerDrawable
 import com.hippo.easyrecyclerview.MarginItemDecoration
-import com.hippo.ehviewer.*
+import com.hippo.ehviewer.EhDB
+import com.hippo.ehviewer.FavouriteStatusRouter
+import com.hippo.ehviewer.R
+import com.hippo.ehviewer.Settings
 import com.hippo.ehviewer.client.EhUtils
 import com.hippo.ehviewer.client.data.GalleryInfo
 import com.hippo.ehviewer.dao.DownloadInfo
@@ -46,8 +58,11 @@ class HistoryScene : ToolbarScene() {
     /*---------------
      View life cycle
      ---------------*/
-    @Inject lateinit var mDownloadManager: DownloadManager
-    @Inject lateinit var mFavouriteStatusRouter: FavouriteStatusRouter
+    @Inject
+    lateinit var mDownloadManager: DownloadManager
+
+    @Inject
+    lateinit var mFavouriteStatusRouter: FavouriteStatusRouter
 
     private var mTip: TextView? = null
     private var mFastScroller: FastScroller? = null
@@ -56,42 +71,46 @@ class HistoryScene : ToolbarScene() {
     private var mAdapter: RecyclerView.Adapter<*>? = null
     private var mLazyList: List<HistoryInfo>? = null
 
-    private var mDownloadInfoListener: DownloadInfoListener= object : DownloadInfoListener {
-        override fun onAdd(info: DownloadInfo, list: List<DownloadInfo>, position: Int) {
-            if (mAdapter != null) {
-                mAdapter!!.notifyDataSetChanged()
+    private val mDownloadInfoListener by lazy {
+        object : DownloadInfoListener {
+            override fun onAdd(info: DownloadInfo, list: List<DownloadInfo>, position: Int) {
+                if (mAdapter != null) {
+                    mAdapter!!.notifyDataSetChanged()
+                }
             }
-        }
 
-        override fun onUpdate(info: DownloadInfo, list: List<DownloadInfo>) {}
-        override fun onUpdateAll() {}
-        override fun onReload() {
-            if (mAdapter != null) {
-                mAdapter!!.notifyDataSetChanged()
+            override fun onUpdate(info: DownloadInfo, list: List<DownloadInfo>) {}
+            override fun onUpdateAll() {}
+            override fun onReload() {
+                if (mAdapter != null) {
+                    mAdapter!!.notifyDataSetChanged()
+                }
             }
-        }
 
-        override fun onChange() {
-            if (mAdapter != null) {
-                mAdapter!!.notifyDataSetChanged()
+            override fun onChange() {
+                if (mAdapter != null) {
+                    mAdapter!!.notifyDataSetChanged()
+                }
             }
-        }
 
-        override fun onRenameLabel(from: String, to: String) {}
-        override fun onRemove(info: DownloadInfo, list: List<DownloadInfo>, position: Int) {
-            if (mAdapter != null) {
-                mAdapter!!.notifyDataSetChanged()
+            override fun onRenameLabel(from: String, to: String) {}
+            override fun onRemove(info: DownloadInfo, list: List<DownloadInfo>, position: Int) {
+                if (mAdapter != null) {
+                    mAdapter!!.notifyDataSetChanged()
+                }
             }
-        }
 
-        override fun onUpdateLabels() {}
+            override fun onUpdateLabels() {}
+        }
     }
-    private var mFavouriteStatusRouterListener: FavouriteStatusRouter.Listener =
+    private val mFavouriteStatusRouterListener by lazy {
         FavouriteStatusRouter.Listener { _, _ ->
             if (mAdapter != null) {
                 mAdapter!!.notifyDataSetChanged()
             }
         }
+    }
+
 
     override fun onDestroy() {
         super.onDestroy()
@@ -202,7 +221,7 @@ class HistoryScene : ToolbarScene() {
     private fun showClearAllDialog() {
         MaterialAlertDialogBuilder(requireContext())
             .setMessage(R.string.clear_all_history)
-            .setPositiveButton(R.string.clear_all) { dialog, which ->
+            .setPositiveButton(R.string.clear_all) { _, which ->
                 if (DialogInterface.BUTTON_POSITIVE != which || null == mAdapter) {
                     return@setPositiveButton
                 }
@@ -217,8 +236,7 @@ class HistoryScene : ToolbarScene() {
 
     override fun onMenuItemClick(item: MenuItem): Boolean {
         // Skip when in choice mode
-        val id = item.itemId
-        if (id == R.id.action_clear_all) {
+        if (item.itemId == R.id.action_clear_all) {
             showClearAllDialog()
             return true
         }
@@ -229,113 +247,120 @@ class HistoryScene : ToolbarScene() {
         if (null == mLazyList) {
             return
         }
-        val args = Bundle()
-        args.putString(GalleryDetailScene.KEY_ACTION, GalleryDetailScene.ACTION_GALLERY_INFO)
-        args.putParcelable(GalleryDetailScene.KEY_GALLERY_INFO, mLazyList!![position])
+        val args = Bundle().apply {
+            putString(
+                GalleryDetailScene.KEY_ACTION,
+                GalleryDetailScene.ACTION_GALLERY_INFO
+            )
+            putParcelable(
+                GalleryDetailScene.KEY_GALLERY_INFO,
+                mLazyList!![position]
+            )
+        }
         val announcer = Announcer(GalleryDetailScene::class.java).setArgs(args)
         startScene(announcer)
         return
     }
 
-    fun onItemLongClick(position: Int): Boolean {
-        val context = context
-        val activity = mainActivity
-        if (null == context || null == activity || null == mLazyList) {
-            return false
-        }
-        val gi = mLazyList?.get(position) ?: return true
+    fun dialogSelectItemAdapter(position: Int,closeDialog:()->Unit = {} ): ArrayList<DialogBaseSelectItemWithIconAdapter>? {
+        val context = context ?: return null
+        val activity = mainActivity ?: return null
+        val gi = mLazyList?.get(position) ?: return null
         val downloaded = mDownloadManager.getDownloadState(gi.gid) != DownloadInfo.STATE_INVALID
         val favourited = gi.favoriteSlot != -2
-        val items = if (downloaded) arrayOf<CharSequence>(
-            context.getString(R.string.read),
-            context.getString(R.string.delete_downloads),
-            context.getString(if (favourited) R.string.remove_from_favourites else R.string.add_to_favourites),
-            context.getString(R.string.delete),
-            context.getString(R.string.download_move_dialog_title)
-        ) else arrayOf<CharSequence>(
-            context.getString(R.string.read),
-            context.getString(R.string.download),
-            context.getString(if (favourited) R.string.remove_from_favourites else R.string.add_to_favourites),
-            context.getString(R.string.delete)
-        )
-        val icons = if (downloaded) intArrayOf(
-            R.drawable.v_book_open_x24,
-            R.drawable.v_delete_x24,
-            if (favourited) R.drawable.v_heart_broken_x24 else R.drawable.v_heart_x24,
-            R.drawable.v_delete_x24,
-            R.drawable.v_folder_move_x24
-        ) else intArrayOf(
-            R.drawable.v_book_open_x24,
-            R.drawable.v_download_x24,
-            if (favourited) R.drawable.v_heart_broken_x24 else R.drawable.v_heart_x24,
-            R.drawable.v_delete_x24
-        )
-        MaterialAlertDialogBuilder(context)
-            .setTitle(EhUtils.getSuitableTitle(gi))
-            .setAdapter(
-                SelectItemWithIconAdapter(context, items, icons)
-            ) { _: DialogInterface?, which: Int ->
-                when (which) {
-                    0 -> {
-                        val intent = Intent(activity, GalleryActivity::class.java)
-                        intent.action = GalleryActivity.ACTION_EH
-                        intent.putExtra(GalleryActivity.KEY_GALLERY_INFO, gi)
-                        startActivity(intent)
-                    }
-                    1 -> if (downloaded) {
-                        MaterialAlertDialogBuilder(context)
-                            .setTitle(R.string.download_remove_dialog_title)
-                            .setMessage(
-                                getString(
-                                    R.string.download_remove_dialog_message,
-                                    gi.title
-                                )
-                            )
-                            .setPositiveButton(
-                                android.R.string.ok
-                            ) { _, _->
-                                mDownloadManager.deleteDownload(
-                                    gi.gid
-                                )
-                            }
-                            .show()
-                    } else {
-                        CommonOperations.startDownload(activity, gi, false)
-                    }
-                    2 -> if (favourited) {
-                        CommonOperations.removeFromFavorites(
-                            activity,
-                            gi,
-                            RemoveFromFavoriteListener(
-                                context,
-                                activity.stageId,
-                                tag
+        return arrayListOf(
+            //read
+            DialogBaseSelectItemWithIconAdapter(
+                R.string.read,
+                R.drawable.v_book_open_x24
+            ) {
+                closeDialog.invoke()
+                val intent = Intent(context, GalleryActivity::class.java)
+                intent.action = GalleryActivity.ACTION_EH
+                intent.putExtra(GalleryActivity.KEY_GALLERY_INFO, gi)
+                startActivity(intent)
+            },
+            //downloads
+            DialogBaseSelectItemWithIconAdapter(
+                if (downloaded) R.string.delete_downloads else R.string.downloads,
+                R.drawable.v_delete_x24
+            ) {
+                closeDialog.invoke()
+                if (downloaded) {
+                    MaterialAlertDialogBuilder(context)
+                        .setTitle(R.string.download_remove_dialog_title)
+                        .setMessage(
+                            getString(
+                                R.string.download_remove_dialog_message,
+                                gi.title
                             )
                         )
-                    } else {
-                        CommonOperations.addToFavorites(
-                            activity,
-                            gi,
-                            AddToFavoriteListener(
-                                context,
-                                activity.stageId,
-                                tag
+                        .setPositiveButton(
+                            android.R.string.ok
+                        ) { _, _ ->
+                            mDownloadManager.deleteDownload(
+                                gi.gid
                             )
-                        )
-                    }
-                    3 -> {
-                        if (null == mLazyList || null == mAdapter) {
-                            return@setAdapter
                         }
-                        val info = mLazyList!![position]
-                        EhDB.deleteHistoryInfo(info)
-                        updateLazyList()
-                        mAdapter!!.notifyDataSetChanged()
-                        updateView(true)
-                    }
-                    4 -> {
-                        val labelRawList =
-                            mDownloadManager.labelList
+                        .show()
+                } else {
+                    CommonOperations.startDownload(activity, gi, false)
+                }
+            },
+            //favourites
+            DialogBaseSelectItemWithIconAdapter(
+                if (favourited) R.string.remove_from_favourites else R.string.add_to_favourites,
+                if (favourited) R.drawable.v_heart_broken_x24 else R.drawable.v_heart_x24
+            ) {
+                closeDialog.invoke()
+                if (favourited) {
+                    CommonOperations.removeFromFavorites(
+                        activity,
+                        gi,
+                        RemoveFromFavoriteListener(
+                            context,
+                            activity.stageId,
+                            tag
+                        )
+                    )
+                } else {
+                    CommonOperations.addToFavorites(
+                        activity,
+                        gi,
+                        AddToFavoriteListener(
+                            context,
+                            activity.stageId,
+                            tag
+                        )
+                    )
+                }
+            },
+            //delete
+            DialogBaseSelectItemWithIconAdapter(
+                R.string.delete,
+                R.drawable.v_delete_x24
+            ) {
+                closeDialog.invoke()
+                if (null == mLazyList || null == mAdapter) {
+                    return@DialogBaseSelectItemWithIconAdapter
+                }
+                val info = mLazyList!![position]
+                EhDB.deleteHistoryInfo(info)
+                updateLazyList()
+                mAdapter!!.notifyDataSetChanged()
+                updateView(true)
+            },
+
+            ).also {
+            if (downloaded)
+                it.add(
+                    //move
+                    DialogBaseSelectItemWithIconAdapter(
+                        R.string.download_move_dialog_title,
+                        R.drawable.v_folder_move_x24
+                    ) {
+                        closeDialog.invoke()
+                        val labelRawList = mDownloadManager.labelList
                         val labelList: MutableList<String> =
                             ArrayList(labelRawList.size + 1)
                         labelList.add(getString(R.string.default_download_label_name))
@@ -347,16 +372,12 @@ class HistoryScene : ToolbarScene() {
                         }
                         val labels =
                             labelList.toTypedArray()
-                        val helper =
-                            MoveDialogHelper(labels, gi)
                         MaterialAlertDialogBuilder(context)
                             .setTitle(R.string.download_move_dialog_title)
-                            .setItems(labels, helper)
+                            .setItems(labels, MoveDialogHelper(labels, gi))
                             .show()
-                    }
-                }
-            }.show()
-        return true
+                    })
+        }
     }
 
 
@@ -365,16 +386,14 @@ class HistoryScene : ToolbarScene() {
         private val mGi: GalleryInfo
     ) : DialogInterface.OnClickListener {
         override fun onClick(dialog: DialogInterface, which: Int) {
-            if (null != mRecyclerView) {
-                mRecyclerView!!.outOfCustomChoiceMode()
-            }
+
+            mRecyclerView?.outOfCustomChoiceMode()
+
             val downloadInfo = mDownloadManager.getDownloadInfo(mGi.gid) ?: return
             val label = if (which == 0) null else mLabels[which]
             mDownloadManager.changeLabel(listOf(downloadInfo), label)
         }
     }
-
-
 
     inner class HistoryAdapter : RecyclerView.Adapter<HistoryAdapter.ComposeViewHolder>() {
 
@@ -391,14 +410,33 @@ class HistoryScene : ToolbarScene() {
         }
 
         override fun onBindViewHolder(holder: ComposeViewHolder, position: Int) {
-            if (null == mLazyList) {
-                return
-            }
-            val gi = mLazyList!![position]
+            val gi = mLazyList?.get(position) ?: return
 
             holder.composeView.setContent {
+
+                var showDialog by remember {
+                    mutableStateOf(false)
+                }
+
                 HistoryAdapterView(gi, mDownloadManager.containDownloadInfo(gi.gid),
-                    { onItemClick(position) }, { onItemLongClick(position) })
+                    { onItemClick(position) }, { showDialog = true })
+
+                if (showDialog)
+                    dialogSelectItemAdapter(position){ showDialog = false }?.let {
+                        ComposeDialogWithSelectItem(
+                            title = {
+                                Text(
+                                    text = EhUtils.getSuitableTitle(gi),
+                                    fontSize = 20.sp,
+                                    maxLines = 2,
+                                    overflow = TextOverflow.Ellipsis,
+                                )
+                            },
+                            onDismissRequest = { showDialog = false },
+                            dialogSelectItemAdapter = it
+                        )
+                    }
+
             }
 
         }

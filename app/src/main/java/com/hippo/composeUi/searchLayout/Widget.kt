@@ -15,6 +15,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
@@ -72,7 +73,7 @@ fun PageNumber(viewModel: SearchViewModel) {
                 viewModel.searchPageNumber.PageFrom =
                     NumberUtils.parseIntSafely(text, -1)
             }
-            Text(text = stringResource(id = R.string.search_sp_to))
+            Text(text = stringResource(id = R.string.search_sp_to), modifier = Modifier.padding(horizontal = 3.dp))
             pageTextField(pageTo) { text ->
                 pageTo = text
                 viewModel.searchPageNumber.PageTo =
@@ -91,6 +92,7 @@ private fun pageTextField(text: String, setText: (text: String) -> Unit) {
     val controller = TextStyle(
         fontSize = 16.sp,
         textAlign = TextAlign.Center,
+        color = MaterialTheme.colorScheme.primary
     )
     BasicTextField(
         value = text,
@@ -98,6 +100,7 @@ private fun pageTextField(text: String, setText: (text: String) -> Unit) {
         textStyle = controller,
         singleLine = true,
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+        cursorBrush= SolidColor( MaterialTheme.colorScheme.primary ),
         modifier = Modifier
             .height(40.dp).width(80.dp),
         decorationBox = { innerTextField ->
