@@ -25,6 +25,7 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.paging.PagingSource;
 import androidx.room.Room;
 
 import com.hippo.ehviewer.client.data.GalleryInfo;
@@ -527,8 +528,12 @@ public class EhDB {
         dao.update(list);
     }
 
-    public static synchronized List<HistoryInfo> getHistoryLazyList() {
+    public static synchronized List<HistoryInfo> getHistoryList() {
         return db.historyDao().list();
+    }
+
+    public static synchronized PagingSource<Integer, HistoryInfo> getHistoryLazyList() {
+        return db.historyDao().listLazy();
     }
 
     public static synchronized void putHistoryInfo(GalleryInfo galleryInfo) {
