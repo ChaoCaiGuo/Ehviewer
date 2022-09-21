@@ -19,13 +19,13 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.hippo.composeUi.composeExt.clickable2
 import com.hippo.composeUi.theme.EhViewerTheme
 import com.hippo.composeUi.theme.SystemBarsColor
+import com.hippo.ehviewer.EhApplication
 import com.hippo.ehviewer.R
 import com.hippo.ehviewer.Settings
 import com.hippo.ehviewer.client.EhUrl
@@ -42,16 +42,20 @@ class SelectSiteScene : SolidScene() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
+        val defaultSite =
+            if (EhApplication.getEhCookieStore(requireContext()).hasSignedIn())
+                1
+            else
+                0
         return (inflater.inflate(R.layout.compose_xml, container, false) as ComposeView)
             .apply {
-                setContent { EhViewerTheme { ComposeSelectSiteScene() } }
+                setContent { EhViewerTheme { ComposeSelectSiteScene(defaultSite) } }
             }
     }
 
 
-    @Preview
     @Composable
-    fun ComposeSelectSiteScene() {
+    fun ComposeSelectSiteScene(defaultSite: Int) {
         val systemUiController = rememberSystemUiController()
         val systemBarsColor = MaterialTheme.colorScheme.SystemBarsColor
         SideEffect {
@@ -63,7 +67,7 @@ class SelectSiteScene : SolidScene() {
 
 
         var selected by remember {
-            mutableStateOf(0)
+            mutableStateOf(defaultSite)
         }
 
         Column(
