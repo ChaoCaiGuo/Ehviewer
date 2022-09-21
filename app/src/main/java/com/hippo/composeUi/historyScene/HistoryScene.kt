@@ -6,169 +6,247 @@ import android.content.DialogInterface
 import android.content.Intent
 import android.os.Bundle
 import android.view.*
-import android.widget.TextView
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.gestures.stopScroll
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Text
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.material3.TextButton
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.core.content.ContextCompat
-import androidx.recyclerview.widget.ItemTouchHelper
-import androidx.recyclerview.widget.RecyclerView
-import androidx.recyclerview.widget.StaggeredGridLayoutManager
+import androidx.lifecycle.lifecycleScope
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.hippo.composeUi.widget.ComposeDialogWithSelectItem
 import com.hippo.composeUi.widget.DialogBaseSelectItemWithIconAdapter
-import com.hippo.easyrecyclerview.EasyRecyclerView
-import com.hippo.easyrecyclerview.FastScroller
-import com.hippo.easyrecyclerview.HandlerDrawable
-import com.hippo.easyrecyclerview.MarginItemDecoration
+import com.hippo.composeUi.widget.SwipeToDismiss
 import com.hippo.ehviewer.EhDB
 import com.hippo.ehviewer.FavouriteStatusRouter
 import com.hippo.ehviewer.R
-import com.hippo.ehviewer.Settings
 import com.hippo.ehviewer.client.EhUtils
 import com.hippo.ehviewer.client.data.GalleryInfo
 import com.hippo.ehviewer.dao.DownloadInfo
 import com.hippo.ehviewer.dao.HistoryInfo
 import com.hippo.ehviewer.download.DownloadManager
-import com.hippo.ehviewer.download.DownloadManager.DownloadInfoListener
 import com.hippo.ehviewer.ui.CommonOperations
 import com.hippo.ehviewer.ui.GalleryActivity
-import com.hippo.ehviewer.ui.dialog.SelectItemWithIconAdapter
 import com.hippo.ehviewer.ui.scene.EhCallback
 import com.hippo.ehviewer.ui.scene.GalleryDetailScene
 import com.hippo.ehviewer.ui.scene.GalleryListScene
 import com.hippo.ehviewer.ui.scene.ToolbarScene
 import com.hippo.scene.Announcer
 import com.hippo.scene.SceneFragment
-import com.hippo.view.ViewTransition
-import com.hippo.widget.recyclerview.AutoStaggeredGridLayoutManager
-import com.hippo.yorozuya.AssertUtils
-import com.hippo.yorozuya.ViewUtils
 import dagger.hilt.android.AndroidEntryPoint
-import rikka.core.res.resolveColor
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @AndroidEntryPoint
 class HistoryScene : ToolbarScene() {
-    /*---------------
-     View life cycle
-     ---------------*/
+
     @Inject
     lateinit var mDownloadManager: DownloadManager
 
     @Inject
     lateinit var mFavouriteStatusRouter: FavouriteStatusRouter
 
-    private var mTip: TextView? = null
-    private var mFastScroller: FastScroller? = null
-    private var mRecyclerView: EasyRecyclerView? = null
-    private var mViewTransition: ViewTransition? = null
-    private var mAdapter: RecyclerView.Adapter<*>? = null
-    private var mLazyList: List<HistoryInfo>? = null
+    private var mutableList by mutableStateOf<List<HistoryInfo>?>(null)
+    private var mShowDialog by mutableStateOf(-1)
+    private var mShowClearAllDialog by mutableStateOf(false)
+    private var mDownloadGi by mutableStateOf<HistoryInfo?>(null)
 
-    private val mDownloadInfoListener by lazy {
-        object : DownloadInfoListener {
-            override fun onAdd(info: DownloadInfo, list: List<DownloadInfo>, position: Int) {
-                if (mAdapter != null) {
-                    mAdapter!!.notifyDataSetChanged()
-                }
-            }
-
-            override fun onUpdate(info: DownloadInfo, list: List<DownloadInfo>) {}
-            override fun onUpdateAll() {}
-            override fun onReload() {
-                if (mAdapter != null) {
-                    mAdapter!!.notifyDataSetChanged()
-                }
-            }
-
-            override fun onChange() {
-                if (mAdapter != null) {
-                    mAdapter!!.notifyDataSetChanged()
-                }
-            }
-
-            override fun onRenameLabel(from: String, to: String) {}
-            override fun onRemove(info: DownloadInfo, list: List<DownloadInfo>, position: Int) {
-                if (mAdapter != null) {
-                    mAdapter!!.notifyDataSetChanged()
-                }
-            }
-
-            override fun onUpdateLabels() {}
-        }
-    }
-    private val mFavouriteStatusRouterListener by lazy {
-        FavouriteStatusRouter.Listener { _, _ ->
-            if (mAdapter != null) {
-                mAdapter!!.notifyDataSetChanged()
-            }
-        }
-    }
-
-
-    override fun onDestroy() {
-        super.onDestroy()
-        mDownloadManager.removeDownloadInfoListener(mDownloadInfoListener)
-        mFavouriteStatusRouter.removeListener(mFavouriteStatusRouterListener)
-    }
+    private val mListState = LazyListState(0, 0)
 
     override fun getNavCheckedItem(): Int {
         return R.id.nav_history
     }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        mDownloadManager.addDownloadInfoListener(mDownloadInfoListener)
-        mFavouriteStatusRouter.addListener(mFavouriteStatusRouterListener)
-    }
-
     override fun onCreateViewWithToolbar(
         inflater: LayoutInflater,
         container: ViewGroup?, savedInstanceState: Bundle?
-    ): View? {
-        val view = inflater.inflate(R.layout.scene_history, container, false)
-        val content = ViewUtils.`$$`(view, R.id.content)
-        mRecyclerView = ViewUtils.`$$`(content, R.id.recycler_view) as EasyRecyclerView
-        mFastScroller = ViewUtils.`$$`(content, R.id.fast_scroller) as FastScroller
-        mTip = ViewUtils.`$$`(view, R.id.tip) as TextView
-        mViewTransition = ViewTransition(content, mTip)
-        val context = context
-        AssertUtils.assertNotNull(context)
-        val resources = context!!.resources
-        val drawable = ContextCompat.getDrawable(context, R.drawable.big_history)
-        drawable!!.setBounds(0, 0, drawable.intrinsicWidth, drawable.intrinsicHeight)
-        mTip!!.setCompoundDrawables(null, drawable, null, null)
-        mAdapter = HistoryAdapter()
-        (mAdapter as HistoryAdapter).setHasStableIds(true)
-        mRecyclerView!!.adapter = mAdapter
-        val layoutManager = AutoStaggeredGridLayoutManager(
-            0, StaggeredGridLayoutManager.VERTICAL
-        )
-        layoutManager.setColumnSize(resources.getDimensionPixelOffset(Settings.getDetailSizeResId()))
-        layoutManager.setStrategy(AutoStaggeredGridLayoutManager.STRATEGY_MIN_SIZE)
-        mRecyclerView!!.layoutManager = layoutManager
-        mRecyclerView!!.clipToPadding = false
-        mRecyclerView!!.clipChildren = false
-        val interval = resources.getDimensionPixelOffset(R.dimen.gallery_list_interval)
-        val paddingH = resources.getDimensionPixelOffset(R.dimen.gallery_list_margin_h)
-        val paddingV = resources.getDimensionPixelOffset(R.dimen.gallery_list_margin_v)
-        val decoration = MarginItemDecoration(interval, paddingH, paddingV, paddingH, paddingV)
-        mRecyclerView!!.addItemDecoration(decoration)
-        val itemTouchHelper = ItemTouchHelper(HistoryItemTouchHelperCallback())
-        itemTouchHelper.attachToRecyclerView(mRecyclerView)
-        mFastScroller!!.attachToRecyclerView(mRecyclerView)
-        val handlerDrawable = HandlerDrawable()
-        handlerDrawable.setColor(theme.resolveColor(com.google.android.material.R.attr.colorPrimary))
-        mFastScroller!!.setHandlerDrawable(handlerDrawable)
+    ): View {
         updateLazyList()
-        updateView(false)
-        return view
+
+        return ComposeView(requireContext()).apply {
+            setContent {
+                Box(
+                    modifier = Modifier
+                        .padding(horizontal = 3.dp)
+                        .fillMaxSize()
+                ) {
+
+                    if (mutableList == null || mutableList?.size == 0) {
+                        ComposeNoHistory()
+                    } else
+                        ComposeHistoryList()
+
+                    ComposeShowDialog()
+                    ComposeClearAllDialog()
+                    ComposeDownloadRemove()
+
+                }
+
+            }
+        }
+    }
+
+    @Composable
+    private fun ComposeHistoryList() {
+        LazyColumn(modifier = Modifier.fillMaxSize(), state = mListState) {
+            mutableList?.let { mutableList ->
+                itemsIndexed(
+                    items = mutableList,
+                    key = { _: Int, item: HistoryInfo -> item.gid }
+                ) { index: Int, gi: HistoryInfo ->
+                    var mShowDownload by remember {
+                        mutableStateOf(false)
+                    }
+                    LaunchedEffect(mShowDialog) {
+                        mShowDownload = mDownloadManager.containDownloadInfo(gi.gid)
+                    }
+                    SwipeToDismiss(
+                        onDismiss = {
+                            EhDB.deleteHistoryInfo(mutableList[index])
+                            updateLazyList()
+                        },
+                        dismissThresholds = 0.5f
+                    ) {
+                        HistoryAdapterView(gi,
+                            mShowDownload,
+                            { onItemClick(index) },
+                            { mShowDialog = index })
+                    }
+                }
+            }
+        }
+
+    }
+
+    @Composable
+    private fun ComposeShowDialog() {
+        if (mShowDialog != -1)
+            dialogSelectItemAdapter(mShowDialog) { mShowDialog = -1 }?.let {
+                ComposeDialogWithSelectItem(
+                    title = {
+                        Text(
+                            text = if (mShowDialog != -1) EhUtils.getSuitableTitle(
+                                mutableList?.get(
+                                    mShowDialog
+                                )
+                            ) else "Error",
+                            fontSize = 20.sp,
+                            maxLines = 2,
+                            overflow = TextOverflow.Ellipsis,
+                        )
+                    },
+                    onDismissRequest = { mShowDialog = -1 },
+                    dialogSelectItemAdapter = it
+                )
+            }
+    }
+
+    @Composable
+    private fun ComposeClearAllDialog() {
+        if (mShowClearAllDialog) {
+            AlertDialog(
+                onDismissRequest = {
+                    mShowClearAllDialog = false
+                },
+                title = {
+                    Text(text = stringResource(id = R.string.clear_all))
+                },
+                text = {
+                    Text(text = stringResource(id = R.string.clear_all_history))
+                },
+                confirmButton = {
+                    TextButton(
+                        onClick = {
+                            EhDB.clearHistoryInfo()
+                            updateLazyList()
+                            mShowClearAllDialog = false
+                        }
+                    ) {
+                        Text(stringResource(id = R.string.clear_all))
+                    }
+                },
+                dismissButton = {
+                    TextButton(
+                        onClick = {
+                            mShowClearAllDialog = false
+                        }
+                    ) {
+                        Text(stringResource(id = android.R.string.cancel))
+                    }
+                }
+            )
+        }
+    }
+
+    @Composable
+    private fun ComposeDownloadRemove() {
+        if (mDownloadGi != null) {
+            var title by remember {
+                mutableStateOf(
+                    getString(R.string.download_remove_dialog_message, mDownloadGi?.title)
+                )
+            }
+            AlertDialog(
+                onDismissRequest = {
+                    mDownloadGi = null
+                },
+                title = {
+                    Text(text = stringResource(id = R.string.download_remove_dialog_title))
+                },
+                text = {
+                    Text(text = title)
+                },
+                confirmButton = {
+                    TextButton(
+                        onClick = {
+                            mDownloadManager.deleteDownload(mDownloadGi!!.gid)
+                            title = ""
+                            mDownloadGi = null
+                        }
+                    ) {
+                        Text(stringResource(id = android.R.string.ok))
+                    }
+                },
+                dismissButton = {
+                    TextButton(
+                        onClick = {
+                            mDownloadGi = null
+                        }
+                    ) {
+                        Text(stringResource(id = android.R.string.cancel))
+                    }
+                }
+            )
+        }
+
+    }
+
+    @Composable
+    private fun ComposeNoHistory() {
+        Column(
+            modifier = Modifier.fillMaxSize(),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Image(
+                painter = painterResource(id = R.drawable.big_history),
+                contentDescription = null
+            )
+            Spacer(modifier = Modifier.padding(vertical = 5.dp))
+            Text(text = stringResource(id = R.string.no_history), fontSize = 20.sp)
+        }
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -178,35 +256,16 @@ class HistoryScene : ToolbarScene() {
     }
 
     override fun onDestroyView() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            mListState.stopScroll()
+            mutableList = null
+        }
+
         super.onDestroyView()
-        if (null != mLazyList) {
-            mLazyList = null
-            if (mAdapter != null) {
-                mAdapter!!.notifyDataSetChanged()
-            }
-        }
-        if (null != mRecyclerView) {
-            mRecyclerView!!.stopScroll()
-            mRecyclerView = null
-        }
-        mViewTransition = null
-        mAdapter = null
     }
 
-    // Remember to notify
     private fun updateLazyList() {
-        mLazyList = EhDB.getHistoryLazyList()
-    }
-
-    private fun updateView(animation: Boolean) {
-        if (null == mAdapter || null == mViewTransition) {
-            return
-        }
-        if (mAdapter!!.itemCount == 0) {
-            mViewTransition!!.showView(1, animation)
-        } else {
-            mViewTransition!!.showView(0, animation)
-        }
+        mutableList = EhDB.getHistoryLazyList()
     }
 
     @SuppressLint("RtlHardcoded")
@@ -218,33 +277,17 @@ class HistoryScene : ToolbarScene() {
         return R.menu.scene_history
     }
 
-    private fun showClearAllDialog() {
-        MaterialAlertDialogBuilder(requireContext())
-            .setMessage(R.string.clear_all_history)
-            .setPositiveButton(R.string.clear_all) { _, which ->
-                if (DialogInterface.BUTTON_POSITIVE != which || null == mAdapter) {
-                    return@setPositiveButton
-                }
-                EhDB.clearHistoryInfo()
-                updateLazyList()
-                mAdapter!!.notifyDataSetChanged()
-                updateView(true)
-            }
-            .setNegativeButton(android.R.string.cancel, null)
-            .show()
-    }
 
     override fun onMenuItemClick(item: MenuItem): Boolean {
-        // Skip when in choice mode
         if (item.itemId == R.id.action_clear_all) {
-            showClearAllDialog()
+            mShowClearAllDialog = true
             return true
         }
         return false
     }
 
     fun onItemClick(position: Int) {
-        if (null == mLazyList) {
+        if (null == mutableList) {
             return
         }
         val args = Bundle().apply {
@@ -254,7 +297,7 @@ class HistoryScene : ToolbarScene() {
             )
             putParcelable(
                 GalleryDetailScene.KEY_GALLERY_INFO,
-                mLazyList!![position]
+                mutableList!![position]
             )
         }
         val announcer = Announcer(GalleryDetailScene::class.java).setArgs(args)
@@ -262,10 +305,13 @@ class HistoryScene : ToolbarScene() {
         return
     }
 
-    fun dialogSelectItemAdapter(position: Int,closeDialog:()->Unit = {} ): ArrayList<DialogBaseSelectItemWithIconAdapter>? {
+    private fun dialogSelectItemAdapter(
+        position: Int,
+        closeDialog: () -> Unit = {}
+    ): ArrayList<DialogBaseSelectItemWithIconAdapter>? {
         val context = context ?: return null
         val activity = mainActivity ?: return null
-        val gi = mLazyList?.get(position) ?: return null
+        val gi = mutableList?.get(position) ?: return null
         val downloaded = mDownloadManager.getDownloadState(gi.gid) != DownloadInfo.STATE_INVALID
         val favourited = gi.favoriteSlot != -2
         return arrayListOf(
@@ -274,45 +320,30 @@ class HistoryScene : ToolbarScene() {
                 R.string.read,
                 R.drawable.v_book_open_x24
             ) {
-                closeDialog.invoke()
                 val intent = Intent(context, GalleryActivity::class.java)
                 intent.action = GalleryActivity.ACTION_EH
                 intent.putExtra(GalleryActivity.KEY_GALLERY_INFO, gi)
                 startActivity(intent)
+                closeDialog.invoke()
             },
             //downloads
             DialogBaseSelectItemWithIconAdapter(
                 if (downloaded) R.string.delete_downloads else R.string.downloads,
-                R.drawable.v_delete_x24
+                if (downloaded) R.drawable.v_delete_x24 else R.drawable.v_download_x24
             ) {
-                closeDialog.invoke()
                 if (downloaded) {
-                    MaterialAlertDialogBuilder(context)
-                        .setTitle(R.string.download_remove_dialog_title)
-                        .setMessage(
-                            getString(
-                                R.string.download_remove_dialog_message,
-                                gi.title
-                            )
-                        )
-                        .setPositiveButton(
-                            android.R.string.ok
-                        ) { _, _ ->
-                            mDownloadManager.deleteDownload(
-                                gi.gid
-                            )
-                        }
-                        .show()
+                    mDownloadGi = gi
                 } else {
                     CommonOperations.startDownload(activity, gi, false)
                 }
+                closeDialog.invoke()
             },
             //favourites
             DialogBaseSelectItemWithIconAdapter(
                 if (favourited) R.string.remove_from_favourites else R.string.add_to_favourites,
                 if (favourited) R.drawable.v_heart_broken_x24 else R.drawable.v_heart_x24
             ) {
-                closeDialog.invoke()
+
                 if (favourited) {
                     CommonOperations.removeFromFavorites(
                         activity,
@@ -334,21 +365,21 @@ class HistoryScene : ToolbarScene() {
                         )
                     )
                 }
+                closeDialog.invoke()
             },
             //delete
             DialogBaseSelectItemWithIconAdapter(
                 R.string.delete,
                 R.drawable.v_delete_x24
             ) {
-                closeDialog.invoke()
-                if (null == mLazyList || null == mAdapter) {
+
+                if (null == mutableList) {
                     return@DialogBaseSelectItemWithIconAdapter
                 }
-                val info = mLazyList!![position]
+                val info = mutableList!![position]
                 EhDB.deleteHistoryInfo(info)
                 updateLazyList()
-                mAdapter!!.notifyDataSetChanged()
-                updateView(true)
+                closeDialog.invoke()
             },
 
             ).also {
@@ -359,7 +390,7 @@ class HistoryScene : ToolbarScene() {
                         R.string.download_move_dialog_title,
                         R.drawable.v_folder_move_x24
                     ) {
-                        closeDialog.invoke()
+
                         val labelRawList = mDownloadManager.labelList
                         val labelList: MutableList<String> =
                             ArrayList(labelRawList.size + 1)
@@ -376,6 +407,7 @@ class HistoryScene : ToolbarScene() {
                             .setTitle(R.string.download_move_dialog_title)
                             .setItems(labels, MoveDialogHelper(labels, gi))
                             .show()
+                        closeDialog.invoke()
                     })
         }
     }
@@ -387,92 +419,9 @@ class HistoryScene : ToolbarScene() {
     ) : DialogInterface.OnClickListener {
         override fun onClick(dialog: DialogInterface, which: Int) {
 
-            mRecyclerView?.outOfCustomChoiceMode()
-
             val downloadInfo = mDownloadManager.getDownloadInfo(mGi.gid) ?: return
             val label = if (which == 0) null else mLabels[which]
             mDownloadManager.changeLabel(listOf(downloadInfo), label)
-        }
-    }
-
-    inner class HistoryAdapter : RecyclerView.Adapter<HistoryAdapter.ComposeViewHolder>() {
-
-        inner class ComposeViewHolder(val composeView: ComposeView) :
-            RecyclerView.ViewHolder(composeView)
-
-        override fun getItemId(position: Int): Long {
-            return mLazyList?.get(position)?.gid ?: super.getItemId(position)
-        }
-
-        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ComposeViewHolder {
-            val view = ComposeView(parent.context)
-            return ComposeViewHolder(view)
-        }
-
-        override fun onBindViewHolder(holder: ComposeViewHolder, position: Int) {
-            val gi = mLazyList?.get(position) ?: return
-
-            holder.composeView.setContent {
-
-                var showDialog by remember {
-                    mutableStateOf(false)
-                }
-
-                HistoryAdapterView(gi, mDownloadManager.containDownloadInfo(gi.gid),
-                    { onItemClick(position) }, { showDialog = true })
-
-                if (showDialog)
-                    dialogSelectItemAdapter(position){ showDialog = false }?.let {
-                        ComposeDialogWithSelectItem(
-                            title = {
-                                Text(
-                                    text = EhUtils.getSuitableTitle(gi),
-                                    fontSize = 20.sp,
-                                    maxLines = 2,
-                                    overflow = TextOverflow.Ellipsis,
-                                )
-                            },
-                            onDismissRequest = { showDialog = false },
-                            dialogSelectItemAdapter = it
-                        )
-                    }
-
-            }
-
-        }
-
-        override fun getItemCount(): Int {
-            return mLazyList?.size ?: 0
-        }
-    }
-
-
-    private inner class HistoryItemTouchHelperCallback : ItemTouchHelper.Callback() {
-        override fun getMovementFlags(
-            recyclerView: RecyclerView,
-            viewHolder: RecyclerView.ViewHolder
-        ): Int {
-            return makeMovementFlags(0, ItemTouchHelper.LEFT)
-        }
-
-        override fun onMove(
-            recyclerView: RecyclerView,
-            viewHolder: RecyclerView.ViewHolder,
-            target: RecyclerView.ViewHolder
-        ): Boolean {
-            return false
-        }
-
-        override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
-            val mPosition = viewHolder.bindingAdapterPosition
-            if (null == mLazyList || mAdapter == null) {
-                return
-            }
-            val info = mLazyList!![mPosition]
-            EhDB.deleteHistoryInfo(info)
-            updateLazyList()
-            mAdapter!!.notifyItemRemoved(mPosition)
-            updateView(true)
         }
     }
 
