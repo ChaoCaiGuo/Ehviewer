@@ -2,13 +2,13 @@ package com.hippo.composeUi.widget
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateIntAsState
-import androidx.compose.foundation.gestures.detectDragGestures
+import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.gestures.draggable
+import androidx.compose.foundation.gestures.rememberDraggableState
 import androidx.compose.foundation.layout.offset
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.unit.IntOffset
 import kotlinx.coroutines.delay
@@ -31,6 +31,7 @@ fun SwipeToDismiss(
     var offsetOut by remember {
         mutableStateOf(false)
     }
+
     LaunchedEffect(offsetOut) {
         if (offsetOut) {
             delay(300)
@@ -42,6 +43,12 @@ fun SwipeToDismiss(
         if (it == -width) {
             offsetOut = true
         }
+    }
+
+    val draggableState = rememberDraggableState {
+        offset = (offset + it)
+            .coerceIn(-width.toFloat(), 0f)
+            .toInt()
     }
 
     AnimatedVisibility(visible = !offsetOut) {
@@ -60,22 +67,18 @@ fun SwipeToDismiss(
             .offset {
                 IntOffset(animateOffsetWidth, 0)
             }
-            .pointerInput(Unit) {
-                detectDragGestures(
-                    onDragEnd = {
-                        offset = if (offset < -width.toFloat() * dismissThresholds) {
-                            -width
-                        } else {
-                            0
-                        }
+            .draggable(
+                orientation = Orientation.Horizontal,
+                state = draggableState,
+                onDragStopped = {
+                    offset = if (offset < -width.toFloat() * dismissThresholds) {
+                        -width
+                    } else {
+                        0
                     }
-                ) { _, dragAmount: Offset ->
-                    offset = (offset + dragAmount.x)
-                        .coerceIn(-width.toFloat(), 0f)
-                        .toInt()
-
                 }
-            }) {
+            )
+        ) {
 
             content.invoke()
 
