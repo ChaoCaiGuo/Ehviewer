@@ -11,7 +11,6 @@ import androidx.compose.foundation.gestures.stopScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
-import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -25,6 +24,12 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.lifecycleScope
+import androidx.paging.LoadState
+import androidx.paging.Pager
+import androidx.paging.PagingConfig
+import androidx.paging.compose.LazyPagingItems
+import androidx.paging.compose.collectAsLazyPagingItems
+import androidx.paging.compose.items
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.hippo.composeUi.widget.ComposeDialogWithSelectItem
 import com.hippo.composeUi.widget.DialogBaseSelectItemWithIconAdapter
@@ -46,6 +51,7 @@ import com.hippo.ehviewer.ui.scene.ToolbarScene
 import com.hippo.scene.Announcer
 import com.hippo.scene.SceneFragment
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -58,11 +64,12 @@ class HistoryScene : ToolbarScene() {
     @Inject
     lateinit var mFavouriteStatusRouter: FavouriteStatusRouter
 
-    private var mutableList by mutableStateOf<List<HistoryInfo>?>(null)
-    private var mShowDialog by mutableStateOf(-1)
+    private var mShowDownloadRemove by mutableStateOf(false)
     private var mShowClearAllDialog by mutableStateOf(false)
-    private var mDownloadGi by mutableStateOf<HistoryInfo?>(null)
-
+    private var mSelectedGi by mutableStateOf<HistoryInfo?>(null)
+    private val historyData = Pager(
+        PagingConfig(20)
+    ) { EhDB.getHistoryLazyList() }.flow
     private val mListState = LazyListState(0, 0)
 
     override fun getNavCheckedItem(): Int {
@@ -73,8 +80,6 @@ class HistoryScene : ToolbarScene() {
         inflater: LayoutInflater,
         container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
-        updateLazyList()
-
         return ComposeView(requireContext()).apply {
             setContent {
                 Box(
@@ -82,11 +87,11 @@ class HistoryScene : ToolbarScene() {
                         .padding(horizontal = 3.dp)
                         .fillMaxSize()
                 ) {
-
-                    if (mutableList == null || mutableList?.size == 0) {
+                    val historyLazyPagingItems = historyData.collectAsLazyPagingItems()
+                    if ((historyLazyPagingItems.loadState.refresh is LoadState.Error) || historyLazyPagingItems.itemCount == 0) {
                         ComposeNoHistory()
                     } else
-                        ComposeHistoryList()
+                        ComposeHistoryList(historyLazyPagingItems)
 
                     ComposeShowDialog()
                     ComposeClearAllDialog()
@@ -99,55 +104,56 @@ class HistoryScene : ToolbarScene() {
     }
 
     @Composable
-    private fun ComposeHistoryList() {
-        LazyColumn(modifier = Modifier.fillMaxSize(), state = mListState) {
-            mutableList?.let { mutableList ->
-                itemsIndexed(
-                    items = mutableList,
-                    key = { _: Int, item: HistoryInfo -> item.gid }
-                ) { index: Int, gi: HistoryInfo ->
+    private fun ComposeHistoryList(lazyPagingItems: LazyPagingItems<HistoryInfo>) {
+        LazyColumn(modifier = Modifier.fillMaxSize()) {
+            items(
+                items = lazyPagingItems,
+                key = {item: HistoryInfo -> item.gid }
+            ) {  gi: HistoryInfo? ->
+                gi?.let {
                     var mShowDownload by remember {
                         mutableStateOf(false)
                     }
-                    LaunchedEffect(mShowDialog) {
+                    LaunchedEffect(mSelectedGi) {
                         mShowDownload = mDownloadManager.containDownloadInfo(gi.gid)
+                        delay(1000)
+                        mShowDownload = mDownloadManager.containDownloadInfo(gi.gid)
+                        //多次刷新保证UI正确
                     }
                     SwipeToDismiss(
                         onDismiss = {
-                            EhDB.deleteHistoryInfo(mutableList[index])
-                            updateLazyList()
+                            EhDB.deleteHistoryInfo(gi)
                         },
                         dismissThresholds = 0.5f
                     ) {
                         HistoryAdapterView(gi,
                             mShowDownload,
-                            { onItemClick(index) },
-                            { mShowDialog = index })
+                            { onItemClick(gi) },
+                            { mSelectedGi = gi })
                     }
                 }
+
             }
+
         }
 
     }
 
     @Composable
     private fun ComposeShowDialog() {
-        if (mShowDialog != -1)
-            dialogSelectItemAdapter(mShowDialog) { mShowDialog = -1 }?.let {
+        if (mSelectedGi != null)
+            dialogSelectItemAdapter(mSelectedGi!!) { mSelectedGi = null }?.let {
                 ComposeDialogWithSelectItem(
                     title = {
                         Text(
-                            text = if (mShowDialog != -1) EhUtils.getSuitableTitle(
-                                mutableList?.get(
-                                    mShowDialog
-                                )
-                            ) else "Error",
+                            text = if (mSelectedGi != null) EhUtils.getSuitableTitle(mSelectedGi)
+                                    else "Error",
                             fontSize = 20.sp,
                             maxLines = 2,
                             overflow = TextOverflow.Ellipsis,
                         )
                     },
-                    onDismissRequest = { mShowDialog = -1 },
+                    onDismissRequest = { mSelectedGi = null },
                     dialogSelectItemAdapter = it
                 )
             }
@@ -170,7 +176,6 @@ class HistoryScene : ToolbarScene() {
                     TextButton(
                         onClick = {
                             EhDB.clearHistoryInfo()
-                            updateLazyList()
                             mShowClearAllDialog = false
                         }
                     ) {
@@ -192,15 +197,15 @@ class HistoryScene : ToolbarScene() {
 
     @Composable
     private fun ComposeDownloadRemove() {
-        if (mDownloadGi != null) {
+        if (mShowDownloadRemove) {
             var title by remember {
                 mutableStateOf(
-                    getString(R.string.download_remove_dialog_message, mDownloadGi?.title)
+                    getString(R.string.download_remove_dialog_message, mSelectedGi?.title)
                 )
             }
             AlertDialog(
                 onDismissRequest = {
-                    mDownloadGi = null
+                    mShowDownloadRemove = false
                 },
                 title = {
                     Text(text = stringResource(id = R.string.download_remove_dialog_title))
@@ -211,9 +216,10 @@ class HistoryScene : ToolbarScene() {
                 confirmButton = {
                     TextButton(
                         onClick = {
-                            mDownloadManager.deleteDownload(mDownloadGi!!.gid)
+                            mSelectedGi ?: return@TextButton
+                            mDownloadManager.deleteDownload(mSelectedGi!!.gid)
                             title = ""
-                            mDownloadGi = null
+                            mShowDownloadRemove = false
                         }
                     ) {
                         Text(stringResource(id = android.R.string.ok))
@@ -222,7 +228,7 @@ class HistoryScene : ToolbarScene() {
                 dismissButton = {
                     TextButton(
                         onClick = {
-                            mDownloadGi = null
+                            mShowDownloadRemove = false
                         }
                     ) {
                         Text(stringResource(id = android.R.string.cancel))
@@ -258,14 +264,9 @@ class HistoryScene : ToolbarScene() {
     override fun onDestroyView() {
         viewLifecycleOwner.lifecycleScope.launch {
             mListState.stopScroll()
-            mutableList = null
         }
 
         super.onDestroyView()
-    }
-
-    private fun updateLazyList() {
-        mutableList = EhDB.getHistoryLazyList()
     }
 
     @SuppressLint("RtlHardcoded")
@@ -286,10 +287,7 @@ class HistoryScene : ToolbarScene() {
         return false
     }
 
-    fun onItemClick(position: Int) {
-        if (null == mutableList) {
-            return
-        }
+    fun onItemClick(gi: HistoryInfo) {
         val args = Bundle().apply {
             putString(
                 GalleryDetailScene.KEY_ACTION,
@@ -297,7 +295,7 @@ class HistoryScene : ToolbarScene() {
             )
             putParcelable(
                 GalleryDetailScene.KEY_GALLERY_INFO,
-                mutableList!![position]
+                gi
             )
         }
         val announcer = Announcer(GalleryDetailScene::class.java).setArgs(args)
@@ -306,12 +304,11 @@ class HistoryScene : ToolbarScene() {
     }
 
     private fun dialogSelectItemAdapter(
-        position: Int,
+        gi: HistoryInfo,
         closeDialog: () -> Unit = {}
     ): ArrayList<DialogBaseSelectItemWithIconAdapter>? {
         val context = context ?: return null
         val activity = mainActivity ?: return null
-        val gi = mutableList?.get(position) ?: return null
         val downloaded = mDownloadManager.getDownloadState(gi.gid) != DownloadInfo.STATE_INVALID
         val favourited = gi.favoriteSlot != -2
         return arrayListOf(
@@ -332,7 +329,7 @@ class HistoryScene : ToolbarScene() {
                 if (downloaded) R.drawable.v_delete_x24 else R.drawable.v_download_x24
             ) {
                 if (downloaded) {
-                    mDownloadGi = gi
+                    mShowDownloadRemove = true
                 } else {
                     CommonOperations.startDownload(activity, gi, false)
                 }
@@ -372,13 +369,7 @@ class HistoryScene : ToolbarScene() {
                 R.string.delete,
                 R.drawable.v_delete_x24
             ) {
-
-                if (null == mutableList) {
-                    return@DialogBaseSelectItemWithIconAdapter
-                }
-                val info = mutableList!![position]
-                EhDB.deleteHistoryInfo(info)
-                updateLazyList()
+                EhDB.deleteHistoryInfo(gi)
                 closeDialog.invoke()
             },
 
