@@ -53,15 +53,18 @@ fun HistoryAdapterView(
 
         Card(
             Modifier
-                .combinedClickable(
-                    onLongClick = onItemLongClick,
-                    onClick = onItemClick
-                )
                 .padding(vertical = 3.dp, horizontal = 3.dp)
                 .fillMaxWidth(),
             elevation = CardDefaults.cardElevation(3.dp)
         ) {
-            Row(modifier = Modifier.height((listCardSize * ratio).dp)) {
+            Row(
+                modifier = Modifier
+                    .combinedClickable(
+                        onLongClick = onItemLongClick,
+                        onClick = onItemClick
+                    )
+                    .height((listCardSize * ratio).dp)
+            ) {
                 //这儿是封面图片
                 SubcomposeAsyncImage(
                     model = gi.thumb,
@@ -137,7 +140,7 @@ fun HistoryAdapterView(
                                 )
                             }
                             //这是上传时间
-                            Text(text = gi.posted, fontSize = 14.sp,fontWeight = FontWeight.W300)
+                            Text(text = gi.posted, fontSize = 14.sp, fontWeight = FontWeight.W300)
                         }
 
                     }

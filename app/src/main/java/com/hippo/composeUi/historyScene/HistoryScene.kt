@@ -38,7 +38,6 @@ import com.hippo.ehviewer.EhDB
 import com.hippo.ehviewer.FavouriteStatusRouter
 import com.hippo.ehviewer.R
 import com.hippo.ehviewer.client.EhUtils
-import com.hippo.ehviewer.client.data.GalleryInfo
 import com.hippo.ehviewer.dao.DownloadInfo
 import com.hippo.ehviewer.dao.HistoryInfo
 import com.hippo.ehviewer.download.DownloadManager
@@ -396,25 +395,19 @@ class HistoryScene : ToolbarScene() {
                             labelList.toTypedArray()
                         MaterialAlertDialogBuilder(context)
                             .setTitle(R.string.download_move_dialog_title)
-                            .setItems(labels, MoveDialogHelper(labels, gi))
+                            .setItems(labels , object : DialogInterface.OnClickListener{
+                                override fun onClick(dialog: DialogInterface, which: Int) {
+                                    val downloadInfo = mDownloadManager.getDownloadInfo(gi.gid) ?: return
+                                    val label = if (which == 0) null else labels[which]
+                                    mDownloadManager.changeLabel(listOf(downloadInfo), label)
+                                }
+                            })
                             .show()
                         closeDialog.invoke()
                     })
         }
     }
 
-
-    private inner class MoveDialogHelper(
-        private val mLabels: Array<String>,
-        private val mGi: GalleryInfo
-    ) : DialogInterface.OnClickListener {
-        override fun onClick(dialog: DialogInterface, which: Int) {
-
-            val downloadInfo = mDownloadManager.getDownloadInfo(mGi.gid) ?: return
-            val label = if (which == 0) null else mLabels[which]
-            mDownloadManager.changeLabel(listOf(downloadInfo), label)
-        }
-    }
 
     private class AddToFavoriteListener(context: Context?, stageId: Int, sceneTag: String?) :
         EhCallback<GalleryListScene?, Void?>(context, stageId, sceneTag) {
