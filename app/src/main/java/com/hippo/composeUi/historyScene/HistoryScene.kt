@@ -196,6 +196,11 @@ class HistoryScene : ToolbarScene() {
 
     @Composable
     private fun ComposeDownloadRemove() {
+        LaunchedEffect(mShowDownloadRemove){
+            if(!mShowDownloadRemove){
+                mSelectedGi = null
+            }
+        }
         if (mShowDownloadRemove) {
             var title by remember {
                 mutableStateOf(
@@ -331,8 +336,8 @@ class HistoryScene : ToolbarScene() {
                     mShowDownloadRemove = true
                 } else {
                     CommonOperations.startDownload(activity, gi, false)
+                    closeDialog.invoke()
                 }
-                closeDialog.invoke()
             },
             //favourites
             DialogBaseSelectItemWithIconAdapter(
