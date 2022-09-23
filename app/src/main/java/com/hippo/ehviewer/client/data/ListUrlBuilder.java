@@ -26,7 +26,7 @@ import androidx.annotation.Nullable;
 import com.hippo.ehviewer.client.EhConfig;
 import com.hippo.ehviewer.client.EhUrl;
 import com.hippo.ehviewer.client.EhUtils;
-import com.hippo.ehviewer.dao.QuickSearch;
+import com.hippo.database.dao.QuickSearch;
 import com.hippo.network.UrlBuilder;
 import com.hippo.yorozuya.NumberUtils;
 import com.hippo.yorozuya.StringUtils;

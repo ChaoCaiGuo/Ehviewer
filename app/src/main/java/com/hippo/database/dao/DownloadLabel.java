@@ -1,4 +1,4 @@
-package com.hippo.ehviewer.dao;
+package com.hippo.database.dao;
 
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;

@@ -1,4 +1,4 @@
-package com.hippo.ehviewer.dao;
+package com.hippo.database.dao;
 
 import android.os.Parcel;
 
@@ -7,29 +7,32 @@ import androidx.room.Entity;
 
 import com.hippo.ehviewer.client.data.GalleryInfo;
 
-@Entity(tableName = "LOCAL_FAVORITES")
-public class LocalFavoriteInfo extends GalleryInfo {
+@Entity(tableName = "BOOKMARKS")
+public class BookmarkInfo extends GalleryInfo {
 
-    public static final Creator<LocalFavoriteInfo> CREATOR = new Creator<LocalFavoriteInfo>() {
+    public static final Creator<BookmarkInfo> CREATOR = new Creator<BookmarkInfo>() {
         @Override
-        public LocalFavoriteInfo createFromParcel(Parcel source) {
-            return new LocalFavoriteInfo(source);
+        public BookmarkInfo createFromParcel(Parcel source) {
+            return new BookmarkInfo(source);
         }
 
         @Override
-        public LocalFavoriteInfo[] newArray(int size) {
-            return new LocalFavoriteInfo[size];
+        public BookmarkInfo[] newArray(int size) {
+            return new BookmarkInfo[size];
         }
     };
+    @ColumnInfo(name = "PAGE")
+    public int page;
     @ColumnInfo(name = "TIME")
     public long time;
 
-    protected LocalFavoriteInfo(Parcel in) {
+    protected BookmarkInfo(Parcel in) {
         super(in);
+        this.page = in.readInt();
         this.time = in.readLong();
     }
 
-    public LocalFavoriteInfo(GalleryInfo galleryInfo) {
+    public BookmarkInfo(GalleryInfo galleryInfo) {
         this.gid = galleryInfo.gid;
         this.token = galleryInfo.token;
         this.title = galleryInfo.title;
@@ -43,7 +46,9 @@ public class LocalFavoriteInfo extends GalleryInfo {
         this.simpleLanguage = galleryInfo.simpleLanguage;
     }
 
-    public LocalFavoriteInfo() {
+    public BookmarkInfo(int page, long time) {
+        this.page = page;
+        this.time = time;
     }
 
     public long getGid() {
@@ -126,6 +131,14 @@ public class LocalFavoriteInfo extends GalleryInfo {
         this.simpleLanguage = simpleLanguage;
     }
 
+    public int getPage() {
+        return page;
+    }
+
+    public void setPage(int page) {
+        this.page = page;
+    }
+
     public long getTime() {
         return time;
     }
@@ -142,6 +155,7 @@ public class LocalFavoriteInfo extends GalleryInfo {
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         super.writeToParcel(dest, flags);
+        dest.writeInt(this.page);
         dest.writeLong(this.time);
     }
 

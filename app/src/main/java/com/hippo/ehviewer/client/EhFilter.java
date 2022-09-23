@@ -18,9 +18,9 @@ package com.hippo.ehviewer.client;
 
 import android.util.Log;
 
-import com.hippo.ehviewer.EhDB;
+import com.hippo.database.EhDB;
 import com.hippo.ehviewer.client.data.GalleryInfo;
-import com.hippo.ehviewer.dao.Filter;
+import com.hippo.database.dao.Filter;
 
 import java.util.ArrayList;
 import java.util.List;

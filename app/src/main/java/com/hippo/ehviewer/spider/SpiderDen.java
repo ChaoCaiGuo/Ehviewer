@@ -23,7 +23,7 @@ import android.webkit.MimeTypeMap;
 import androidx.annotation.Nullable;
 
 import com.hippo.beerbelly.SimpleDiskCache;
-import com.hippo.ehviewer.EhDB;
+import com.hippo.database.EhDB;
 import com.hippo.ehviewer.Settings;
 import com.hippo.ehviewer.client.EhCacheKeyFactory;
 import com.hippo.ehviewer.client.EhUtils;

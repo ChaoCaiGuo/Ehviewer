@@ -21,7 +21,7 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 
-import com.hippo.ehviewer.EhDB;
+import com.hippo.database.EhDB;
 import com.hippo.ehviewer.client.EhUtils;
 import com.hippo.ehviewer.client.data.GalleryInfo;
 import com.hippo.ehviewer.client.data.GalleryTagGroup;

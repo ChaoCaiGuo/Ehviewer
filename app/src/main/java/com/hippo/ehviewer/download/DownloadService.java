@@ -34,7 +34,7 @@ import com.hippo.ehviewer.EhApplication;
 import com.hippo.ehviewer.R;
 import com.hippo.ehviewer.client.EhUtils;
 import com.hippo.ehviewer.client.data.GalleryInfo;
-import com.hippo.ehviewer.dao.DownloadInfo;
+import com.hippo.database.dao.DownloadInfo;
 import com.hippo.ehviewer.ui.MainActivity;
 import com.hippo.ehviewer.ui.scene.DownloadsScene;
 import com.hippo.scene.StageActivity;

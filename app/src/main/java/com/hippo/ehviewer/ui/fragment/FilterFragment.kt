@@ -37,7 +37,7 @@ import com.google.android.material.textfield.TextInputLayout
 import com.hippo.easyrecyclerview.EasyRecyclerView
 import com.hippo.ehviewer.R
 import com.hippo.ehviewer.client.EhFilter
-import com.hippo.ehviewer.dao.Filter
+import com.hippo.database.dao.Filter
 import com.hippo.view.ViewTransition
 import com.hippo.yorozuya.ViewUtils
 

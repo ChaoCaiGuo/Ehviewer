@@ -25,7 +25,7 @@ import androidx.annotation.NonNull;
 import androidx.preference.Preference;
 
 import com.hippo.ehviewer.EhApplication;
-import com.hippo.ehviewer.EhDB;
+import com.hippo.database.EhDB;
 import com.hippo.ehviewer.R;
 import com.hippo.ehviewer.Settings;
 import com.hippo.ehviewer.client.EhEngine;

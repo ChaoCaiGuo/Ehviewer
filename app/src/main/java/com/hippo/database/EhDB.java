@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.hippo.ehviewer;
+package com.hippo.database;
 
 import android.content.Context;
 import android.database.Cursor;
@@ -30,20 +30,20 @@ import androidx.room.Room;
 
 import com.hippo.ehviewer.client.data.GalleryInfo;
 import com.hippo.ehviewer.client.data.ListUrlBuilder;
-import com.hippo.ehviewer.dao.DownloadDirname;
-import com.hippo.ehviewer.dao.DownloadDirnameDao;
-import com.hippo.ehviewer.dao.DownloadInfo;
-import com.hippo.ehviewer.dao.DownloadLabel;
-import com.hippo.ehviewer.dao.DownloadLabelDao;
-import com.hippo.ehviewer.dao.DownloadsDao;
-import com.hippo.ehviewer.dao.EhDatabase;
-import com.hippo.ehviewer.dao.Filter;
-import com.hippo.ehviewer.dao.HistoryDao;
-import com.hippo.ehviewer.dao.HistoryInfo;
-import com.hippo.ehviewer.dao.LocalFavoriteInfo;
-import com.hippo.ehviewer.dao.LocalFavoritesDao;
-import com.hippo.ehviewer.dao.QuickSearch;
-import com.hippo.ehviewer.dao.QuickSearchDao;
+import com.hippo.database.dao.DownloadDirname;
+import com.hippo.database.dao.DownloadDirnameDao;
+import com.hippo.database.dao.DownloadInfo;
+import com.hippo.database.dao.DownloadLabel;
+import com.hippo.database.dao.DownloadLabelDao;
+import com.hippo.database.dao.DownloadsDao;
+import com.hippo.database.dao.EhDatabase;
+import com.hippo.database.dao.Filter;
+import com.hippo.database.dao.HistoryDao;
+import com.hippo.database.dao.HistoryInfo;
+import com.hippo.database.dao.LocalFavoriteInfo;
+import com.hippo.database.dao.LocalFavoritesDao;
+import com.hippo.database.dao.QuickSearch;
+import com.hippo.database.dao.QuickSearchDao;
 import com.hippo.util.ExceptionUtils;
 import com.hippo.yorozuya.collect.SparseJLArray;
 

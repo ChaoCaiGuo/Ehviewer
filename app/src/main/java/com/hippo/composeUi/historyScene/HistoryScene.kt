@@ -34,12 +34,12 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.hippo.composeUi.widget.ComposeDialogWithSelectItem
 import com.hippo.composeUi.widget.DialogBaseSelectItemWithIconAdapter
 import com.hippo.composeUi.widget.SwipeToDismiss
-import com.hippo.ehviewer.EhDB
+import com.hippo.database.EhDB
 import com.hippo.ehviewer.FavouriteStatusRouter
 import com.hippo.ehviewer.R
 import com.hippo.ehviewer.client.EhUtils
-import com.hippo.ehviewer.dao.DownloadInfo
-import com.hippo.ehviewer.dao.HistoryInfo
+import com.hippo.database.dao.DownloadInfo
+import com.hippo.database.dao.HistoryInfo
 import com.hippo.ehviewer.download.DownloadManager
 import com.hippo.ehviewer.ui.CommonOperations
 import com.hippo.ehviewer.ui.GalleryActivity

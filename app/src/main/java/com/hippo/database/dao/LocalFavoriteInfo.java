@@ -1,4 +1,4 @@
-package com.hippo.ehviewer.dao;
+package com.hippo.database.dao;
 
 import android.os.Parcel;
 
@@ -7,32 +7,29 @@ import androidx.room.Entity;
 
 import com.hippo.ehviewer.client.data.GalleryInfo;
 
-@Entity(tableName = "HISTORY")
-public class HistoryInfo extends GalleryInfo {
+@Entity(tableName = "LOCAL_FAVORITES")
+public class LocalFavoriteInfo extends GalleryInfo {
 
-    public static final Creator<HistoryInfo> CREATOR = new Creator<HistoryInfo>() {
+    public static final Creator<LocalFavoriteInfo> CREATOR = new Creator<LocalFavoriteInfo>() {
         @Override
-        public HistoryInfo createFromParcel(Parcel source) {
-            return new HistoryInfo(source);
+        public LocalFavoriteInfo createFromParcel(Parcel source) {
+            return new LocalFavoriteInfo(source);
         }
 
         @Override
-        public HistoryInfo[] newArray(int size) {
-            return new HistoryInfo[size];
+        public LocalFavoriteInfo[] newArray(int size) {
+            return new LocalFavoriteInfo[size];
         }
     };
-    @ColumnInfo(name = "MODE")
-    public int mode;
     @ColumnInfo(name = "TIME")
     public long time;
 
-    protected HistoryInfo(Parcel in) {
+    protected LocalFavoriteInfo(Parcel in) {
         super(in);
-        this.mode = in.readInt();
         this.time = in.readLong();
     }
 
-    public HistoryInfo(GalleryInfo galleryInfo) {
+    public LocalFavoriteInfo(GalleryInfo galleryInfo) {
         this.gid = galleryInfo.gid;
         this.token = galleryInfo.token;
         this.title = galleryInfo.title;
@@ -46,9 +43,7 @@ public class HistoryInfo extends GalleryInfo {
         this.simpleLanguage = galleryInfo.simpleLanguage;
     }
 
-    public HistoryInfo(int mode, long time) {
-        this.mode = mode;
-        this.time = time;
+    public LocalFavoriteInfo() {
     }
 
     public long getGid() {
@@ -131,14 +126,6 @@ public class HistoryInfo extends GalleryInfo {
         this.simpleLanguage = simpleLanguage;
     }
 
-    public int getMode() {
-        return mode;
-    }
-
-    public void setMode(int mode) {
-        this.mode = mode;
-    }
-
     public long getTime() {
         return time;
     }
@@ -155,7 +142,6 @@ public class HistoryInfo extends GalleryInfo {
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         super.writeToParcel(dest, flags);
-        dest.writeInt(this.mode);
         dest.writeLong(this.time);
     }
 

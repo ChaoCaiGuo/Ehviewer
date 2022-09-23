@@ -1,4 +1,4 @@
-package com.hippo.ehviewer.dao;
+package com.hippo.database.dao;
 
 import android.os.Parcel;
 
@@ -7,32 +7,32 @@ import androidx.room.Entity;
 
 import com.hippo.ehviewer.client.data.GalleryInfo;
 
-@Entity(tableName = "BOOKMARKS")
-public class BookmarkInfo extends GalleryInfo {
+@Entity(tableName = "HISTORY")
+public class HistoryInfo extends GalleryInfo {
 
-    public static final Creator<BookmarkInfo> CREATOR = new Creator<BookmarkInfo>() {
+    public static final Creator<HistoryInfo> CREATOR = new Creator<HistoryInfo>() {
         @Override
-        public BookmarkInfo createFromParcel(Parcel source) {
-            return new BookmarkInfo(source);
+        public HistoryInfo createFromParcel(Parcel source) {
+            return new HistoryInfo(source);
         }
 
         @Override
-        public BookmarkInfo[] newArray(int size) {
-            return new BookmarkInfo[size];
+        public HistoryInfo[] newArray(int size) {
+            return new HistoryInfo[size];
         }
     };
-    @ColumnInfo(name = "PAGE")
-    public int page;
+    @ColumnInfo(name = "MODE")
+    public int mode;
     @ColumnInfo(name = "TIME")
     public long time;
 
-    protected BookmarkInfo(Parcel in) {
+    protected HistoryInfo(Parcel in) {
         super(in);
-        this.page = in.readInt();
+        this.mode = in.readInt();
         this.time = in.readLong();
     }
 
-    public BookmarkInfo(GalleryInfo galleryInfo) {
+    public HistoryInfo(GalleryInfo galleryInfo) {
         this.gid = galleryInfo.gid;
         this.token = galleryInfo.token;
         this.title = galleryInfo.title;
@@ -46,8 +46,8 @@ public class BookmarkInfo extends GalleryInfo {
         this.simpleLanguage = galleryInfo.simpleLanguage;
     }
 
-    public BookmarkInfo(int page, long time) {
-        this.page = page;
+    public HistoryInfo(int mode, long time) {
+        this.mode = mode;
         this.time = time;
     }
 
@@ -131,12 +131,12 @@ public class BookmarkInfo extends GalleryInfo {
         this.simpleLanguage = simpleLanguage;
     }
 
-    public int getPage() {
-        return page;
+    public int getMode() {
+        return mode;
     }
 
-    public void setPage(int page) {
-        this.page = page;
+    public void setMode(int mode) {
+        this.mode = mode;
     }
 
     public long getTime() {
@@ -155,7 +155,7 @@ public class BookmarkInfo extends GalleryInfo {
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         super.writeToParcel(dest, flags);
-        dest.writeInt(this.page);
+        dest.writeInt(this.mode);
         dest.writeLong(this.time);
     }
 
