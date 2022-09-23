@@ -1,5 +1,6 @@
 package com.hippo.composeUi.composeExt
 
+import android.annotation.SuppressLint
 import android.util.Log
 import androidx.compose.foundation.LocalIndication
 import androidx.compose.foundation.clickable
@@ -13,8 +14,13 @@ import androidx.compose.ui.composed
 import androidx.compose.ui.input.pointer.changedToDown
 import androidx.compose.ui.input.pointer.changedToUp
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.layout.AlignmentLine
+import androidx.compose.ui.layout.FirstBaseline
+import androidx.compose.ui.layout.layout
 import androidx.compose.ui.platform.debugInspectorInfo
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.unit.Dp
+import kotlin.math.roundToInt
 
 /**
  * 去除水波纹的clickable
@@ -39,7 +45,7 @@ fun Modifier.clickable2(
         onClickLabel = onClickLabel,
         onClick = onClick,
         role = role,
-        indication = if(enabledIndication) LocalIndication.current else null,
+        indication = if (enabledIndication) LocalIndication.current else null,
         interactionSource = remember { MutableInteractionSource() }
     )
 }
@@ -72,3 +78,32 @@ fun Modifier.touchEvent(onTouchDown: () -> Unit = {}, onTouchUp: () -> Unit = {}
         }
 
     }
+
+/**
+ * 页面百分比位移，可以用来作出入场动画
+ */
+@SuppressLint("ModifierFactoryUnreferencedReceiver")
+fun Modifier.percentOffSet(X: Float, Y: Float): Modifier =
+    this.layout { measurable, constraints ->
+        val placeable = measurable.measure(constraints)
+        layout(placeable.width, placeable.height) {
+            val offsetx = (X * placeable.width).roundToInt()
+            val offsety = (Y * placeable.height).roundToInt()
+            placeable.placeRelative(offsetx, offsety)
+
+        }
+
+    }
+
+fun Modifier.firstBaselineToTop(firstBaselineToTop: Dp): Modifier =
+    this.layout { measurable, constraints ->
+        val placeable = measurable.measure(constraints)
+        check(placeable[FirstBaseline] != AlignmentLine.Unspecified)
+        val firstBaseline = placeable[FirstBaseline]
+        val placeableY = firstBaselineToTop.roundToPx() - firstBaseline
+        val height = placeable.height + placeableY
+        layout(placeable.width, height) {
+            placeable.placeRelative(0, placeableY)
+        }
+    }
+
