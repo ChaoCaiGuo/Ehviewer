@@ -38,6 +38,7 @@ import java.io.IOException
 import java.nio.charset.StandardCharsets
 import java.security.MessageDigest
 import java.security.NoSuchAlgorithmException
+import java.util.*
 import java.util.concurrent.locks.Lock
 import java.util.concurrent.locks.ReentrantLock
 
@@ -339,13 +340,20 @@ class EhTagDatabase(private val name: String, source: BufferedSource) {
                     val dataFile = File(dir, dataName)
 
                     // from assets get current data and sha1
-                    if(instance == null && !dataFile.exists()){
-                        try{
-                            sha1File.writeBytes(context.applicationContext.assets.open("tag-translations-zh-rCN.sha1").readBytes())
-                            dataFile.writeBytes(context.applicationContext.assets.open("tag-translations-zh-rCN").readBytes())
-                        }catch (e: IOException) {
-                            Log.e("EhTagDatabase", "update: ${e.message}", )
-                        }
+                    if (instance == null && !dataFile.exists()) {
+                        if (Locale.getDefault().country == "CN")
+                            try {
+                                sha1File.writeBytes(
+                                    context.applicationContext.assets.open("tag-translations-zh-rCN.sha1")
+                                        .readBytes()
+                                )
+                                dataFile.writeBytes(
+                                    context.applicationContext.assets.open("tag-translations-zh-rCN")
+                                        .readBytes()
+                                )
+                            } catch (e: IOException) {
+                                Log.e("EhTagDatabase", "fileException: ${e.message}")
+                            }
                     }
 
                     if (!checkData(sha1File, dataFile)) {
