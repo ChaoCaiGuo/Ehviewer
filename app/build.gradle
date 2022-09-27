@@ -10,16 +10,6 @@ android {
     compileSdkVersion 33
     buildToolsVersion "33.0.0"
 
-
-    splits {
-        abi {
-            enable = true
-            reset()
-            include 'arm64-v8a', 'x86_64', 'armeabi-v7a', 'x86'
-            universalApk = true
-        }
-    }
-
     signingConfigs {
         sign {
             storeFile file(signStoreFile)
@@ -82,12 +72,6 @@ android {
         debug {
             applicationIdSuffix ".compose"
             signingConfig signingConfigs.debug
-        }
-    }
-
-    sourceSets {
-        main {
-            java.srcDirs += 'src/main/java-gen'
         }
     }
 
