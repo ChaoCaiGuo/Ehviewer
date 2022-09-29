@@ -1,5 +1,7 @@
 package com.hippo.composeUi.searchLayout
 
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
@@ -118,6 +120,7 @@ private fun pageTextField(text: String, setText: (text: String) -> Unit) {
 /**
  *  最低评分
  */
+@OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun MinRating(viewModel: SearchViewModel) {
     var expanded by remember { mutableStateOf(false) }
@@ -142,15 +145,17 @@ fun MinRating(viewModel: SearchViewModel) {
         }
         if (enableMinRating) {
             Box(Modifier.wrapContentSize(Alignment.TopStart)) {
-                Text(
-                    text = "${viewModel.minRating} Star",
-                    color = Color.White,
-                    modifier = Modifier
-                        .clip(RoundedCornerShape(25))
-                        .background(MaterialTheme.colorScheme.primary)
-                        .padding(4.dp)
+                AnimatedContent(targetState = viewModel.minRating) { targetCount ->
+                    Text(
+                        text = "$targetCount Star",
+                        color = Color.White,
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(25))
+                            .background(MaterialTheme.colorScheme.primary)
+                            .padding(vertical = 4.dp, horizontal = 6.dp)
+                    )
+                }
 
-                )
                 DropdownMenu(
                     expanded = expanded,
                     onDismissRequest = { expanded = false }
