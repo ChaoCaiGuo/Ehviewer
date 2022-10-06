@@ -31,7 +31,10 @@ public class ViewTransition {
     private int mShownView = -1;
     private OnShowViewListener mOnShowViewListener;
 
+    public int isShow = 0;
+
     public ViewTransition(View... views) {
+        isShow = 0;
         if (views.length < 2) {
             throw new IllegalStateException("You must pass view to ViewTransition");
         }
@@ -54,10 +57,12 @@ public class ViewTransition {
     }
 
     public boolean showView(int shownView) {
+        isShow = shownView;
         return showView(shownView, true);
     }
 
     public boolean showView(int shownView, boolean animation) {
+        isShow = shownView;
         View[] views = mViews;
         int length = views.length;
         if (shownView >= length || shownView < 0) {

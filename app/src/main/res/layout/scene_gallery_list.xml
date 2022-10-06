@@ -33,12 +33,11 @@
         android:layout_height="match_parent"
         app:layout_fitsSystemWindowsInsets="top|bottom" />
 
-    <com.hippo.ehviewer.widget.SearchBar
+    <com.hippo.composeUi.searchBar.SearchBar
         android:id="@+id/search_bar"
         style="@style/Widget.Material3.CardView.Filled"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginHorizontal="@dimen/gallery_search_bar_margin_h"
         android:layout_marginVertical="@dimen/gallery_search_bar_margin_v"
         app:layout_fitsSystemWindowsInsets="top|bottom" />
 

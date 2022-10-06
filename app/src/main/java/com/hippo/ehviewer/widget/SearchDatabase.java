@@ -30,6 +30,12 @@ import com.hippo.util.SqlUtils;
 import java.util.LinkedList;
 import java.util.List;
 
+import javax.inject.Inject;
+
+import dagger.hilt.android.qualifiers.ActivityContext;
+import dagger.hilt.android.scopes.ViewScoped;
+
+@ViewScoped
 public final class SearchDatabase {
 
     public static final String COLUMN_QUERY = "query";
@@ -42,8 +48,13 @@ public final class SearchDatabase {
     private static SearchDatabase sInstance;
     private final SQLiteDatabase mDatabase;
 
-    private SearchDatabase(Context context) {
+    SearchDatabase(Context context) {
         DatabaseHelper databaseHelper = new DatabaseHelper(context);
+        mDatabase = databaseHelper.getWritableDatabase();
+    }
+
+    @Inject
+    SearchDatabase(DatabaseHelper databaseHelper) {
         mDatabase = databaseHelper.getWritableDatabase();
     }
 
@@ -138,9 +149,10 @@ public final class SearchDatabase {
      * as a mode flags field, and configures the database columns depending on the mode bits
      * (features) requested by the extending class.
      */
-    private static class DatabaseHelper extends SQLiteOpenHelper {
+    static class DatabaseHelper extends SQLiteOpenHelper {
 
-        public DatabaseHelper(Context context) {
+        @Inject
+        public DatabaseHelper(@ActivityContext Context context) {
             super(context, DATABASE_NAME, null, 1);
         }
 
