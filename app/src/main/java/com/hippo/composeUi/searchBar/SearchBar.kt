@@ -12,6 +12,8 @@ import androidx.annotation.IntDef
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsFocusedAsState
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -23,8 +25,6 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalFocusManager
@@ -84,24 +84,25 @@ class SearchBar @JvmOverloads constructor(
         val focusedManager = LocalFocusManager.current
         val isImeShow = WindowInsets.isImeVisible
         val imeManager = LocalSoftwareKeyboardController.current
+        val interactionSource = remember { MutableInteractionSource() }
+        val isFocused by interactionSource.collectIsFocusedAsState()
 
-
-        val focusRequester = remember {
-            FocusRequester()
-        }
         var init by remember {
             mutableStateOf(false)
         }
 
         LaunchedEffect(isImeShow) {
-            if (init)
-                drawerLockMode?.invoke(isImeShow)
-            init = true
             if (!isImeShow) {
                 focusedManager.clearFocus()
             } else {
                 updateSuggestions()
             }
+        }
+        LaunchedEffect(isFocused) {
+            if (init)
+                drawerLockMode?.invoke(isFocused)
+            init = true
+
         }
 
         BackHandler(isImeShow) {
@@ -120,7 +121,6 @@ class SearchBar @JvmOverloads constructor(
                     updateSuggestions()
                 },
                 modifier = Modifier
-                    .focusRequester(focusRequester)
                     .padding(horizontal = 8.dp)
                     .height(56.dp)
                     .fillMaxWidth(),
@@ -128,7 +128,7 @@ class SearchBar @JvmOverloads constructor(
                 singleLine = true,
                 placeholder = {
                     Text(
-                        if (isImeShow)
+                        if (isFocused)
                             mHilt
                         else
                             mTitle,
@@ -183,9 +183,10 @@ class SearchBar @JvmOverloads constructor(
                 keyboardActions = KeyboardActions(onSearch = {
                     applySearch()
                 }),
-                colors = TextFieldDefaults.outlinedTextFieldColors(containerColor = MaterialTheme.colorScheme.surface)
+                colors = TextFieldDefaults.outlinedTextFieldColors(containerColor = MaterialTheme.colorScheme.surface),
+                interactionSource = interactionSource
             )
-            if (isImeShow ) {
+            if (isFocused ) {
                 LazyColumn(
                     contentPadding = PaddingValues(5.dp),
                     modifier = Modifier
