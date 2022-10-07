@@ -164,9 +164,6 @@ class SearchBar @JvmOverloads constructor(
                             if (isImeShow && mText.isEmpty()) {
                                 imeManager?.hide()
                             }
-                            if (!isImeShow) {
-                                focusRequester.requestFocus()
-                            }
                             mHelper?.onClickRightIcon(isImeShow)
 
                         }) {

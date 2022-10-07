@@ -42,7 +42,6 @@ import com.hippo.app.EditTextDialogBuilder
 import com.hippo.composeUi.historyScene.HistoryAdapterView
 import com.hippo.composeUi.searchBar.Helper
 import com.hippo.composeUi.searchBar.SearchBar
-import com.hippo.composeUi.searchBar.Suggestion
 import com.hippo.composeUi.searchLayout.SearchLayout
 import com.hippo.database.EhDB
 import com.hippo.database.dao.DownloadInfo
@@ -63,7 +62,6 @@ import com.hippo.ehviewer.client.data.GalleryInfo
 import com.hippo.ehviewer.client.data.ListUrlBuilder
 import com.hippo.ehviewer.client.exception.EhException
 import com.hippo.ehviewer.client.parser.GalleryListParser
-import com.hippo.ehviewer.client.parser.GalleryPageUrlParser
 import com.hippo.ehviewer.download.DownloadManager
 import com.hippo.ehviewer.download.DownloadManager.DownloadInfoListener
 import com.hippo.ehviewer.ui.CommonOperations
@@ -162,35 +160,63 @@ class GalleryListScene : BaseScene(), Helper,
     private var mHasFirstRefresh = false
     private var mNavCheckedId = 0
 
-    private var mDownloadInfoListener: DownloadInfoListener? = null
+    private val mDownloadInfoListener: DownloadInfoListener by lazy {
+        object : DownloadInfoListener {
+            override fun onAdd(info: DownloadInfo, list: List<DownloadInfo>, position: Int) {
+                mAdapter?.notifyDataSetChanged()
+            }
 
-    private var mFavouriteStatusRouterListener: FavouriteStatusRouter.Listener? = null
-    private var mIsTopList = false
-    override fun getNavCheckedItem(): Int {
-        return mNavCheckedId
+            override fun onUpdate(info: DownloadInfo, list: List<DownloadInfo>) {}
+            override fun onUpdateAll() {}
+            override fun onReload() {
+                mAdapter?.notifyDataSetChanged()
+            }
+
+            override fun onChange() {
+                mAdapter?.notifyDataSetChanged()
+            }
+
+            override fun onRenameLabel(from: String, to: String) {}
+            override fun onRemove(info: DownloadInfo, list: List<DownloadInfo>, position: Int) {
+                mAdapter?.notifyDataSetChanged()
+            }
+
+            override fun onUpdateLabels() {}
+        }
     }
 
-    private fun handleArgs(args: Bundle?) {
-        if (null == args) {
-            return
+    private val mFavouriteStatusRouterListener: FavouriteStatusRouter.Listener by lazy {
+        FavouriteStatusRouter.Listener { _, _ ->
+            mAdapter?.notifyDataSetChanged()
         }
-        val action = args.getString(KEY_ACTION)
-        if (ACTION_HOMEPAGE == action) {
-            mUrlBuilder.reset()
-        } else if (ACTION_SUBSCRIPTION == action) {
-            mUrlBuilder.reset()
-            mUrlBuilder.mode = ListUrlBuilder.MODE_SUBSCRIPTION
-        } else if (ACTION_WHATS_HOT == action) {
-            mUrlBuilder.reset()
-            mUrlBuilder.mode = ListUrlBuilder.MODE_WHATS_HOT
-        } else if (ACTION_TOP_LIST == action) {
-            mUrlBuilder.reset()
-            mUrlBuilder.mode = ListUrlBuilder.MODE_TOPLIST
-            mUrlBuilder.keyword = "11"
-        } else if (ACTION_LIST_URL_BUILDER == action) {
-            val builder = args.getParcelable<ListUrlBuilder>(KEY_LIST_URL_BUILDER)
-            if (builder != null) {
-                mUrlBuilder.set(builder)
+    }
+
+    private var mIsTopList = false
+
+    override fun getNavCheckedItem(): Int = mNavCheckedId
+
+    private fun handleArgs(args: Bundle?) {
+        val action = args?.getString(KEY_ACTION) ?: return
+        when (action) {
+            ACTION_HOMEPAGE -> mUrlBuilder.reset()
+            ACTION_SUBSCRIPTION -> {
+                mUrlBuilder.reset()
+                mUrlBuilder.mode = ListUrlBuilder.MODE_SUBSCRIPTION
+            }
+            ACTION_WHATS_HOT -> {
+                mUrlBuilder.reset()
+                mUrlBuilder.mode = ListUrlBuilder.MODE_WHATS_HOT
+            }
+            ACTION_TOP_LIST -> {
+                mUrlBuilder.reset()
+                mUrlBuilder.mode = ListUrlBuilder.MODE_TOPLIST
+                mUrlBuilder.keyword = "11"
+            }
+            ACTION_LIST_URL_BUILDER -> {
+                val builder = args.getParcelable<ListUrlBuilder>(KEY_LIST_URL_BUILDER)
+                if (builder != null) {
+                    mUrlBuilder.set(builder)
+                }
             }
         }
     }
@@ -198,64 +224,21 @@ class GalleryListScene : BaseScene(), Helper,
     override fun onNewArguments(args: Bundle) {
         handleArgs(args)
         onUpdateUrlBuilder()
-        if (null != mHelper) {
-            mHelper!!.refresh()
-        }
-        if (null != mSearchBarMover) {
-            mSearchBarMover!!.showSearchBar()
-        }
+        mHelper?.refresh()
+        mSearchBarMover?.showSearchBar()
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        mDownloadInfoListener = object : DownloadInfoListener {
-            override fun onAdd(info: DownloadInfo, list: List<DownloadInfo>, position: Int) {
-                if (mAdapter != null) {
-                    mAdapter!!.notifyDataSetChanged()
-                }
-            }
-
-            override fun onUpdate(info: DownloadInfo, list: List<DownloadInfo>) {}
-            override fun onUpdateAll() {}
-            override fun onReload() {
-                if (mAdapter != null) {
-                    mAdapter!!.notifyDataSetChanged()
-                }
-            }
-
-            override fun onChange() {
-                if (mAdapter != null) {
-                    mAdapter!!.notifyDataSetChanged()
-                }
-            }
-
-            override fun onRenameLabel(from: String, to: String) {}
-            override fun onRemove(info: DownloadInfo, list: List<DownloadInfo>, position: Int) {
-                if (mAdapter != null) {
-                    mAdapter!!.notifyDataSetChanged()
-                }
-            }
-
-            override fun onUpdateLabels() {}
-        }
         mDownloadManager.addDownloadInfoListener(mDownloadInfoListener)
-
-        mFavouriteStatusRouterListener = FavouriteStatusRouter.Listener { _, _ ->
-            if (mAdapter != null) {
-                mAdapter!!.notifyDataSetChanged()
-            }
-        }
         mFavouriteStatusRouter.addListener(mFavouriteStatusRouterListener)
+
         if (savedInstanceState == null) {
-            onInit()
+            handleArgs(arguments)
         } else {
             onRestore(savedInstanceState)
         }
-    }
-
-    fun onInit() {
-        handleArgs(arguments)
     }
 
     private fun onRestore(savedInstanceState: Bundle) {
@@ -283,22 +266,6 @@ class GalleryListScene : BaseScene(), Helper,
         searchBar!!.setEditTextHint(getString(if (EhUrl.SITE_EX == Settings.getGallerySite()) R.string.gallery_list_search_bar_hint_exhentai else R.string.gallery_list_search_bar_hint_e_hentai))
     }
 
-    private fun setSearchBarSuggestionProvider(searchBar: SearchBar?) {
-        searchBar!!.setSuggestionProvider { text: String? ->
-            val result2 = GalleryPageUrlParser.parse(text, false)
-            if (result2 != null) {
-                return@setSuggestionProvider listOf<Suggestion>(
-                    GalleryPageUrlSuggestion(
-                        result2.gid,
-                        result2.pToken,
-                        result2.page
-                    )
-                )
-            }
-            null
-        }
-    }
-
     private fun wrapTagKeyword(keyword: String): String {
         var keyword = keyword
         keyword = keyword.trim { it <= ' ' }
@@ -324,8 +291,8 @@ class GalleryListScene : BaseScene(), Helper,
     // Update search bar title, drawer checked item
     private fun onUpdateUrlBuilder() {
         val builder = mUrlBuilder
-        val resources = resourcesOrNull
-        if (resources == null || mSearchLayout == null) {
+        val resources = resourcesOrNull ?: return
+        if (mSearchLayout == null) {
             return
         }
         var keyword = builder.keyword
@@ -348,10 +315,9 @@ class GalleryListScene : BaseScene(), Helper,
         }
 
         // Update title
-        var title = getSuitableTitleForUrlBuilder(resources, builder, true)
-        if (null == title) {
-            title = resources.getString(R.string.search)
-        }
+        val title = getSuitableTitleForUrlBuilder(resources, builder, true)
+            ?: resources.getString(R.string.search)
+
         if (null != mSearchBar) {
             mSearchBar!!.setTitle(title)
         }
@@ -429,7 +395,6 @@ class GalleryListScene : BaseScene(), Helper,
         searchBarState(false)
         mSearchBar!!.setDrawerLockMode { isImeShow -> searchBarState(isImeShow) }
         setSearchBarHint(mSearchBar)
-        setSearchBarSuggestionProvider(mSearchBar)
 
         mSearchLayout!!.setPadding(
             mSearchLayout!!.paddingLeft, mSearchLayout!!.paddingTop + paddingTopSB,
@@ -616,10 +581,11 @@ class GalleryListScene : BaseScene(), Helper,
         if (null == mHelper || null == mRecyclerView) {
             return false
         }
-        val gi = mHelper!!.getDataAtEx(position) ?: return true
-        val args = Bundle()
-        args.putString(GalleryDetailScene.KEY_ACTION, GalleryDetailScene.ACTION_GALLERY_INFO)
-        args.putParcelable(GalleryDetailScene.KEY_GALLERY_INFO, gi)
+        val gi = mHelper!!.getDataAtEx(position) ?: return false
+        val args = Bundle().apply {
+            putString(GalleryDetailScene.KEY_ACTION, GalleryDetailScene.ACTION_GALLERY_INFO)
+            putParcelable(GalleryDetailScene.KEY_GALLERY_INFO, gi)
+        }
         val announcer = Announcer(GalleryDetailScene::class.java).setArgs(args)
         startScene(announcer)
         return true
@@ -627,7 +593,6 @@ class GalleryListScene : BaseScene(), Helper,
 
     override fun onClick(v: View) {
         mSearchBar?.applySearch()
-
     }
 
     override fun onClickPrimaryFab(view: FabLayout, fab: FloatingActionButton) {
@@ -635,8 +600,8 @@ class GalleryListScene : BaseScene(), Helper,
     }
 
     private fun showGoToDialog() {
-        val context = context
-        if (null == context || null == mHelper) {
+        val context = context ?: return
+        if (null == mHelper) {
             return
         }
         val page = mHelper!!.pageForTop
@@ -648,7 +613,7 @@ class GalleryListScene : BaseScene(), Helper,
         val dialog = builder.setTitle(R.string.go_to)
             .setPositiveButton(android.R.string.ok, null)
             .show()
-        dialog.getButton(DialogInterface.BUTTON_POSITIVE).setOnClickListener { v: View? ->
+        dialog.getButton(DialogInterface.BUTTON_POSITIVE).setOnClickListener {
             if (null == mHelper) {
                 dialog.dismiss()
                 return@setOnClickListener
@@ -700,9 +665,9 @@ class GalleryListScene : BaseScene(), Helper,
     }
 
     fun onItemLongClick(position: Int): Boolean {
-        val context = context
-        val activity = mainActivity
-        if (null == context || null == activity || null == mHelper) {
+        val context = context ?: return false
+        val activity = mainActivity ?: return false
+        if (null == mHelper) {
             return false
         }
         val gi = mHelper!!.getDataAtEx(position) ?: return true
@@ -736,7 +701,7 @@ class GalleryListScene : BaseScene(), Helper,
                     items,
                     icons
                 )
-            ) { dialog: DialogInterface?, which: Int ->
+            ) { _: DialogInterface?, which: Int ->
                 when (which) {
                     0 -> {
                         val intent = Intent(activity, GalleryActivity::class.java)
@@ -901,8 +866,13 @@ class GalleryListScene : BaseScene(), Helper,
             return
         }
         mSearchBar!!.setSearchText("")
-        if (!onEditText) {
-            toggleDrawer(Gravity.LEFT)
+
+        if (mViewTransition!!.isShow == 1) {
+            mViewTransition!!.showView(0, true)
+            mLeftDrawable!!.setMenu(ANIMATE_TIME)
+        }else{
+            if(!onEditText)
+                toggleDrawer(Gravity.LEFT)
         }
     }
 
@@ -910,14 +880,18 @@ class GalleryListScene : BaseScene(), Helper,
         if (null == mSearchBar) {
             return
         }
-        if (onEditText) {
-            if (!mSearchBar!!.getSearchText().isEmpty())
-                mSearchBar!!.setSearchText("")
-            else {
-                mViewTransition!!.showView(0, true)
+
+        if (onEditText && mSearchBar!!.getSearchText().isNotEmpty()) {
+            mSearchBar!!.setSearchText("")
+            return
+        }
+
+        mViewTransition!!.also {
+            if (it.isShow == 0 && !onEditText) {
+                it.showView(1, true)
+                mLeftDrawable!!.setArrow(ANIMATE_TIME)
             }
-        } else {
-            mViewTransition!!.showView(1, true)
+
         }
 
     }
@@ -936,7 +910,9 @@ class GalleryListScene : BaseScene(), Helper,
             setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED, Gravity.RIGHT)
 
             selectActionFab(true)
-            mLeftDrawable!!.setMenu(ANIMATE_TIME)
+            if (mViewTransition!!.isShow == 0) {
+                mLeftDrawable!!.setMenu(ANIMATE_TIME)
+            }
             mRightDrawable!!.setAdd(ANIMATE_TIME)
         }
     }
@@ -998,14 +974,10 @@ class GalleryListScene : BaseScene(), Helper,
     }
 
     // SearchBarMover.Helper
-    override fun forceShowSearchBar(): Boolean {
-        return false
-    }
+    override fun forceShowSearchBar(): Boolean = false
 
     private fun onGetGalleryListSuccess(result: GalleryListParser.Result, taskId: Int) {
-        if (mHelper != null && mSearchBarMover != null &&
-            mHelper!!.isCurrentTask(taskId)
-        ) {
+        if (mHelper != null && mSearchBarMover != null && mHelper!!.isCurrentTask(taskId)) {
             val emptyString =
                 getString(if (mUrlBuilder.mode == ListUrlBuilder.MODE_SUBSCRIPTION && result.noWatchedTags) R.string.gallery_list_empty_hit_subscription else R.string.gallery_list_empty_hit)
             mHelper!!.setEmptyString(emptyString)
@@ -1162,26 +1134,6 @@ class GalleryListScene : BaseScene(), Helper,
 
     }
 
-    private inner class GalleryPageUrlSuggestion(
-        private val mGid: Long,
-        private val mPToken: String,
-        private val mPage: Int
-    ) : Suggestion {
-        override fun getText(type: Int): String = ""
-        override fun onClick() {
-            startScene(createAnnouncer())
-        }
-
-        fun createAnnouncer(): Announcer? {
-            val args = Bundle()
-            args.putString(ProgressScene.KEY_ACTION, ProgressScene.ACTION_GALLERY_TOKEN)
-            args.putLong(ProgressScene.KEY_GID, mGid)
-            args.putString(ProgressScene.KEY_PTOKEN, mPToken)
-            args.putInt(ProgressScene.KEY_PAGE, mPage)
-            return Announcer(ProgressScene::class.java).setArgs(args)
-        }
-    }
-
     private inner class GalleryListAdapter(
         inflater: LayoutInflater,
         resources: Resources, recyclerView: RecyclerView, type: Int
@@ -1202,16 +1154,20 @@ class GalleryListScene : BaseScene(), Helper,
             return if (null != mHelper) mHelper!!.getDataAtEx(position) else null
         }
     }
-    inner class GalleryListAdapter2 : RecyclerView.Adapter<GalleryListAdapter2.ComposeViewHolder>() {
 
-        inner class ComposeViewHolder(val composeView: ComposeView) : RecyclerView.ViewHolder(composeView)
+    inner class GalleryListAdapter2 :
+        RecyclerView.Adapter<GalleryListAdapter2.ComposeViewHolder>() {
+
+        inner class ComposeViewHolder(val composeView: ComposeView) :
+            RecyclerView.ViewHolder(composeView)
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ComposeViewHolder {
             val view = ComposeView(parent.context)
             return ComposeViewHolder(view)
         }
 
-        override fun getItemId(position: Int): Long = mHelper?.getDataAtEx(position)?.gid ?: super.getItemId(position)
+        override fun getItemId(position: Int): Long =
+            mHelper?.getDataAtEx(position)?.gid ?: super.getItemId(position)
 
         override fun onBindViewHolder(holder: ComposeViewHolder, position: Int) {
             val gi = mHelper?.getDataAtEx(position) ?: return
@@ -1221,6 +1177,7 @@ class GalleryListScene : BaseScene(), Helper,
             }
 
         }
+
         override fun getItemCount(): Int = mHelper?.size() ?: 0
 
     }
