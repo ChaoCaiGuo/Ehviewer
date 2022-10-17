@@ -45,7 +45,7 @@ class SearchViewModel @Inject constructor() : ViewModel() {
     var mSearchMode by mutableStateOf(0)
     private var mImagePath: String? = null
 
-
+    private var showFabEvent: (()->Unit)? = null
 
     init {
 
@@ -84,6 +84,15 @@ class SearchViewModel @Inject constructor() : ViewModel() {
         return advanceSearch
     }
 
+    fun clearImage(){
+        mImageUri = null
+        mImagePath = null
+        mSearchMode = 0
+    }
+
+    fun setShowFabEvent(event:()->Unit){
+        showFabEvent = event
+    }
 
     @SuppressLint("NonConstantResourceId")
     @Throws(EhException::class)
@@ -134,6 +143,7 @@ class SearchViewModel @Inject constructor() : ViewModel() {
                 os = FileOutputStream(temp)
                 bitmap.compress(Bitmap.CompressFormat.JPEG, 90, os)
                 mImagePath = temp.path
+                showFabEvent?.invoke()
             } catch (e: FileNotFoundException) {
                 e.printStackTrace()
             } finally {

@@ -28,18 +28,17 @@ import android.view.*
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.appcompat.widget.Toolbar
-import androidx.compose.ui.platform.ComposeView
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsAnimationCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.hippo.app.EditTextDialogBuilder
-import com.hippo.composeUi.historyScene.HistoryAdapterView
 import com.hippo.composeUi.searchBar.Helper
 import com.hippo.composeUi.searchBar.SearchBar
 import com.hippo.composeUi.searchLayout.SearchLayout
@@ -54,8 +53,7 @@ import com.hippo.ehviewer.FavouriteStatusRouter
 import com.hippo.ehviewer.R
 import com.hippo.ehviewer.Settings
 import com.hippo.ehviewer.WindowInsetsAnimationHelper
-import com.hippo.ehviewer.client.EhClient
-import com.hippo.ehviewer.client.EhRequest
+import com.hippo.ehviewer.client.EhEngine
 import com.hippo.ehviewer.client.EhUrl
 import com.hippo.ehviewer.client.EhUtils
 import com.hippo.ehviewer.client.data.GalleryInfo
@@ -80,6 +78,10 @@ import com.hippo.widget.FabLayout.OnExpandListener
 import com.hippo.widget.SearchBarMover
 import com.hippo.yorozuya.*
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import okhttp3.OkHttpClient
 import rikka.core.res.resolveColor
 import java.io.File
 import javax.inject.Inject
@@ -93,7 +95,7 @@ class GalleryListScene : BaseScene(), Helper,
      Whole life cycle
      ---------------*/
     @Inject
-    lateinit var mClient: EhClient
+    lateinit var mOkHttpClient: OkHttpClient
 
     @Inject
     lateinit var mUrlBuilder: ListUrlBuilder
@@ -358,6 +360,9 @@ class GalleryListScene : BaseScene(), Helper,
         val fastScroller = mContentLayout!!.fastScroller
         mSearchLayout = ViewUtils.`$$`(mainLayout, R.id.search_layout) as SearchLayout
         mSearchLayout!!.viewModel = viewModel
+        viewModel.setShowFabEvent {
+            selectSearchFab(true)
+        }
         mSearchBar = ViewUtils.`$$`(mainLayout, R.id.search_bar) as SearchBar
         mFabLayout = ViewUtils.`$$`(mainLayout, R.id.fab_layout) as FabLayout
         mSearchFab = ViewUtils.`$$`(mainLayout, R.id.search_fab)
@@ -943,6 +948,7 @@ class GalleryListScene : BaseScene(), Helper,
         onUpdateUrlBuilder()
         mHelper!!.refresh()
         hideSoftInput()
+        viewModel.clearImage()
     }
 
     override fun onSearchEditTextBackPressed() {
@@ -1155,62 +1161,38 @@ class GalleryListScene : BaseScene(), Helper,
         }
     }
 
-    inner class GalleryListAdapter2 :
-        RecyclerView.Adapter<GalleryListAdapter2.ComposeViewHolder>() {
-
-        inner class ComposeViewHolder(val composeView: ComposeView) :
-            RecyclerView.ViewHolder(composeView)
-
-        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ComposeViewHolder {
-            val view = ComposeView(parent.context)
-            return ComposeViewHolder(view)
-        }
-
-        override fun getItemId(position: Int): Long =
-            mHelper?.getDataAtEx(position)?.gid ?: super.getItemId(position)
-
-        override fun onBindViewHolder(holder: ComposeViewHolder, position: Int) {
-            val gi = mHelper?.getDataAtEx(position) ?: return
-            holder.composeView.setContent {
-                HistoryAdapterView(gi, mDownloadManager.containDownloadInfo(gi.gid),
-                    { onItemClick(position) }, { onItemLongClick(position) })
-            }
-
-        }
-
-        override fun getItemCount(): Int = mHelper?.size() ?: 0
-
-    }
-
 
     private inner class GalleryListHelper : GalleryInfoContentHelper() {
         override fun getPageData(taskId: Int, type: Int, page: Int) {
             val activity = mainActivity ?: return
             mUrlBuilder.pageIndex = page
-            if (ListUrlBuilder.MODE_IMAGE_SEARCH == mUrlBuilder.mode) {
-                val request = EhRequest()
-                request.method = EhClient.METHOD_IMAGE_SEARCH
-                request.callback = GetGalleryListListener(
-                    context,
-                    activity.stageId, tag, taskId
-                )
-                request.setArgs(
-                    File(StringUtils.avoidNull(mUrlBuilder.imagePath)),
-                    mUrlBuilder.isUseSimilarityScan,
-                    mUrlBuilder.isOnlySearchCovers, mUrlBuilder.isShowExpunged
-                )
-                mClient.execute(request)
-            } else {
-                val url = mUrlBuilder.build()
-                val request = EhRequest()
-                request.method = EhClient.METHOD_GET_GALLERY_LIST
-                request.callback = GetGalleryListListener(
-                    context,
-                    activity.stageId, tag, taskId
-                )
-                request.setArgs(url)
-                mClient.execute(request)
+            val callback = GetGalleryListListener(context, activity.stageId, tag, taskId)
+            lifecycleScope.launch {
+                val result = try {
+                    withContext(Dispatchers.IO) {
+                        if (ListUrlBuilder.MODE_IMAGE_SEARCH == mUrlBuilder.mode) {
+                            EhEngine.imageSearch(
+                                null,
+                                mOkHttpClient,
+                                File(StringUtils.avoidNull(mUrlBuilder.imagePath)),
+                                mUrlBuilder.isUseSimilarityScan,
+                                mUrlBuilder.isOnlySearchCovers,
+                                mUrlBuilder.isShowExpunged
+                            )
+                        }
+                        else{
+                            val url = mUrlBuilder.build()
+                            EhEngine.getGalleryList(null, mOkHttpClient, url)
+                        }
+
+                    }
+                } catch (e: Exception) {
+                    callback.onFailure(e)
+                    return@launch
+                }
+                callback.onSuccess(result)
             }
+
         }
 
         override fun getContext(): Context {

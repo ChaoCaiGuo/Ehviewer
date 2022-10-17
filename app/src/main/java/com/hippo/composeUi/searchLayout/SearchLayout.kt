@@ -80,6 +80,9 @@ fun ComposeSearchLayout(viewModel: SearchViewModel = viewModel()) {
             viewModel.verticalScroll.animateScrollTo(0)
         }
     }
+    LaunchedEffect(viewModel.mSearchMode){
+        pagerState.scrollToPage(viewModel.mSearchMode)
+    }
 
     Column(modifier = Modifier.verticalScroll(viewModel.verticalScroll)) {
         HorizontalPager(
