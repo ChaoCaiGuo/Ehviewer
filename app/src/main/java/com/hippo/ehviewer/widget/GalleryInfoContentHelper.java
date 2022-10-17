@@ -22,7 +22,7 @@ import android.os.Parcelable;
 
 import com.hippo.ehviewer.EhApplication;
 import com.hippo.ehviewer.FavouriteStatusRouter;
-import com.hippo.ehviewer.client.data.GalleryInfo;
+import com.hippo.database.dao.GalleryInfo;
 import com.hippo.widget.ContentLayout;
 import com.hippo.yorozuya.IntIdGenerator;
 

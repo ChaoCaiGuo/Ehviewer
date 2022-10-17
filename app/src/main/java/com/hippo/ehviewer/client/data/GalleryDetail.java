@@ -19,6 +19,8 @@ package com.hippo.ehviewer.client.data;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.hippo.database.dao.GalleryInfo;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 

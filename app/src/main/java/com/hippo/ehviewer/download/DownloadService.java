@@ -33,7 +33,7 @@ import androidx.core.app.NotificationManagerCompat;
 import com.hippo.ehviewer.EhApplication;
 import com.hippo.ehviewer.R;
 import com.hippo.ehviewer.client.EhUtils;
-import com.hippo.ehviewer.client.data.GalleryInfo;
+import com.hippo.database.dao.GalleryInfo;
 import com.hippo.database.dao.DownloadInfo;
 import com.hippo.ehviewer.ui.MainActivity;
 import com.hippo.ehviewer.ui.scene.DownloadsScene;

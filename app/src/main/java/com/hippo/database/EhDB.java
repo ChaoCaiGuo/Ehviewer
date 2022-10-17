@@ -28,7 +28,7 @@ import androidx.annotation.Nullable;
 import androidx.paging.PagingSource;
 import androidx.room.Room;
 
-import com.hippo.ehviewer.client.data.GalleryInfo;
+import com.hippo.database.dao.GalleryInfo;
 import com.hippo.ehviewer.client.data.ListUrlBuilder;
 import com.hippo.database.dao.DownloadDirname;
 import com.hippo.database.dao.DownloadDirnameDao;

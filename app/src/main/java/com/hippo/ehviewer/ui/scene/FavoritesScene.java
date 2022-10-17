@@ -59,7 +59,7 @@ import com.hippo.ehviewer.client.EhClient;
 import com.hippo.ehviewer.client.EhRequest;
 import com.hippo.ehviewer.client.EhUrl;
 import com.hippo.ehviewer.client.data.FavListUrlBuilder;
-import com.hippo.ehviewer.client.data.GalleryInfo;
+import com.hippo.database.dao.GalleryInfo;
 import com.hippo.ehviewer.client.parser.FavoritesParser;
 import com.hippo.ehviewer.ui.CommonOperations;
 import com.hippo.ehviewer.ui.MainActivity;

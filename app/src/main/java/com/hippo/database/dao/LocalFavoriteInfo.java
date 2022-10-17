@@ -5,8 +5,6 @@ import android.os.Parcel;
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 
-import com.hippo.ehviewer.client.data.GalleryInfo;
-
 @Entity(tableName = "LOCAL_FAVORITES")
 public class LocalFavoriteInfo extends GalleryInfo {
 

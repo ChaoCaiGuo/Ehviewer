@@ -6,8 +6,6 @@ import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.Ignore;
 
-import com.hippo.ehviewer.client.data.GalleryInfo;
-
 @Entity(tableName = "DOWNLOADS")
 public class DownloadInfo extends GalleryInfo {
 

@@ -33,7 +33,7 @@ import com.hippo.ehviewer.R
 import com.hippo.ehviewer.Settings.KEY_LIST_THUMB_SIZE
 import com.hippo.ehviewer.Settings.getInt
 import com.hippo.ehviewer.client.EhUtils
-import com.hippo.ehviewer.client.data.GalleryInfo
+import com.hippo.database.dao.GalleryInfo
 import com.hippo.ehviewer.widget.SimpleRatingView
 
 @OptIn(ExperimentalFoundationApi::class)

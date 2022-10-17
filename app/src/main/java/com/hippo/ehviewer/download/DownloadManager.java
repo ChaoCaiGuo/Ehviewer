@@ -25,7 +25,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.hippo.database.EhDB;
-import com.hippo.ehviewer.client.data.GalleryInfo;
+import com.hippo.database.dao.GalleryInfo;
 import com.hippo.database.dao.DownloadInfo;
 import com.hippo.database.dao.DownloadLabel;
 import com.hippo.ehviewer.spider.SpiderDen;

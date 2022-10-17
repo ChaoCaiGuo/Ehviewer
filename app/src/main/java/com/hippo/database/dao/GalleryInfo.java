@@ -14,18 +14,20 @@
  * limitations under the License.
  */
 
-package com.hippo.ehviewer.client.data;
+package com.hippo.database.dao;
 
 import android.os.Parcel;
 import android.os.Parcelable;
 
 import androidx.annotation.Nullable;
 import androidx.room.ColumnInfo;
+import androidx.room.Entity;
 import androidx.room.Ignore;
 import androidx.room.PrimaryKey;
 
 import java.util.regex.Pattern;
 
+@Entity(tableName = "GALLERY_INFO")
 public class GalleryInfo implements Parcelable {
 
     /**

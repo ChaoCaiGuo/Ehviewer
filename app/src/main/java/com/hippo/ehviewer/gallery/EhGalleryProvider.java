@@ -21,7 +21,7 @@ import android.content.Context;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.hippo.ehviewer.client.data.GalleryInfo;
+import com.hippo.database.dao.GalleryInfo;
 import com.hippo.ehviewer.spider.SpiderQueen;
 import com.hippo.glgallery.GalleryProvider;
 import com.hippo.image.Image;

@@ -56,7 +56,7 @@ import com.hippo.ehviewer.WindowInsetsAnimationHelper
 import com.hippo.ehviewer.client.EhEngine
 import com.hippo.ehviewer.client.EhUrl
 import com.hippo.ehviewer.client.EhUtils
-import com.hippo.ehviewer.client.data.GalleryInfo
+import com.hippo.database.dao.GalleryInfo
 import com.hippo.ehviewer.client.data.ListUrlBuilder
 import com.hippo.ehviewer.client.exception.EhException
 import com.hippo.ehviewer.client.parser.GalleryListParser
@@ -1000,30 +1000,6 @@ class GalleryListScene : BaseScene(), Helper,
     }
 
 
-    private class GetGalleryListListener(
-        context: Context?,
-        stageId: Int,
-        sceneTag: String?,
-        private val mTaskId: Int
-    ) : EhCallback<GalleryListScene?, GalleryListParser.Result?>(context, stageId, sceneTag) {
-        override fun onSuccess(result: GalleryListParser.Result?) {
-            val scene = scene
-            if (result != null) {
-                scene?.onGetGalleryListSuccess(result, mTaskId)
-            }
-        }
-
-        override fun onFailure(e: Exception) {
-            val scene = scene
-            scene?.onGetGalleryListFailure(e, mTaskId)
-        }
-
-        override fun onCancel() {}
-        override fun isInstance(scene: SceneFragment): Boolean {
-            return scene is GalleryListScene
-        }
-    }
-
     private class AddToFavoriteListener(context: Context?, stageId: Int, sceneTag: String?) :
         EhCallback<GalleryListScene?, Void?>(context, stageId, sceneTag) {
         override fun onSuccess(result: Void?) {
@@ -1164,9 +1140,7 @@ class GalleryListScene : BaseScene(), Helper,
 
     private inner class GalleryListHelper : GalleryInfoContentHelper() {
         override fun getPageData(taskId: Int, type: Int, page: Int) {
-            val activity = mainActivity ?: return
             mUrlBuilder.pageIndex = page
-            val callback = GetGalleryListListener(context, activity.stageId, tag, taskId)
             lifecycleScope.launch {
                 val result = try {
                     withContext(Dispatchers.IO) {
@@ -1174,7 +1148,7 @@ class GalleryListScene : BaseScene(), Helper,
                             EhEngine.imageSearch(
                                 null,
                                 mOkHttpClient,
-                                File(StringUtils.avoidNull(mUrlBuilder.imagePath)),
+                                File(mUrlBuilder.imagePath ?: ""),
                                 mUrlBuilder.isUseSimilarityScan,
                                 mUrlBuilder.isOnlySearchCovers,
                                 mUrlBuilder.isShowExpunged
@@ -1187,10 +1161,11 @@ class GalleryListScene : BaseScene(), Helper,
 
                     }
                 } catch (e: Exception) {
-                    callback.onFailure(e)
+                    onGetGalleryListFailure(e, taskId)
                     return@launch
                 }
-                callback.onSuccess(result)
+                onGetGalleryListSuccess(result, taskId)
+
             }
 
         }

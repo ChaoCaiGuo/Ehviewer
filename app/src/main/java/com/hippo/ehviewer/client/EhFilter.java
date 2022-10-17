@@ -19,7 +19,7 @@ package com.hippo.ehviewer.client;
 import android.util.Log;
 
 import com.hippo.database.EhDB;
-import com.hippo.ehviewer.client.data.GalleryInfo;
+import com.hippo.database.dao.GalleryInfo;
 import com.hippo.database.dao.Filter;
 
 import java.util.ArrayList;

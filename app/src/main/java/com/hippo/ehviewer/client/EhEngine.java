@@ -29,7 +29,7 @@ import com.hippo.ehviewer.R;
 import com.hippo.ehviewer.Settings;
 import com.hippo.ehviewer.client.data.GalleryCommentList;
 import com.hippo.ehviewer.client.data.GalleryDetail;
-import com.hippo.ehviewer.client.data.GalleryInfo;
+import com.hippo.database.dao.GalleryInfo;
 import com.hippo.ehviewer.client.data.PreviewSet;
 import com.hippo.ehviewer.client.exception.CancelledException;
 import com.hippo.ehviewer.client.exception.EhException;
@@ -149,7 +149,7 @@ public class EhEngine {
         }
     }
 
-    private static void throwException(Call call, int code, @Nullable Headers headers,
+    static void throwException(Call call, int code, @Nullable Headers headers,
                                        @Nullable String body, Throwable e) throws Throwable {
         try {
             doThrowException(call, code, headers, body, e);

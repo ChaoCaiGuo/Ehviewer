@@ -24,7 +24,7 @@ import androidx.annotation.Nullable;
 
 import com.hippo.ehviewer.EhApplication;
 import com.hippo.ehviewer.Settings;
-import com.hippo.ehviewer.client.data.GalleryInfo;
+import com.hippo.database.dao.GalleryInfo;
 
 import java.util.regex.Pattern;
 
