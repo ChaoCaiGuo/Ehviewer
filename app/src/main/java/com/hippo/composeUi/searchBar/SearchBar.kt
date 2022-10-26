@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.os.Parcelable
 import android.text.TextUtils
 import android.util.AttributeSet
+import android.util.Log
 import android.widget.LinearLayout
 import androidx.activity.compose.BackHandler
 import androidx.annotation.IntDef
@@ -30,9 +31,11 @@ import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
@@ -65,7 +68,7 @@ class SearchBar @JvmOverloads constructor(
 
     private var mTitle by mutableStateOf("")
     private var mHilt by mutableStateOf("")
-    private var mText by mutableStateOf("")
+    private var mText by mutableStateOf(TextFieldValue("", TextRange.Zero))
     private var mMenuButton by mutableStateOf<Drawable?>(null)
     private var mActionButton by mutableStateOf<Drawable?>(null)
 
@@ -76,7 +79,8 @@ class SearchBar @JvmOverloads constructor(
     @OptIn(
         ExperimentalMaterial3Api::class,
         ExperimentalLayoutApi::class,
-        ExperimentalComposeUiApi::class, ExperimentalFoundationApi::class
+        ExperimentalComposeUiApi::class,
+        ExperimentalFoundationApi::class
     )
     @Composable
     fun ComposeSearchBar() {
@@ -115,8 +119,9 @@ class SearchBar @JvmOverloads constructor(
 
         Column(Modifier.fillMaxSize()) {
             OutlinedTextField(
-                value = mText,
+                value = mText.text,
                 onValueChange = {
+                    Log.d("SearchBar", "onValueChange: ")
                     setSearchText(it)
                     updateSuggestions()
                 },
@@ -161,7 +166,7 @@ class SearchBar @JvmOverloads constructor(
                     if (mActionButton != null) {
                         IconButton(onClick = {
                             haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
-                            if (isImeShow && mText.isEmpty()) {
+                            if (isImeShow && mText.text.isEmpty()) {
                                 imeManager?.hide()
                             }
                             mHelper?.onClickRightIcon(isImeShow)
@@ -246,14 +251,10 @@ class SearchBar @JvmOverloads constructor(
     }
 
     fun setSearchText(searchText: String) {
-        mText = searchText
+        mText = TextFieldValue(searchText, TextRange(searchText.length))
     }
 
-    fun getSearchText(): String = mText
-
-    fun cursorToEnd() {
-        //todo 光标移动到最后
-    }
+    fun getSearchText(): String = mText.text
 
     fun setTitle(title: String?) {
         mTitle = title ?: ""
@@ -278,7 +279,7 @@ class SearchBar @JvmOverloads constructor(
     }
 
     fun applySearch() {
-        val query: String = mText.trim { it <= ' ' }
+        val query: String = mText.text.trim { it <= ' ' }
         if (!mAllowEmptySearch && TextUtils.isEmpty(query)) {
             return
         }
@@ -299,7 +300,7 @@ class SearchBar @JvmOverloads constructor(
 
     private fun updateSuggestions() {
         val suggestions: MutableList<Suggestion> = ArrayList()
-        val text: String = mText
+        val text: String = mText.text
         if (mSuggestionProvider != null) {
             val providerSuggestions = mSuggestionProvider!!.providerSuggestions(text)
             if (providerSuggestions != null && providerSuggestions.isNotEmpty()) {
@@ -329,14 +330,14 @@ class SearchBar @JvmOverloads constructor(
     override fun onSaveInstanceState(): Parcelable {
         return Bundle().apply {
             putParcelable("super", super.onSaveInstanceState())
-            putString("string", mText)
+            putString("string", mText.text)
         }
     }
 
     override fun onRestoreInstanceState(state: Parcelable?) {
         if (state is Bundle) {
             super.onRestoreInstanceState(state.getParcelable("super"))
-            mText = state.getString("string","")
+            mText =TextFieldValue( state.getString("string",""), TextRange.Zero)
         }
     }
 
@@ -374,7 +375,7 @@ class SearchBar @JvmOverloads constructor(
         }
 
         override fun onClick() {
-            val text: String = mText
+            val text: String = mText.text
             var temp: String = wrapTagKeyword(mKeyword) + " "
             if (text.contains(" ")) {
                 temp = text.substring(0, text.lastIndexOf(" ")) + " " + temp
