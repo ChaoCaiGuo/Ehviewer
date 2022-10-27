@@ -7,13 +7,9 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.*
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.gestures.stopScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyListState
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
+import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -23,10 +19,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.lifecycleScope
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.paging.LoadState
-import androidx.paging.Pager
-import androidx.paging.PagingConfig
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.items
@@ -35,11 +29,10 @@ import com.hippo.composeUi.widget.ComposeDialogWithSelectItem
 import com.hippo.composeUi.widget.DialogBaseSelectItemWithIconAdapter
 import com.hippo.composeUi.widget.SwipeToDismiss
 import com.hippo.database.EhDB
-import com.hippo.ehviewer.FavouriteStatusRouter
-import com.hippo.ehviewer.R
-import com.hippo.ehviewer.client.EhUtils
 import com.hippo.database.dao.DownloadInfo
 import com.hippo.database.dao.HistoryInfo
+import com.hippo.ehviewer.R
+import com.hippo.ehviewer.client.EhUtils
 import com.hippo.ehviewer.download.DownloadManager
 import com.hippo.ehviewer.ui.CommonOperations
 import com.hippo.ehviewer.ui.GalleryActivity
@@ -49,31 +42,15 @@ import com.hippo.ehviewer.ui.scene.GalleryListScene
 import com.hippo.ehviewer.ui.scene.ToolbarScene
 import com.hippo.scene.Announcer
 import com.hippo.scene.SceneFragment
+import com.hippo.viewModel.HistorySceneViewModel
+import com.hippo.viewModel.HistorySceneViewModel.HistoryAction.*
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
-import javax.inject.Inject
 
 @AndroidEntryPoint
 class HistoryScene : ToolbarScene() {
 
-    @Inject
-    lateinit var mDownloadManager: DownloadManager
-
-    @Inject
-    lateinit var mFavouriteStatusRouter: FavouriteStatusRouter
-
-    private var mShowDownloadRemove by mutableStateOf(false)
-    private var mShowClearAllDialog by mutableStateOf(false)
-    private var mSelectedGi by mutableStateOf<HistoryInfo?>(null)
-    private val historyData = Pager(
-        PagingConfig(20)
-    ) { EhDB.getHistoryLazyList() }.flow
-    private val mListState = LazyListState(0, 0)
-
-    override fun getNavCheckedItem(): Int {
-        return R.id.nav_history
-    }
+    override fun getNavCheckedItem() = R.id.nav_history
 
     override fun onCreateViewWithToolbar(
         inflater: LayoutInflater,
@@ -81,29 +58,75 @@ class HistoryScene : ToolbarScene() {
     ): View {
         return ComposeView(requireContext()).apply {
             setContent {
-                Box(
-                    modifier = Modifier
-                        .padding(horizontal = 3.dp)
-                        .fillMaxSize()
-                ) {
-                    val historyLazyPagingItems = historyData.collectAsLazyPagingItems()
-                    if ((historyLazyPagingItems.loadState.refresh is LoadState.Error) || historyLazyPagingItems.itemCount == 0) {
-                        ComposeNoHistory()
-                    } else
-                        ComposeHistoryList(historyLazyPagingItems)
-
-                    ComposeShowDialog()
-                    ComposeClearAllDialog()
-                    ComposeDownloadRemove()
-
-                }
-
+                ComposeHistory()
             }
         }
     }
 
     @Composable
-    private fun ComposeHistoryList(lazyPagingItems: LazyPagingItems<HistoryInfo>) {
+    private fun ComposeHistory(viewModel: HistorySceneViewModel = hiltViewModel()) {
+        val state by viewModel.container.uiStateFlow.collectAsState()
+
+        Box(
+            modifier = Modifier
+                .padding(horizontal = 3.dp)
+                .fillMaxSize()
+        ) {
+            val historyLazyPagingItems = viewModel.historyData.collectAsLazyPagingItems()
+            if ((historyLazyPagingItems.loadState.refresh is LoadState.Error) || historyLazyPagingItems.itemCount == 0) {
+                ComposeNoHistory()
+            } else{
+                Column(Modifier.fillMaxWidth()) {
+                    Row(Modifier.fillMaxWidth().padding(horizontal = 16.dp),verticalAlignment = Alignment.CenterVertically) {
+                        Text(text = stringResource(id = R.string.history),fontSize = 22.sp)
+                        Spacer(modifier = Modifier.weight(1f))
+                        IconButton(
+                            onClick = {
+                                viewModel.sendEvent(SetShowClearAllDialog(true))
+                            },
+                        ) {
+                            Icon(
+                                painter = painterResource(id = R.drawable.v_clear_all_dark_x24),
+                                contentDescription = null
+                            )
+                        }
+                       
+                    }
+                    ComposeHistoryList(
+                        lazyPagingItems  = historyLazyPagingItems,
+                        downloadManager = state.mDownloadManager,
+                        state = state,
+                        sendEvent = {historyAction -> viewModel.sendEvent(historyAction) }
+                    )
+                }
+            }
+
+
+            ComposeShowDialog(
+                downloadManager = state.mDownloadManager,
+                state = state,
+                sendEvent = {historyAction -> viewModel.sendEvent(historyAction) },
+            )
+            ComposeClearAllDialog(
+                state = state,
+                sendEvent = {historyAction -> viewModel.sendEvent(historyAction) }
+            )
+            ComposeDownloadRemove(
+                downloadManager = state.mDownloadManager,
+                state = state,
+                sendEvent = {historyAction -> viewModel.sendEvent(historyAction) }
+            )
+
+        }
+    }
+
+    @Composable
+    private fun ComposeHistoryList(
+        lazyPagingItems: LazyPagingItems<HistoryInfo>,
+        downloadManager: DownloadManager,
+        state: HistorySceneViewModel.HistoryState,
+        sendEvent: (HistorySceneViewModel.HistoryAction) -> Unit
+    ) {
         LazyColumn(modifier = Modifier.fillMaxSize()) {
             items(
                 items = lazyPagingItems,
@@ -113,10 +136,10 @@ class HistoryScene : ToolbarScene() {
                     var mShowDownload by remember {
                         mutableStateOf(false)
                     }
-                    LaunchedEffect(mSelectedGi) {
-                        mShowDownload = mDownloadManager.containDownloadInfo(gi.gid)
+                    LaunchedEffect(state.mSelectedGi) {
+                        mShowDownload = downloadManager.containDownloadInfo(gi.gid)
                         delay(1000)
-                        mShowDownload = mDownloadManager.containDownloadInfo(gi.gid)
+                        mShowDownload = downloadManager.containDownloadInfo(gi.gid)
                         //多次刷新保证UI正确
                     }
                     SwipeToDismiss(
@@ -128,7 +151,7 @@ class HistoryScene : ToolbarScene() {
                         HistoryAdapterView(gi,
                             mShowDownload,
                             { onItemClick(gi) },
-                            { mSelectedGi = gi })
+                            { sendEvent.invoke(SetSelectedGi(gi)) })
                     }
                 }
 
@@ -139,31 +162,38 @@ class HistoryScene : ToolbarScene() {
     }
 
     @Composable
-    private fun ComposeShowDialog() {
-        if (mSelectedGi != null)
-            dialogSelectItemAdapter(mSelectedGi!!) { mSelectedGi = null }?.let {
+    private fun ComposeShowDialog(
+        downloadManager: DownloadManager,
+        state: HistorySceneViewModel.HistoryState,
+        sendEvent: (HistorySceneViewModel.HistoryAction) -> Unit
+    ) {
+        if (state.mSelectedGi != null)
+            dialogSelectItemAdapter(state.mSelectedGi,downloadManager,sendEvent) { sendEvent.invoke(SetSelectedGi(null)) }?.let {
                 ComposeDialogWithSelectItem(
                     title = {
                         Text(
-                            text = if (mSelectedGi != null) EhUtils.getSuitableTitle(mSelectedGi)
-                                    else "Error",
+                            //不要去掉这儿的!= null 因为compose 可能会让Text的text比控件本身先重构  如果为null 有概率闪退
+                            text = if (state.mSelectedGi != null) EhUtils.getSuitableTitle(state.mSelectedGi) else "Error",
                             fontSize = 20.sp,
                             maxLines = 2,
                             overflow = TextOverflow.Ellipsis,
                         )
                     },
-                    onDismissRequest = { mSelectedGi = null },
+                    onDismissRequest = { sendEvent.invoke(SetSelectedGi(null)) },
                     dialogSelectItemAdapter = it
                 )
             }
     }
 
     @Composable
-    private fun ComposeClearAllDialog() {
-        if (mShowClearAllDialog) {
+    private fun ComposeClearAllDialog(
+        state: HistorySceneViewModel.HistoryState,
+        sendEvent: (HistorySceneViewModel.HistoryAction) -> Unit
+    ) {
+        if (state.mShowClearAllDialog) {
             AlertDialog(
                 onDismissRequest = {
-                    mShowClearAllDialog = false
+                    sendEvent.invoke(SetShowClearAllDialog(false))
                 },
                 title = {
                     Text(text = stringResource(id = R.string.clear_all))
@@ -175,7 +205,7 @@ class HistoryScene : ToolbarScene() {
                     TextButton(
                         onClick = {
                             EhDB.clearHistoryInfo()
-                            mShowClearAllDialog = false
+                            sendEvent.invoke(SetShowClearAllDialog(false))
                         }
                     ) {
                         Text(stringResource(id = R.string.clear_all))
@@ -184,7 +214,7 @@ class HistoryScene : ToolbarScene() {
                 dismissButton = {
                     TextButton(
                         onClick = {
-                            mShowClearAllDialog = false
+                            sendEvent.invoke(SetShowClearAllDialog(false))
                         }
                     ) {
                         Text(stringResource(id = android.R.string.cancel))
@@ -195,21 +225,25 @@ class HistoryScene : ToolbarScene() {
     }
 
     @Composable
-    private fun ComposeDownloadRemove() {
-        LaunchedEffect(mShowDownloadRemove){
-            if(!mShowDownloadRemove){
-                mSelectedGi = null
+    private fun ComposeDownloadRemove(
+        downloadManager: DownloadManager,
+        state: HistorySceneViewModel.HistoryState,
+        sendEvent: (HistorySceneViewModel.HistoryAction) -> Unit
+    ) {
+        LaunchedEffect(state.mShowDownloadRemove){
+            if(!state.mShowDownloadRemove){
+                sendEvent.invoke(SetSelectedGi(null))
             }
         }
-        if (mShowDownloadRemove) {
+        if (state.mShowDownloadRemove) {
             var title by remember {
                 mutableStateOf(
-                    getString(R.string.download_remove_dialog_message, mSelectedGi?.title)
+                    getString(R.string.download_remove_dialog_message, state.mSelectedGi?.title)
                 )
             }
             AlertDialog(
                 onDismissRequest = {
-                    mShowDownloadRemove = false
+                    sendEvent.invoke(SetShowDownloadRemove(false))
                 },
                 title = {
                     Text(text = stringResource(id = R.string.download_remove_dialog_title))
@@ -220,10 +254,10 @@ class HistoryScene : ToolbarScene() {
                 confirmButton = {
                     TextButton(
                         onClick = {
-                            mSelectedGi ?: return@TextButton
-                            mDownloadManager.deleteDownload(mSelectedGi!!.gid)
+                            state.mSelectedGi ?: return@TextButton
+                            downloadManager.deleteDownload(state.mSelectedGi.gid)
                             title = ""
-                            mShowDownloadRemove = false
+                            sendEvent.invoke(SetShowDownloadRemove(false))
                         }
                     ) {
                         Text(stringResource(id = android.R.string.ok))
@@ -232,7 +266,7 @@ class HistoryScene : ToolbarScene() {
                 dismissButton = {
                     TextButton(
                         onClick = {
-                            mShowDownloadRemove = false
+                            sendEvent.invoke(SetShowDownloadRemove(false))
                         }
                     ) {
                         Text(stringResource(id = android.R.string.cancel))
@@ -265,14 +299,6 @@ class HistoryScene : ToolbarScene() {
         setNavigationIcon(R.drawable.ic_baseline_menu_24)
     }
 
-    override fun onDestroyView() {
-        viewLifecycleOwner.lifecycleScope.launch {
-            mListState.stopScroll()
-        }
-
-        super.onDestroyView()
-    }
-
     @SuppressLint("RtlHardcoded")
     override fun onNavigationClick() {
         toggleDrawer(Gravity.LEFT)
@@ -285,7 +311,6 @@ class HistoryScene : ToolbarScene() {
 
     override fun onMenuItemClick(item: MenuItem): Boolean {
         if (item.itemId == R.id.action_clear_all) {
-            mShowClearAllDialog = true
             return true
         }
         return false
@@ -309,7 +334,10 @@ class HistoryScene : ToolbarScene() {
 
     private fun dialogSelectItemAdapter(
         gi: HistoryInfo,
-        closeDialog: () -> Unit = {}
+        mDownloadManager: DownloadManager,
+        sendEvent: (HistorySceneViewModel.HistoryAction) -> Unit,
+        closeDialog: () -> Unit = {},
+
     ): ArrayList<DialogBaseSelectItemWithIconAdapter>? {
         val context = context ?: return null
         val activity = mainActivity ?: return null
@@ -333,7 +361,7 @@ class HistoryScene : ToolbarScene() {
                 if (downloaded) R.drawable.v_delete_x24 else R.drawable.v_download_x24
             ) {
                 if (downloaded) {
-                    mShowDownloadRemove = true
+                    sendEvent.invoke(SetShowDownloadRemove(true))
                 } else {
                     CommonOperations.startDownload(activity, gi, false)
                     closeDialog.invoke()
