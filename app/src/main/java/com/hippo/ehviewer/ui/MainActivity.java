@@ -42,6 +42,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.snackbar.Snackbar;
 import com.hippo.app.EditTextDialogBuilder;
+import com.hippo.composeUi.galleryListScene.GalleryListScene2;
 import com.hippo.composeUi.historyScene.HistoryScene;
 import com.hippo.composeUi.signInScene.CookieSignInScene;
 import com.hippo.composeUi.signInScene.SelectSiteScene;
@@ -111,6 +112,7 @@ public final class MainActivity extends StageActivity
         registerLaunchMode(FavoritesScene.class, SceneFragment.LAUNCH_MODE_SINGLE_TASK);
         registerLaunchMode(HistoryScene.class, SceneFragment.LAUNCH_MODE_SINGLE_TOP);
         registerLaunchMode(ProgressScene.class, SceneFragment.LAUNCH_MODE_STANDARD);
+        registerLaunchMode(GalleryListScene2.class, SceneFragment.LAUNCH_MODE_SINGLE_TOP);
     }
 
     ActivityResultLauncher<Intent> settingsLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(),

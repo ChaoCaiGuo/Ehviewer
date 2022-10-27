@@ -75,4 +75,10 @@
         　　        <item>""</item>
     </string-array>
 
+
+    <string-array name="galleryListScene_type">
+        <item>@string/homepage</item>
+        <item>@string/whats_hot</item>
+        <item>@string/toplist</item>
+    </string-array>
 </resources>
