@@ -56,7 +56,7 @@ public class EhDB {
 
     private static final int MAX_HISTORY_COUNT = 200;
 
-    private static EhDatabase db;
+    public static EhDatabase db;
 
     private static boolean sHasOldDB;
     private static boolean sNewDB;
