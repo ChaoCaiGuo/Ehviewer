@@ -18,7 +18,6 @@ interface UiState
 
 @Keep
 open class UiAction<STATE> {
-
     open suspend fun invoke(_viewState: MutableStateFlow<STATE>) {}
 
     /**
