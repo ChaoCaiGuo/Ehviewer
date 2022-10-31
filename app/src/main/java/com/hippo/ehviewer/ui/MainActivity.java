@@ -42,8 +42,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.snackbar.Snackbar;
 import com.hippo.app.EditTextDialogBuilder;
-import com.hippo.composeUi.galleryListScene.GalleryListScene2;
-import com.hippo.composeUi.historyScene.HistoryScene;
+import com.hippo.composeUi.ComposeMainUI;
 import com.hippo.composeUi.signInScene.CookieSignInScene;
 import com.hippo.composeUi.signInScene.SelectSiteScene;
 import com.hippo.composeUi.signInScene.WarningScene;
@@ -95,7 +94,6 @@ public final class MainActivity extends StageActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
     private static final String KEY_NAV_CHECKED_ITEM = "nav_checked_item";
-
     static {
         registerLaunchMode(SecurityScene.class, SceneFragment.LAUNCH_MODE_SINGLE_TASK);
         registerLaunchMode(WarningScene.class, SceneFragment.LAUNCH_MODE_SINGLE_TASK);
@@ -110,9 +108,8 @@ public final class MainActivity extends StageActivity
         registerLaunchMode(GalleryPreviewsScene.class, SceneFragment.LAUNCH_MODE_STANDARD);
         registerLaunchMode(DownloadsScene.class, SceneFragment.LAUNCH_MODE_SINGLE_TASK);
         registerLaunchMode(FavoritesScene.class, SceneFragment.LAUNCH_MODE_SINGLE_TASK);
-        registerLaunchMode(HistoryScene.class, SceneFragment.LAUNCH_MODE_SINGLE_TOP);
         registerLaunchMode(ProgressScene.class, SceneFragment.LAUNCH_MODE_STANDARD);
-        registerLaunchMode(GalleryListScene2.class, SceneFragment.LAUNCH_MODE_SINGLE_TOP);
+        registerLaunchMode(ComposeMainUI.class, SceneFragment.LAUNCH_MODE_SINGLE_TOP);
     }
 
     ActivityResultLauncher<Intent> settingsLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(),
@@ -589,8 +586,6 @@ public final class MainActivity extends StageActivity
                     .setArgs(args));
         } else if (id == R.id.nav_favourite) {
             startScene(new Announcer(FavoritesScene.class));
-        } else if (id == R.id.nav_history) {
-            startScene(new Announcer(HistoryScene.class));
         } else if (id == R.id.nav_downloads) {
             startScene(new Announcer(DownloadsScene.class));
         } else if (id == R.id.nav_settings) {

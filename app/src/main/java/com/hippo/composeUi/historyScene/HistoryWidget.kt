@@ -133,6 +133,12 @@ fun HistoryAdapterView(
                                     )
                                 }
 
+                                if (gi.favoriteSlot != -2) {
+                                    Icon(
+                                        painterResource(id = R.drawable.v_heart_x16),
+                                        contentDescription = null
+                                    )
+                                }
                                 //这儿是语言
                                 Text(
                                     text = if (TextUtils.isEmpty(gi.simpleLanguage)) "" else gi.simpleLanguage,

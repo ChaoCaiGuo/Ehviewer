@@ -24,7 +24,6 @@ import android.content.res.Resources
 import android.os.Bundle
 import android.text.InputType
 import android.text.TextUtils
-import android.util.Log
 import android.view.*
 import android.widget.ImageView
 import android.widget.TextView
@@ -40,7 +39,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.hippo.app.EditTextDialogBuilder
-import com.hippo.composeUi.galleryListScene.GalleryListScene2
+import com.hippo.composeUi.ComposeMainUI
 import com.hippo.composeUi.searchBar.Helper
 import com.hippo.composeUi.searchBar.SearchBar
 import com.hippo.composeUi.searchLayout.SearchLayout
@@ -72,7 +71,6 @@ import com.hippo.scene.Announcer
 import com.hippo.scene.SceneFragment
 import com.hippo.view.BringOutTransition
 import com.hippo.view.ViewTransition
-import com.hippo.viewModel.HistorySceneViewModel
 import com.hippo.viewModel.SearchViewModel
 import com.hippo.widget.ContentLayout
 import com.hippo.widget.FabLayout
@@ -350,7 +348,7 @@ class GalleryListScene : BaseScene(), Helper,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        startScene(Announcer(GalleryListScene2::class.java))
+        startScene(Announcer(ComposeMainUI::class.java))
         val view = inflater.inflate(R.layout.scene_gallery_list, container, false)
         val context = context
         AssertUtils.assertNotNull(context)

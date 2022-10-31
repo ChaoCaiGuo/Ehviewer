@@ -55,18 +55,19 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.hippo.app.CheckBoxDialogBuilder;
 import com.hippo.app.EditTextDialogBuilder;
+import com.hippo.composeUi.ComposeMainUI;
+import com.hippo.database.EhDB;
+import com.hippo.database.dao.DownloadInfo;
+import com.hippo.database.dao.DownloadLabel;
 import com.hippo.easyrecyclerview.EasyRecyclerView;
 import com.hippo.easyrecyclerview.FastScroller;
 import com.hippo.easyrecyclerview.HandlerDrawable;
 import com.hippo.easyrecyclerview.MarginItemDecoration;
 import com.hippo.ehviewer.EhApplication;
-import com.hippo.database.EhDB;
 import com.hippo.ehviewer.R;
 import com.hippo.ehviewer.Settings;
 import com.hippo.ehviewer.client.EhCacheKeyFactory;
 import com.hippo.ehviewer.client.EhUtils;
-import com.hippo.database.dao.DownloadInfo;
-import com.hippo.database.dao.DownloadLabel;
 import com.hippo.ehviewer.download.DownloadManager;
 import com.hippo.ehviewer.download.DownloadService;
 import com.hippo.ehviewer.spider.SpiderDen;
@@ -552,7 +553,7 @@ public class DownloadsScene extends ToolbarScene
         if (mRecyclerView != null && mRecyclerView.isInCustomChoice()) {
             mRecyclerView.outOfCustomChoiceMode();
         } else {
-            super.onBackPressed();
+            startScene(new Announcer(ComposeMainUI.class));
         }
     }
 

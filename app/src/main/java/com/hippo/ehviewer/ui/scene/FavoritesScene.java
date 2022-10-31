@@ -46,6 +46,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.hippo.annotation.Implemented;
 import com.hippo.app.EditTextDialogBuilder;
+import com.hippo.composeUi.ComposeMainUI;
 import com.hippo.drawable.AddDeleteDrawable;
 import com.hippo.drawable.DrawerArrowDrawable;
 import com.hippo.easyrecyclerview.EasyRecyclerView;
@@ -431,6 +432,7 @@ public class FavoritesScene extends BaseScene implements
         } else if (mSearchMode) {
             exitSearchMode(true);
         } else {
+            startScene(new Announcer(ComposeMainUI.class));
             finish();
         }
     }
