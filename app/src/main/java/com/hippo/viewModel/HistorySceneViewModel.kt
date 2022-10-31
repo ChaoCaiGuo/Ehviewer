@@ -32,12 +32,6 @@ class HistorySceneViewModel @Inject constructor(
 
      sealed class HistoryAction : UiAction<HistoryState>() {
 
-         class Init(val mDownloadManager: DownloadManager) : HistoryAction() {
-             override suspend fun invoke(_viewState: MutableStateFlow<HistoryState>) {
-                 _viewState.updateState { copy(mDownloadManager = mDownloadManager) }
-             }
-         }
-
          class SetShowDownloadRemove(val value: Boolean) : HistoryAction() {
              override suspend fun invoke(_viewState: MutableStateFlow<HistoryState>) {
                  _viewState.updateState { copy(mShowDownloadRemove = value) }

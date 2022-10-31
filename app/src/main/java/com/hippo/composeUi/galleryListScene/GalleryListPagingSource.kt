@@ -60,6 +60,7 @@ class GalleryListPagingSource(
     ): MediatorResult {
 
         return try {
+            Log.d("GalleryListPagingSource", "result is $loadType state", )
             when (loadType) {
                 LoadType.REFRESH -> null
                 LoadType.PREPEND -> return MediatorResult.Success(true)
@@ -67,12 +68,17 @@ class GalleryListPagingSource(
                     state.lastItemOrNull() ?: return MediatorResult.Success(true)
                 }
             }
-            Log.d("GalleryListPagingSource", "nextPage $nextPage", )
+            Log.d("GalleryListPagingSource", "now page result is $nextPage", )
             val result  = getPageData(nextPage)
             if(result == null){
                 Log.d("GalleryListPagingSource", "result is null", )
                 return MediatorResult.Error(Exception("can't get Result"))
             }
+            Log.d("GalleryListPagingSource", "result nextPage ${result.nextPage}", )
+            result.galleryInfoList.forEach {
+                it.pages = nextPage
+            }
+
             database.withTransaction {
                 if (loadType == LoadType.REFRESH) {
                     EhDBExt.deleteGalleryList(result.galleryInfoList)

@@ -9,7 +9,7 @@ interface GalleryListSceneDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertAll(galleryInfo: List<GalleryInfo>)
 
-    @Query("SELECT * FROM GALLERY_INFO")
+    @Query("SELECT * FROM GALLERY_INFO ORDER BY GID DESC")
     fun pagingSource(): PagingSource<Int, GalleryInfo>
 
     @Query("DELETE FROM GALLERY_INFO")

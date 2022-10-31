@@ -1,12 +1,15 @@
 package com.hippo.composeUi.composeExt
 
+import android.content.Context
 import android.widget.LinearLayout
 import androidx.compose.foundation.lazy.grid.LazyGridItemScope
 import androidx.compose.foundation.lazy.grid.LazyGridScope
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.platform.ComposeView
 import androidx.paging.compose.LazyPagingItems
 import com.hippo.composeUi.theme.EhViewerTheme
+import com.hippo.ehviewer.ui.MainActivity
 
 /**
  *  通过LinearLayout来作为compose的过渡方式
@@ -40,4 +43,8 @@ fun <T : Any> LazyGridScope.items(
             itemContent(items[index])
         }
     )
+}
+
+val LocalMainActivity = staticCompositionLocalOf<MainActivity?> {
+    error("CompositionLocal LocalMainContext not present")
 }

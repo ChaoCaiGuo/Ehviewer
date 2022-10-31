@@ -41,9 +41,11 @@ import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.rememberPagerState
 import com.hippo.composeUi.ScreenNav
+import com.hippo.composeUi.composeExt.LocalMainActivity
 import com.hippo.composeUi.composeExt.LocalNewPx
 import com.hippo.composeUi.composeExt.items
 import com.hippo.composeUi.composeExt.pagerTabIndicatorOffset
+import com.hippo.composeUi.historyScene.ComposeHistory
 import com.hippo.composeUi.theme.EhViewerTheme
 import com.hippo.database.EhDBExt
 import com.hippo.database.dao.GalleryInfo
@@ -55,10 +57,8 @@ import com.hippo.ehviewer.widget.SimpleRatingView
 import com.hippo.scene.Announcer
 import com.hippo.viewModel.HistorySceneViewModel
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import okhttp3.OkHttpClient
 import javax.inject.Inject
 
@@ -71,6 +71,22 @@ class GalleryListScene2 : BaseScene() {
     @Inject
     lateinit var mOkHttpClient: OkHttpClient
 
+    var finish = false
+    override fun onBackPressed() {
+        if (finish) {
+            lifecycleScope.launch {
+                EhDBExt.clearGalleryListScene()
+                activity?.finish()
+            }
+        } else {
+            lifecycleScope.launch {
+                finish = true
+                delay(5000)
+                finish = false
+            }
+        }
+
+    }
 
     @OptIn(ExperimentalPagingApi::class)
     override fun onCreateView(
@@ -78,59 +94,69 @@ class GalleryListScene2 : BaseScene() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        Log.d("HistorySceneViewModel", "de: ${HistorySceneViewModel::class.nestedClasses}")
         mUrlBuilder.reset()
 
-         val galleryList0 = Pager(
+        val galleryList0 = Pager(
             PagingConfig(
-                pageSize= 25,
+                pageSize = 25,
                 prefetchDistance = 8,
                 initialLoadSize = 30
             ),
-            remoteMediator = GalleryListPagingSource(mUrlBuilder = mUrlBuilder, mOkHttpClient = mOkHttpClient)
-        ) { EhDBExt.getGalleryList()}.flow.cachedIn(lifecycleScope)
+            remoteMediator = GalleryListPagingSource(
+                mUrlBuilder = mUrlBuilder,
+                mOkHttpClient = mOkHttpClient
+            )
+        ) { EhDBExt.getGalleryList() }.flow.cachedIn(lifecycleScope)
 
 
         return ComposeView(requireContext()).apply {
             setContent {
-                EhViewerTheme{
-                    val navController  = rememberNavController()
-                    LaunchedEffect(Unit){
-                        EhDBExt.clearGalleryListScene()
-                    }
+                EhViewerTheme {
 
-                    Column(Modifier.fillMaxSize()) {
-                        Spacer(
-                            modifier = Modifier
-                                .statusBarsPadding()
-                                .fillMaxWidth()
-                        )
-                        Box(modifier = Modifier.weight(1f)) {
-                            navHost(navController,galleryList0)
+                    val navController = rememberNavController()
+                    CompositionLocalProvider(LocalMainActivity provides mainActivity) {
+                        Column(Modifier.fillMaxSize()) {
+                            Spacer(
+                                modifier = Modifier
+                                    .statusBarsPadding()
+                                    .fillMaxWidth()
+                            )
+                            Box(modifier = Modifier.weight(1f)) {
+                                navHost(navController, galleryList0)
+                            }
+                            NaviGate(navController)
                         }
-                        NaviGate(navController)
                     }
 
                 }
             }
         }
     }
-    @Composable
-    fun NaviGate(navController: NavHostController){
 
-        val navScreenList = remember { listOf(ScreenNav.Home,ScreenNav.History,ScreenNav.Search,ScreenNav.Favourite,ScreenNav.Downloads) }
+    @Composable
+    fun NaviGate(navController: NavHostController) {
+
+        val navScreenList = remember {
+            listOf(
+                ScreenNav.Home,
+                ScreenNav.History,
+                ScreenNav.Search,
+                ScreenNav.Favourite,
+                ScreenNav.Downloads
+            )
+        }
         NavigationBar {
             val navBackStackEntry by navController.currentBackStackEntryAsState()
             val currentDestination = navBackStackEntry?.destination
 
-            navScreenList.forEach {  item ->
+            navScreenList.forEach { item ->
                 NavigationBarItem(
-                    icon = {  Icon(painterResource(id = item.ImageId), contentDescription = null)},
+                    icon = { Icon(painterResource(id = item.ImageId), contentDescription = null) },
                     label = { Text(stringResource(id = item.resourceId)) },
-                    selected = currentDestination?.hierarchy?.any { it.route == item.route} == true,
+                    selected = currentDestination?.hierarchy?.any { it.route == item.route } == true,
                     onClick = {
-                        navController.navigate(item.route){
-                            navController.popBackStack(item.route,true)
+                        navController.navigate(item.route) {
+                            navController.popBackStack(item.route, true)
                         }
                     }
                 )
@@ -140,17 +166,22 @@ class GalleryListScene2 : BaseScene() {
     }
 
     @Composable
-    fun navHost(navController: NavHostController,galleryList0: Flow<PagingData<GalleryInfo>>){
+    fun navHost(navController: NavHostController, galleryList0: Flow<PagingData<GalleryInfo>>) {
 
-        NavHost(navController =navController, startDestination = ScreenNav.Home.route) {
-            composable(ScreenNav.Home.route)      {   ComposeHomePage(galleryList0 = galleryList0)  }
-            composable(ScreenNav.History.route)   {   Text(text = "test")  }
-            composable(ScreenNav.Search.route)    {   Text(text = "test")  }
-            composable(ScreenNav.Favourite.route) {   Text(text = "test")  }
-            composable(ScreenNav.Downloads.route) {   Text(text = "test")  }
+        NavHost(navController = navController, startDestination = ScreenNav.Home.route) {
+            composable(ScreenNav.Home.route) { ComposeHomePage(galleryList0 = galleryList0) }
+            composable(ScreenNav.History.route) {
+                ComposeHistory(startScene = { announcer ->
+                    startScene(
+                        announcer
+                    )
+                })
+            }
+            composable(ScreenNav.Search.route) { Text(text = "test") }
+            composable(ScreenNav.Favourite.route) { Text(text = "test") }
+            composable(ScreenNav.Downloads.route) { Text(text = "test") }
         }
     }
-
 
 
     @Composable
@@ -166,7 +197,12 @@ class GalleryListScene2 : BaseScene() {
             TabRow(
                 selectedTabIndex = pagerState.currentPage,
                 indicator = { tabPositions ->
-                    TabRowDefaults.Indicator(Modifier.pagerTabIndicatorOffset(pagerState, tabPositions))
+                    TabRowDefaults.Indicator(
+                        Modifier.pagerTabIndicatorOffset(
+                            pagerState,
+                            tabPositions
+                        )
+                    )
                 },
             ) {
                 titles.forEachIndexed { index, title ->
@@ -175,9 +211,7 @@ class GalleryListScene2 : BaseScene() {
                         selected = pagerState.currentPage == index,
                         onClick = {
                             scope.launch {
-                                withContext(Dispatchers.IO) {
-                                    pagerState.animateScrollToPage(index)
-                                }
+                                pagerState.animateScrollToPage(index)
                             }
                         },
                     )
@@ -185,9 +219,15 @@ class GalleryListScene2 : BaseScene() {
             }
             HorizontalPager(count = titles.size, state = pagerState) {
                 when (it) {
-                    0 -> { ComposeGalleryList(galleryList0) }
-                    1 -> { ComposeGalleryList(galleryList0) }
-                    2 -> { ComposeGalleryList(galleryList0) }
+                    0 -> {
+                        ComposeGalleryList(galleryList0)
+                    }
+                    1 -> {
+                        Text(text = "test")
+                    }
+                    2 -> {
+                        Text(text = "test")
+                    }
                 }
 
             }
@@ -202,11 +242,13 @@ class GalleryListScene2 : BaseScene() {
             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                 Text(stringResource(id = R.string.gallery_list_empty_hit))
             }
-        } else{
-            LazyVerticalGrid(columns = GridCells.Fixed(2) ){
-                items( items = galleryListPagingItems,
-                    key = {index ->  galleryListPagingItems[index]!!.gid}
-                ){
+        } else {
+
+            LazyVerticalGrid(columns = GridCells.Fixed(2)) {
+                items(
+                    items = galleryListPagingItems,
+//                    key = {index ->  galleryListPagingItems[index]!!.gid}
+                ) {
                     it?.let {
                         ItemCardView(
                             img = it.thumb,
@@ -217,10 +259,14 @@ class GalleryListScene2 : BaseScene() {
                             pages = "${it.pages}p",
                             onClick = {
                                 val args = Bundle().apply {
-                                    putString(GalleryDetailScene.KEY_ACTION, GalleryDetailScene.ACTION_GALLERY_INFO)
+                                    putString(
+                                        GalleryDetailScene.KEY_ACTION,
+                                        GalleryDetailScene.ACTION_GALLERY_INFO
+                                    )
                                     putParcelable(GalleryDetailScene.KEY_GALLERY_INFO, it)
                                 }
-                                val announcer = Announcer(GalleryDetailScene::class.java).setArgs(args)
+                                val announcer =
+                                    Announcer(GalleryDetailScene::class.java).setArgs(args)
                                 startScene(announcer)
                             }
                         )
@@ -240,7 +286,7 @@ fun ItemCardView(
     rating: Float = 0f,
     simpleLanguage: String = "",
     pages: String = "",
-    onClick:()->Unit={}
+    onClick: () -> Unit = {}
 ) {
     Card(
         modifier = Modifier
@@ -271,7 +317,8 @@ fun ItemCardView(
                 Row(
                     Modifier
                         .fillMaxWidth()
-                        .background(Color(0x80FFFFFF))) {
+                        .background(Color(0x80FFFFFF))
+                ) {
                     AndroidView(factory = { context ->
                         SimpleRatingView(context).also {
                             it.rating = rating
@@ -297,8 +344,8 @@ fun ItemCardView(
                 fontSize = 13.sp,
                 maxLines = 3,
                 overflow = TextOverflow.Ellipsis,
-                lineHeight=18.sp,
-                letterSpacing=0.sp
+                lineHeight = 18.sp,
+                letterSpacing = 0.sp
             )
 
             Row(
@@ -339,3 +386,4 @@ fun ItemCardView(
 
     }
 }
+

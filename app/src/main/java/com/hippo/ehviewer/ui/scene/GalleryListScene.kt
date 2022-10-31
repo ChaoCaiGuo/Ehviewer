@@ -350,7 +350,7 @@ class GalleryListScene : BaseScene(), Helper,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-//        startScene(Announcer(GalleryListScene2::class.java))
+        startScene(Announcer(GalleryListScene2::class.java))
         val view = inflater.inflate(R.layout.scene_gallery_list, container, false)
         val context = context
         AssertUtils.assertNotNull(context)
