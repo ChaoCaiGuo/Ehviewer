@@ -274,10 +274,6 @@ class SearchBar @JvmOverloads constructor(
 //        mAllowEmptySearch = allowEmptySearch
 //    }
 
-    fun setSuggestionProvider(suggestionProvider: SuggestionProvider) {
-        mSuggestionProvider = suggestionProvider
-    }
-
     fun applySearch() {
         val query: String = mText.text.trim { it <= ' ' }
         if (!mAllowEmptySearch && TextUtils.isEmpty(query)) {

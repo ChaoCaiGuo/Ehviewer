@@ -1,4 +1,4 @@
-package com.hippo.composeUi.historyScene
+package com.hippo.composeUi.composeHistory
 
 import android.content.DialogInterface
 import android.content.Intent

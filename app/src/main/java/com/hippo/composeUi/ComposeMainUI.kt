@@ -26,9 +26,9 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.paging.*
 import com.hippo.composeUi.composeExt.LocalMainActivity
-import com.hippo.composeUi.galleryListScene.ComposeHomePage
-import com.hippo.composeUi.galleryListScene.GalleryListPagingSource
-import com.hippo.composeUi.historyScene.ComposeHistory
+import com.hippo.composeUi.composeHomePage.ComposeHomePage
+import com.hippo.composeUi.composeHomePage.GalleryListPagingSource
+import com.hippo.composeUi.composeHistory.ComposeHistory
 import com.hippo.composeUi.theme.EhViewerTheme
 import com.hippo.database.EhDBExt
 import com.hippo.database.dao.GalleryInfo

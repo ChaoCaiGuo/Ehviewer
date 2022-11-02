@@ -1,4 +1,4 @@
-package com.hippo.composeUi.galleryListScene
+package com.hippo.composeUi.composeHomePage
 
 import android.os.Bundle
 import androidx.compose.foundation.background
@@ -107,7 +107,7 @@ private fun ComposeGalleryList(
         LazyVerticalGrid(columns = GridCells.Fixed(2)) {
             items(
                 items = galleryListPagingItems,
-//                    key = {index ->  galleryListPagingItems[index]!!.gid}
+                key = {item -> item.gid}
             ) {
                 it?.let {
                     ItemCardView(
@@ -245,3 +245,4 @@ fun ItemCardView(
 
     }
 }
+
