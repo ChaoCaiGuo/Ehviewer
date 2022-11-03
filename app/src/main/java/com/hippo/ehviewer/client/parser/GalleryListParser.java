@@ -306,21 +306,13 @@ public class GalleryListParser {
     public static Result parse(@NonNull String body) throws Exception {
         Result result = new Result();
         Document d = Jsoup.parse(body);
-        try {
-            Element stt = d.getElementsByClass("searchtext").first();
-            result.founds = getInt(stt.text());
 
-        } catch (Throwable e) {
-            ExceptionUtils.throwIfFatal(e);
-            result.noWatchedTags = body.contains("<p>You do not have any watched tags");
-            if (body.contains("No hits found</p>")) {
-                result.founds = 0;
-                //noinspection unchecked
-                result.galleryInfoList = Collections.EMPTY_LIST;
-                return result;
-            } else {
-                result.founds = Integer.MAX_VALUE;
-            }
+        result.founds = Integer.MAX_VALUE;
+        result.noWatchedTags = body.contains("<p>You do not have any watched tags");
+        if (body.contains("No hits found</p>")) {
+            result.founds = 0;
+            result.galleryInfoList = Collections.EMPTY_LIST;
+            return result;
         }
 
         try {
