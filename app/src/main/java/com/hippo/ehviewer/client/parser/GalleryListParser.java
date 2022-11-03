@@ -308,7 +308,6 @@ public class GalleryListParser {
         Document d = Jsoup.parse(body);
         try {
             Element stt = d.getElementsByClass("searchtext").first();
-            assert stt != null;
             result.founds = getInt(stt.text());
 
         } catch (Throwable e) {
