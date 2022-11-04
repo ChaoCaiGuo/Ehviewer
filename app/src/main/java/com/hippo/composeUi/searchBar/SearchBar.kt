@@ -297,12 +297,6 @@ class SearchBar @JvmOverloads constructor(
     private fun updateSuggestions() {
         val suggestions: MutableList<Suggestion> = ArrayList()
         val text: String = mText.text
-        if (mSuggestionProvider != null) {
-            val providerSuggestions = mSuggestionProvider!!.providerSuggestions(text)
-            if (providerSuggestions != null && providerSuggestions.isNotEmpty()) {
-                suggestions.addAll(providerSuggestions)
-            }
-        }
         val keywords = mSearchDatabase.getSuggestions(text, 128)
         for (keyword in keywords) {
             suggestions.add(KeywordSuggestion(keyword))

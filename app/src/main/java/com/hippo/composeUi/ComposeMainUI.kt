@@ -4,15 +4,15 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
+import androidx.compose.animation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.res.painterResource
@@ -26,9 +26,10 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.paging.*
 import com.hippo.composeUi.composeExt.LocalMainActivity
+import com.hippo.composeUi.composeHistory.ComposeHistory
 import com.hippo.composeUi.composeHomePage.ComposeHomePage
 import com.hippo.composeUi.composeHomePage.GalleryListPagingSource
-import com.hippo.composeUi.composeHistory.ComposeHistory
+import com.hippo.composeUi.composeSearch.ComposeSearch
 import com.hippo.composeUi.theme.EhViewerTheme
 import com.hippo.database.EhDBExt
 import com.hippo.database.dao.GalleryInfo
@@ -45,6 +46,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import okhttp3.OkHttpClient
 import javax.inject.Inject
+import com.hippo.ehviewer.R
 
 @AndroidEntryPoint
 class ComposeMainUI : BaseScene() {
@@ -66,13 +68,14 @@ class ComposeMainUI : BaseScene() {
                 mainActivity?.finish()
             } else {
                 finish = true
+                showTip(R.string.press_twice_exit,Toast.LENGTH_LONG)
                 delay(5000)
                 finish = false
             }
         }
     }
 
-    @OptIn(ExperimentalPagingApi::class)
+    @OptIn(ExperimentalPagingApi::class, ExperimentalLayoutApi::class)
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -96,8 +99,9 @@ class ComposeMainUI : BaseScene() {
         return ComposeView(requireContext()).apply {
             setContent {
                 EhViewerTheme {
-
+                    val isImeShow = WindowInsets.isImeVisible
                     val navController = rememberNavController()
+
                     CompositionLocalProvider(LocalMainActivity provides mainActivity) {
                         Column(Modifier.fillMaxSize()) {
                             Spacer(
@@ -108,7 +112,17 @@ class ComposeMainUI : BaseScene() {
                             Box(modifier = Modifier.weight(1f)) {
                                 navHost(navController, galleryList0)
                             }
-                            NaviGate(navController)
+                            AnimatedVisibility(
+                                visible = !isImeShow,
+                                enter = expandVertically(
+                                    expandFrom = Alignment.Bottom
+                                ) + fadeIn(
+                                    initialAlpha = 0.3f
+                                ),
+                            ) {
+                                NaviGate(navController)
+                            }
+
                         }
                     }
 
@@ -154,9 +168,9 @@ class ComposeMainUI : BaseScene() {
             navController = navController,
             startDestination = ScreenNav.Home.route
         ) {
-            composable(ScreenNav.Home.route) { ComposeHomePage(galleryList0 = galleryList0, startScene = { announcer -> startScene(announcer) }) }
-            composable(ScreenNav.History.route) { ComposeHistory(startScene = { announcer -> startScene(announcer) }) }
-            composable(ScreenNav.Search.route) { Text(text = "test") }
+            composable(ScreenNav.Home.route)      { ComposeHomePage(galleryList0 = galleryList0, startScene = { announcer -> startScene(announcer) }) }
+            composable(ScreenNav.History.route)   { ComposeHistory(startScene = { announcer -> startScene(announcer) }) }
+            composable(ScreenNav.Search.route)    { ComposeSearch() }
             composable(ScreenNav.Favourite.route) { startScene(Announcer(FavoritesScene::class.java))  }
             composable(ScreenNav.Downloads.route) { startScene(Announcer(DownloadsScene::class.java)) }
         }

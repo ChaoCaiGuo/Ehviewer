@@ -2,10 +2,7 @@ package com.hippo
 
 import android.content.Context
 import com.hippo.ehviewer.EhProxySelector
-import com.hippo.ehviewer.client.EhCookieStore
-import com.hippo.ehviewer.client.EhDns
-import com.hippo.ehviewer.client.EhSSLSocketFactory
-import com.hippo.ehviewer.client.EhX509TrustManager
+import com.hippo.ehviewer.client.*
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -72,5 +69,11 @@ object HiltModule {
 
 
         return builder.build()
+    }
+
+    @Singleton
+    @Provides
+    fun provideEhTagDatabase( @ApplicationContext context: Context): EhTagDatabase? {
+       return EhTagDatabase.getInstance(context)
     }
 }

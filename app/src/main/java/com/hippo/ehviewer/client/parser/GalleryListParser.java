@@ -300,7 +300,6 @@ public class GalleryListParser {
     public static Result parse(@NonNull String body) throws Exception {
         Result result = new Result();
         Document d = Jsoup.parse(body);
-
         try {
             Element ptt = d.getElementsByClass("ptt").first();
             Elements es = ptt.child(0).child(0).children();

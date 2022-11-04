@@ -31,11 +31,13 @@ import java.util.LinkedList;
 import java.util.List;
 
 import javax.inject.Inject;
+import javax.inject.Singleton;
 
 import dagger.hilt.android.qualifiers.ActivityContext;
+import dagger.hilt.android.qualifiers.ApplicationContext;
 import dagger.hilt.android.scopes.ViewScoped;
 
-@ViewScoped
+@Singleton
 public final class SearchDatabase {
 
     public static final String COLUMN_QUERY = "query";
@@ -152,7 +154,7 @@ public final class SearchDatabase {
     static class DatabaseHelper extends SQLiteOpenHelper {
 
         @Inject
-        public DatabaseHelper(@ActivityContext Context context) {
+        public DatabaseHelper(@ApplicationContext Context context) {
             super(context, DATABASE_NAME, null, 1);
         }
 
