@@ -20,7 +20,7 @@ import java.io.File
 
 @OptIn(ExperimentalPagingApi::class)
 class GalleryListPagingSource(
-    private var nextPage: Int = 0,
+    private var minGid: Int = 0,
     private val database: EhDatabase = EhDB.db,
     private val mUrlBuilder: ListUrlBuilder,
     private val mOkHttpClient: OkHttpClient
@@ -30,7 +30,7 @@ class GalleryListPagingSource(
 
             return try {
                 withContext(Dispatchers.IO) {
-                    mUrlBuilder.pageIndex = page
+                    mUrlBuilder.setNextGid(page)
                     if (ListUrlBuilder.MODE_IMAGE_SEARCH == mUrlBuilder.mode) {
                         EhEngine.imageSearch(
                             null,
@@ -60,31 +60,32 @@ class GalleryListPagingSource(
         return try {
             Log.d("GalleryListPagingSource", "result is $loadType state", )
             when (loadType) {
-                LoadType.REFRESH -> null
+                LoadType.REFRESH -> {}
                 LoadType.PREPEND -> return MediatorResult.Success(true)
                 LoadType.APPEND -> {
                     state.lastItemOrNull() ?: return MediatorResult.Success(true)
                 }
             }
-            Log.d("GalleryListPagingSource", "now page result is $nextPage", )
-            val result  = getPageData(nextPage)
+            Log.d("GalleryListPagingSource", "now minGid is $minGid", )
+            val result  = getPageData(minGid)
             if(result == null){
                 Log.d("GalleryListPagingSource", "result is null", )
                 return MediatorResult.Error(Exception("can't get Result"))
             }
-            Log.d("GalleryListPagingSource", "result nextPage ${result.nextPage}", )
+            if (minGid == 0)
+                minGid = Int.MAX_VALUE
             result.galleryInfoList.forEach {
-                it.pages = nextPage
+                minGid = minGid.coerceAtMost(it.gid.toInt())
             }
+
 
             database.withTransaction {
                 if (loadType == LoadType.REFRESH) {
                     EhDBExt.deleteGalleryList(result.galleryInfoList)
                 }
-                nextPage = result.nextPage
                 EhDBExt.putGalleryList(result.galleryInfoList)
 
-                return@withTransaction MediatorResult.Success(nextPage == null)
+                return@withTransaction MediatorResult.Success(minGid == null)
             }
 
         } catch (e: Exception) {

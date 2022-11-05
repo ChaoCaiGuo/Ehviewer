@@ -24,6 +24,7 @@ import android.content.res.Resources
 import android.os.Bundle
 import android.text.InputType
 import android.text.TextUtils
+import android.util.Log
 import android.view.*
 import android.widget.ImageView
 import android.widget.TextView
@@ -45,6 +46,7 @@ import com.hippo.composeUi.searchBar.SearchBar
 import com.hippo.composeUi.searchLayout.SearchLayout
 import com.hippo.database.EhDB
 import com.hippo.database.dao.DownloadInfo
+import com.hippo.database.dao.GalleryInfo
 import com.hippo.database.dao.QuickSearch
 import com.hippo.drawable.AddDeleteDrawable
 import com.hippo.drawable.DrawerArrowDrawable
@@ -57,7 +59,6 @@ import com.hippo.ehviewer.WindowInsetsAnimationHelper
 import com.hippo.ehviewer.client.EhEngine
 import com.hippo.ehviewer.client.EhUrl
 import com.hippo.ehviewer.client.EhUtils
-import com.hippo.database.dao.GalleryInfo
 import com.hippo.ehviewer.client.data.ListUrlBuilder
 import com.hippo.ehviewer.client.exception.EhException
 import com.hippo.ehviewer.client.parser.GalleryListParser
@@ -993,7 +994,8 @@ class GalleryListScene : BaseScene(), Helper,
             val emptyString =
                 getString(if (mUrlBuilder.mode == ListUrlBuilder.MODE_SUBSCRIPTION && result.noWatchedTags) R.string.gallery_list_empty_hit_subscription else R.string.gallery_list_empty_hit)
             mHelper!!.setEmptyString(emptyString)
-            mHelper!!.onGetPageData(taskId, result.pages, result.nextPage, result.galleryInfoList)
+            Log.d("TAG", "pgCounter: ${mHelper!!.pgCounter}")
+            mHelper!!.onGetPageData(taskId, result.founds / 25, mHelper!!.pgCounter + 1, result.galleryInfoList)
         }
     }
 
@@ -1079,7 +1081,7 @@ class GalleryListScene : BaseScene(), Helper,
                         return@setOnClickListener
                     }
                     mUrlBuilder.set(mQuickSearchList!![position])
-                    mUrlBuilder.pageIndex = 0
+                    mUrlBuilder.setNextGid(0)
                     onUpdateUrlBuilder()
                     mHelper!!.refresh()
                     closeDrawer(Gravity.RIGHT)
@@ -1099,7 +1101,7 @@ class GalleryListScene : BaseScene(), Helper,
                         return@setOnClickListener
                     }
                     mUrlBuilder.keyword = keywords[position].toString()
-                    mUrlBuilder.pageIndex = 0
+                    mUrlBuilder.setNextGid(0)
                     onUpdateUrlBuilder()
                     mHelper!!.refresh()
                     closeDrawer(Gravity.RIGHT)
@@ -1144,10 +1146,11 @@ class GalleryListScene : BaseScene(), Helper,
     }
 
     private inner class GalleryListHelper : GalleryInfoContentHelper() {
-
+        var pgCounter = 0
         public override fun getPageData(taskId: Int, type: Int, page: Int) {
-
-            mUrlBuilder.pageIndex = page
+            pgCounter = page
+            if (page != 0)
+                mUrlBuilder.setNextGid(minGid)
             lifecycleScope.launch {
                 val result = try {
                     withContext(Dispatchers.IO) {
