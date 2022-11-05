@@ -995,7 +995,7 @@ class GalleryListScene : BaseScene(), Helper,
                 getString(if (mUrlBuilder.mode == ListUrlBuilder.MODE_SUBSCRIPTION && result.noWatchedTags) R.string.gallery_list_empty_hit_subscription else R.string.gallery_list_empty_hit)
             mHelper!!.setEmptyString(emptyString)
             Log.d("TAG", "pgCounter: ${mHelper!!.pgCounter}")
-            mHelper!!.onGetPageData(taskId, result.founds / 25, mHelper!!.pgCounter + 1, result.galleryInfoList)
+            mHelper!!.onGetPageData(taskId, CommonOperations.getPagesForFounds(result.founds, 25), mHelper!!.pgCounter + 1, result.galleryInfoList)
         }
     }
 
