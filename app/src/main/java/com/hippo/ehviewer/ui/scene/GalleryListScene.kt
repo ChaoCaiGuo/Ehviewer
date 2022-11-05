@@ -1151,6 +1151,8 @@ class GalleryListScene : BaseScene(), Helper,
             pgCounter = page
             if (page != 0)
                 mUrlBuilder.setNextGid(minGid)
+            else
+                mUrlBuilder.setNextGid(0)
             lifecycleScope.launch {
                 val result = try {
                     withContext(Dispatchers.IO) {
