@@ -22,7 +22,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.viewinterop.AndroidView
 import androidx.paging.LoadState
 import androidx.paging.PagingData
 import androidx.paging.compose.collectAsLazyPagingItems
@@ -32,10 +31,10 @@ import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.rememberPagerState
 import com.hippo.composeUi.composeExt.items
 import com.hippo.composeUi.composeExt.pagerTabIndicatorOffset
+import com.hippo.composeUi.widget.RatingView
 import com.hippo.database.dao.GalleryInfo
 import com.hippo.ehviewer.R
 import com.hippo.ehviewer.ui.scene.GalleryDetailScene
-import com.hippo.ehviewer.widget.SimpleRatingView
 import com.hippo.scene.Announcer
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
@@ -178,11 +177,7 @@ fun ItemCardView(
                         .fillMaxWidth()
                         .background(Color(0x80FFFFFF))
                 ) {
-                    AndroidView(factory = { context ->
-                        SimpleRatingView(context).also {
-                            it.rating = rating
-                        }
-                    })
+                    RatingView(rating.coerceIn(0f,5f))
                     Spacer(modifier = Modifier.weight(1f))
                     Text(
                         text = pages,
