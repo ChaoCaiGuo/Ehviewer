@@ -18,6 +18,8 @@ package com.hippo.ehviewer.ui.scene;
 
 import android.os.Bundle;
 import android.util.Log;
+
+import com.hippo.composeUi.ComposeMainUI;
 import com.hippo.composeUi.signInScene.WarningScene;
 import com.hippo.ehviewer.Settings;
 import com.hippo.ehviewer.client.EhUtils;
@@ -76,7 +78,7 @@ public class SolidScene extends BaseScene {
                 } else {
                     Bundle newArgs = new Bundle();
                     newArgs.putString(GalleryListScene.KEY_ACTION, Settings.getLaunchPageGalleryListSceneAction());
-                    startScene(new Announcer(GalleryListScene.class).setArgs(newArgs));
+                    startScene(new Announcer(ComposeMainUI.class).setArgs(newArgs));
                 }
                 break;
         }
