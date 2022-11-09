@@ -1,9 +1,8 @@
 package com.hippo.composeUi.composeSearch
 
 import android.text.TextUtils
-import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.background
-import androidx.compose.foundation.combinedClickable
+import androidx.compose.animation.*
+import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -18,20 +17,27 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.google.accompanist.flowlayout.FlowRow
 import com.hippo.composeUi.composeExt.firstBaselineToTop
+import com.hippo.composeUi.searchLayout.*
 import com.hippo.composeUi.theme.SystemBarsColor
 import com.hippo.composeUi.theme.TextColor
 import com.hippo.ehviewer.R
 import com.hippo.viewModel.SearchScreenViewModel
 import com.hippo.viewModel.SearchScreenViewModel.SearchAction.*
+
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
@@ -40,12 +46,18 @@ fun ComposeSearch(viewModel: SearchScreenViewModel = hiltViewModel()){
     val focusedManager = LocalFocusManager.current
     val isImeShow = WindowInsets.isImeVisible
     LaunchedEffect(isImeShow) {
+        viewModel.sendEvent(UpdateSuggestions)
         if (!isImeShow) {
             focusedManager.clearFocus()
-        }else{
-            viewModel.sendEvent(UpdateSuggestions)
         }
     }
+
+    LaunchedEffect(true){
+        viewModel.sendEvent(UpdateSuggestions)
+        viewModel.sendEvent(ChangeCategorySelected(-1))
+        viewModel.sendEvent(ChangeAdvanceOptionsSelected(-1))
+    }
+
     Column(Modifier.fillMaxSize()) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Box(Modifier.weight(1f)) {
@@ -54,23 +66,23 @@ fun ComposeSearch(viewModel: SearchScreenViewModel = hiltViewModel()){
                     sendEvent = {searchAction -> viewModel.sendEvent(searchAction) }
                 )
             }
-            TextButton(onClick = {  }) {
-                Text(text =  stringResource(id = R.string.search), fontSize = 17.sp)
-            }
         }
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Box(Modifier.weight(1f)) {
-                ComposeSearchTextField(
+
+        Box(modifier = Modifier.weight(1f)){
+            Column(
+                Modifier
+                    .fillMaxSize()
+                    .verticalScroll(rememberScrollState())) {
+                ComposeSearchOptions(
+                    state = state,
+                    sendEvent = {searchAction -> viewModel.sendEvent(searchAction) }
+                )
+                ComposeSearchHistory(
                     state = state,
                     sendEvent = {searchAction -> viewModel.sendEvent(searchAction) }
                 )
             }
-            TextButton(onClick = {  }) {
-                Text(text =  stringResource(id = R.string.search), fontSize = 17.sp)
-            }
-        }
 
-        Box(modifier = Modifier.weight(1f)){
             if (isImeShow && !TextUtils.isEmpty(state.mText.trim { it <= ' ' })) {
                 ComposeSuggestion(
                     state = state,
@@ -81,8 +93,96 @@ fun ComposeSearch(viewModel: SearchScreenViewModel = hiltViewModel()){
 
     }
 }
-
 @OptIn(ExperimentalFoundationApi::class)
+@Composable
+private fun ComposeSearchHistory(
+    state: SearchScreenViewModel.SearchState,
+    sendEvent: (SearchScreenViewModel.SearchAction) -> Unit
+) {
+    Column(Modifier.padding( 20.dp)) {
+        Text(
+            text = stringResource(id = R.string.search_history),
+            fontWeight = FontWeight.W600,
+            fontSize = 16.sp
+        )
+        Spacer(modifier = Modifier.height(10.dp))
+        FlowRow(modifier = Modifier.fillMaxWidth(), mainAxisSpacing = 20.dp,crossAxisSpacing=4.dp) {
+            state.mSearchHistory.forEach { item ->
+                Text(
+                    modifier = Modifier
+                        .widthIn(max = 100.dp)
+                        .clip(RoundedCornerShape(15f))
+                        .background(MaterialTheme.colorScheme.primary)
+                        .combinedClickable(onLongClick = { sendEvent(OnLongClick(item)) })
+                        { sendEvent(OnClick(item)) }
+                        .padding(4.dp, 4.dp)
+                    ,
+                    text = item.mKeyword,
+                    maxLines =1,
+                    overflow = TextOverflow.Ellipsis,
+                    color =Color.White
+                )
+            }
+        }
+    }
+
+}
+@Composable
+private fun ComposeSearchOptions(
+    state: SearchScreenViewModel.SearchState,
+    sendEvent: (SearchScreenViewModel.SearchAction) -> Unit
+){
+    Column(horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier
+            .fillMaxWidth()) {
+        Spacer(modifier = Modifier.height(12.dp))
+        CardPage { SearchNormalOptions(state,sendEvent) }
+
+        AnimatedVisibility(
+            visible = state.enabledAdvanceOptions,
+        ) {
+            CardPage {
+                ComposeAdvanceSearchTable(state,sendEvent)
+            }
+        }
+    }
+
+    
+}
+
+@Composable
+fun ComposeAdvanceSearchTable(
+    state: SearchScreenViewModel.SearchState,
+    sendEvent: (SearchScreenViewModel.SearchAction) -> Unit
+) {
+    val advanceSearchOptionsStringList = stringArrayResource(id = R.array.AdvanceSearchOptions)
+
+    Column(
+        Modifier
+            .fillMaxWidth()
+    ) {
+        Text(
+            text = stringResource(id = R.string.search_advance),
+            fontWeight = FontWeight.W900,
+            fontSize = 18.sp
+        )
+        Spacer(modifier = Modifier.height(12.dp))
+
+        FlowRow(modifier = Modifier.fillMaxWidth()) {
+
+           state.mAdvanceOptions.forEachIndexed { index, item ->
+                Box(modifier = Modifier.fillMaxWidth(0.5f)) {
+                    AdvanceSearchItem(advanceSearchOptionsStringList[index], item) {
+                        sendEvent(ChangeAdvanceOptionsSelected(index))
+                    }
+                }
+
+            }
+        }
+
+    }
+
+}
 @Composable
 private fun ComposeSuggestion(
     state: SearchScreenViewModel.SearchState,
@@ -91,6 +191,11 @@ private fun ComposeSuggestion(
     LazyColumn(
         contentPadding = PaddingValues(5.dp),
         modifier = Modifier
+            .padding(
+                bottom = WindowInsets.ime
+                    .asPaddingValues()
+                    .calculateBottomPadding() + 40.dp
+            )
             .clip(RoundedCornerShape(bottomEnd = 20.dp, bottomStart = 20.dp))
             .background(MaterialTheme.colorScheme.SystemBarsColor),
     ) {
@@ -105,11 +210,7 @@ private fun ComposeSuggestion(
                 modifier = Modifier
                     .padding(horizontal = 15.dp)
                     .height(45.dp)
-                    .combinedClickable(onLongClick = {
-
-                    }) {
-                        sendEvent(OnClick(it))
-                    }
+                    .clickable { sendEvent(OnClick(it)) }
             ) {
                 if (it.mHint != "") {
                     Text(
@@ -146,11 +247,10 @@ private fun ComposeSuggestion(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ComposeSearchTextField(
+private fun ComposeSearchTextField(
     state: SearchScreenViewModel.SearchState,
     sendEvent: (SearchScreenViewModel.SearchAction) -> Unit
 ) {
-
 
     OutlinedTextField(
         value = state.mText,
@@ -172,8 +272,10 @@ fun ComposeSearchTextField(
             )
         },
         trailingIcon = {
-            IconButton(onClick = { sendEvent(SetSearchText(""))}) {
-                Icon(Icons.Default.Close, contentDescription = null)
+            if(!TextUtils.isEmpty(state.mText)){
+                IconButton(onClick = { sendEvent(SetSearchText(""))}) {
+                    Icon(Icons.Default.Close, contentDescription = null)
+                }
             }
 
         },
@@ -187,5 +289,91 @@ fun ComposeSearchTextField(
     )
 
 
+
+}
+
+@Composable
+private fun SearchNormalOptions(
+    state: SearchScreenViewModel.SearchState,
+    sendEvent: (SearchScreenViewModel.SearchAction) -> Unit
+) {
+    val enableAdvanceString =
+        if (state.enabledAdvanceOptions) stringResource(id = R.string.search_disable_advance)
+        else stringResource(id = R.string.search_enable_advance)
+    var enableAdvanceString1 by remember { mutableStateOf("-> $enableAdvanceString <-") }
+    LaunchedEffect(state.enabledAdvanceOptions) {
+        enableAdvanceString1 = if (state.enabledAdvanceOptions) {
+            "-> $enableAdvanceString <-"
+        } else {
+            "<- $enableAdvanceString ->"
+        }
+    }
+
+    Column {
+
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Text(
+                text = stringResource(id = R.string.search_normal),
+                fontWeight = FontWeight.W900,
+                fontSize = 18.sp
+            )
+            Spacer(modifier = Modifier.weight(1f))
+            Text(
+                text = stringResource(id = R.string.select_all),
+                modifier = Modifier.clickable { sendEvent(ChangeAllCategorySelected(true)) }
+            )
+            Spacer(modifier = Modifier.width(20.dp))
+
+            Text(
+                text = stringResource(id = R.string.deselect_all),
+                modifier = Modifier.clickable { sendEvent(ChangeAllCategorySelected(false)) }
+            )
+        }
+        Spacer(modifier = Modifier.height(17.dp))
+
+        CategoryTable(state,sendEvent)
+
+        Spacer(modifier = Modifier.height(10.dp))
+
+        Text(text = enableAdvanceString1,
+            modifier = Modifier
+                .clickable { sendEvent(ChangeEnabledAdvanceOptions) }
+                .fillMaxWidth(),
+            color = MaterialTheme.colorScheme.TextColor,
+            textAlign = TextAlign.Center)
+    }
+}
+
+@Composable
+private fun CategoryTable(
+    state: SearchScreenViewModel.SearchState,
+    sendEvent: (SearchScreenViewModel.SearchAction) -> Unit
+) {
+    val categoryText = stringArrayResource(id = R.array.Category)
+    val context =LocalContext.current
+    val columnsPercentage = remember {
+        derivedStateOf{
+            if(context.resources.displayMetrics.let { it.heightPixels > it.widthPixels }){
+                0.5f
+            }
+            else
+                0.24f
+        }
+    }
+
+
+    FlowRow(modifier = Modifier.fillMaxWidth()) {
+        state.categorySelected.forEachIndexed { index, item ->
+            Row(modifier = Modifier
+                .fillMaxWidth(columnsPercentage.value)
+                .padding(horizontal = 5.dp)) {
+                ComCategoryTableItem(categoryText[index], item) {
+                    sendEvent(ChangeCategorySelected(index))
+                }
+
+            }
+
+        }
+    }
 
 }

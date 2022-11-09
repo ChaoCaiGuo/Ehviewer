@@ -45,6 +45,7 @@ import com.hippo.composeUi.searchBar.Helper
 import com.hippo.composeUi.searchBar.SearchBar
 import com.hippo.composeUi.searchLayout.SearchLayout
 import com.hippo.database.EhDB
+import com.hippo.database.EhDBExt
 import com.hippo.database.dao.DownloadInfo
 import com.hippo.database.dao.GalleryInfo
 import com.hippo.database.dao.QuickSearch
@@ -81,6 +82,7 @@ import com.hippo.widget.SearchBarMover
 import com.hippo.yorozuya.*
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import okhttp3.OkHttpClient
@@ -994,7 +996,6 @@ class GalleryListScene : BaseScene(), Helper,
             val emptyString =
                 getString(if (mUrlBuilder.mode == ListUrlBuilder.MODE_SUBSCRIPTION && result.noWatchedTags) R.string.gallery_list_empty_hit_subscription else R.string.gallery_list_empty_hit)
             mHelper!!.setEmptyString(emptyString)
-            Log.d("TAG", "pgCounter: ${mHelper!!.pgCounter}")
             mHelper!!.onGetPageData(taskId, CommonOperations.getPagesForFounds(result.founds, 25), mHelper!!.pgCounter + 1, result.galleryInfoList)
         }
     }

@@ -5,13 +5,18 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
-import androidx.compose.animation.*
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Text
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.ComposeView
@@ -33,20 +38,18 @@ import com.hippo.composeUi.composeSearch.ComposeSearch
 import com.hippo.composeUi.theme.EhViewerTheme
 import com.hippo.database.EhDBExt
 import com.hippo.database.dao.GalleryInfo
+import com.hippo.ehviewer.R
 import com.hippo.ehviewer.client.data.ListUrlBuilder
 import com.hippo.ehviewer.ui.scene.BaseScene
 import com.hippo.ehviewer.ui.scene.DownloadsScene
 import com.hippo.ehviewer.ui.scene.FavoritesScene
 import com.hippo.scene.Announcer
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import okhttp3.OkHttpClient
 import javax.inject.Inject
-import com.hippo.ehviewer.R
 
 @AndroidEntryPoint
 class ComposeMainUI : BaseScene() {
@@ -61,10 +64,7 @@ class ComposeMainUI : BaseScene() {
     override fun onBackPressed() {
         lifecycleScope.launch {
             if (finish) {
-                withContext(Dispatchers.IO){
-                    EhDBExt.clearGalleryListScene()
-                }
-                delay(300)
+                EhDBExt.clearGalleryListScene()
                 mainActivity?.finish()
             } else {
                 finish = true
@@ -110,7 +110,7 @@ class ComposeMainUI : BaseScene() {
                                     .fillMaxWidth()
                             )
                             Box(modifier = Modifier.weight(1f)) {
-                                navHost(navController, galleryList0)
+                                NavHost(navController, galleryList0)
                             }
                             AnimatedVisibility(
                                 visible = !isImeShow,
@@ -163,7 +163,7 @@ class ComposeMainUI : BaseScene() {
     }
 
     @Composable
-    fun navHost(navController: NavHostController, galleryList0: Flow<PagingData<GalleryInfo>>) {
+    fun NavHost(navController: NavHostController, galleryList0: Flow<PagingData<GalleryInfo>>) {
         NavHost(
             navController = navController,
             startDestination = ScreenNav.Home.route
