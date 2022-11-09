@@ -45,6 +45,7 @@ import com.hippo.ehviewer.ui.scene.DownloadsScene
 import com.hippo.ehviewer.ui.scene.FavoritesScene
 import com.hippo.scene.Announcer
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
@@ -64,7 +65,6 @@ class ComposeMainUI : BaseScene() {
     override fun onBackPressed() {
         lifecycleScope.launch {
             if (finish) {
-                EhDBExt.clearGalleryListScene()
                 mainActivity?.finish()
             } else {
                 finish = true
@@ -73,6 +73,13 @@ class ComposeMainUI : BaseScene() {
                 finish = false
             }
         }
+    }
+
+    override fun onDestroy() {
+        GlobalScope.launch {
+            EhDBExt.clearGalleryListScene()
+        }
+        super.onDestroy()
     }
 
     @OptIn(ExperimentalPagingApi::class, ExperimentalLayoutApi::class)
