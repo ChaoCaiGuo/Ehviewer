@@ -17,7 +17,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
@@ -179,6 +178,8 @@ fun ComposeAdvanceSearchTable(
 
             }
         }
+
+        MinRating(state,sendEvent)
 
     }
 
@@ -344,36 +345,3 @@ private fun SearchNormalOptions(
     }
 }
 
-@Composable
-private fun CategoryTable(
-    state: SearchScreenViewModel.SearchState,
-    sendEvent: (SearchScreenViewModel.SearchAction) -> Unit
-) {
-    val categoryText = stringArrayResource(id = R.array.Category)
-    val context =LocalContext.current
-    val columnsPercentage = remember {
-        derivedStateOf{
-            if(context.resources.displayMetrics.let { it.heightPixels > it.widthPixels }){
-                0.5f
-            }
-            else
-                0.24f
-        }
-    }
-
-
-    FlowRow(modifier = Modifier.fillMaxWidth()) {
-        state.categorySelected.forEachIndexed { index, item ->
-            Row(modifier = Modifier
-                .fillMaxWidth(columnsPercentage.value)
-                .padding(horizontal = 5.dp)) {
-                ComCategoryTableItem(categoryText[index], item) {
-                    sendEvent(ChangeCategorySelected(index))
-                }
-
-            }
-
-        }
-    }
-
-}

@@ -8,7 +8,6 @@ import com.hippo.composeUi.composeSearch.KeywordSuggestion
 import com.hippo.composeUi.composeSearch.Suggestion
 import com.hippo.composeUi.composeSearch.TagSuggestion
 import com.hippo.composeUi.composeSearch.wrapTagKeyword
-import com.hippo.composeUi.searchLayout.SearchLayout
 import com.hippo.ehviewer.EhApplication
 import com.hippo.ehviewer.R
 import com.hippo.ehviewer.client.EhTagDatabase
@@ -29,6 +28,7 @@ class SearchScreenViewModel @Inject constructor(
 
     data class SearchState(
         val mText:String ="",
+        val mMinRating:Int = -1,
         val categorySelected: SnapshotStateList<Boolean> = mutableStateListOf(),
         val enabledAdvanceOptions: Boolean = false,
         val mSuggestionList:MutableList<Suggestion> = ArrayList(),
@@ -55,6 +55,15 @@ class SearchScreenViewModel @Inject constructor(
         object ChangeEnabledAdvanceOptions:SearchAction(){
             override suspend fun invoke(_viewState: MutableStateFlow<SearchState>) {
                 _viewState.updateState { copy(enabledAdvanceOptions =! _viewState.value.enabledAdvanceOptions) }
+            }
+        }
+
+        /**
+         * 修改高级选项里的最少页数
+         */
+        class ChangeMinRating(val value: Int):SearchAction(){
+            override suspend fun invoke(_viewState: MutableStateFlow<SearchState>) {
+                _viewState.updateState{copy(mMinRating = value)}
             }
         }
 
