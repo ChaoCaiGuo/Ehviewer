@@ -26,11 +26,11 @@ class GalleryListPagingSource(
     private val mOkHttpClient: OkHttpClient
 ) : RemoteMediator<Int, GalleryInfo>() {
 
-    private suspend fun getPageData(page: Int): GalleryListParser.Result? {
+    private suspend fun getPageData(minGid: Int): GalleryListParser.Result? {
 
             return try {
                 withContext(Dispatchers.IO) {
-                    mUrlBuilder.setNextGid(page)
+                    mUrlBuilder.setNextGid(minGid)
                     if (ListUrlBuilder.MODE_IMAGE_SEARCH == mUrlBuilder.mode) {
                         EhEngine.imageSearch(
                             null,
@@ -77,14 +77,13 @@ class GalleryListPagingSource(
             result.galleryInfoList.forEach {
                 minGid = minGid.coerceAtMost(it.gid.toInt())
             }
-
-
+            //todo  CommonOperations.getPagesForFounds(result.founds, 25)表示当前页数
             database.withTransaction {
                 if (loadType == LoadType.REFRESH) {
                     EhDBExt.deleteGalleryList(result.galleryInfoList)
                 }
                 EhDBExt.putGalleryList(result.galleryInfoList)
-
+                //todo  下面的要对比当前页数是否等于总页数
                 return@withTransaction MediatorResult.Success(minGid == null)
             }
 
