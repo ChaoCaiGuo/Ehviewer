@@ -44,6 +44,8 @@ import kotlinx.coroutines.launch
 fun ComposeHomePage(
     titles: Array<String> = stringArrayResource(id = R.array.galleryListScene_type),
     galleryList0: Flow<PagingData<GalleryInfo>>,
+    galleryList1: Flow<PagingData<GalleryInfo>>,
+    galleryList2: Flow<PagingData<GalleryInfo>>,
     startScene: (Announcer) -> Unit,
 ) {
     Column {
@@ -79,10 +81,10 @@ fun ComposeHomePage(
                     ComposeGalleryList(galleryList0,startScene)
                 }
                 1 -> {
-                    Text(text = "test")
+                    ComposeGalleryList(galleryList1,startScene)
                 }
                 2 -> {
-                    Text(text = "test")
+                    ComposeGalleryList(galleryList2,startScene)
                 }
             }
 

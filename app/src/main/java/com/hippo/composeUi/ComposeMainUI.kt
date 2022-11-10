@@ -56,9 +56,6 @@ import javax.inject.Inject
 class ComposeMainUI : BaseScene() {
 
     @Inject
-    lateinit var mUrlBuilder: ListUrlBuilder
-
-    @Inject
     lateinit var mOkHttpClient: OkHttpClient
 
     var finish = false
@@ -88,7 +85,7 @@ class ComposeMainUI : BaseScene() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        mUrlBuilder.reset()
+
 
         val galleryList0 = Pager(
             PagingConfig(
@@ -97,10 +94,43 @@ class ComposeMainUI : BaseScene() {
                 initialLoadSize = 30
             ),
             remoteMediator = GalleryListPagingSource(
-                mUrlBuilder = mUrlBuilder,
+                mUrlBuilder = ListUrlBuilder().also { it.reset() },
                 mOkHttpClient = mOkHttpClient
             )
-        ) { EhDBExt.getGalleryList() }.flow.cachedIn(lifecycleScope)
+        ) { EhDBExt.homePageGalleryList() }.flow.cachedIn(lifecycleScope)
+
+        val galleryList1 = Pager(
+            PagingConfig(
+                pageSize = 25,
+                prefetchDistance = 8,
+                initialLoadSize = 30
+            ),
+            remoteMediator = GalleryListPagingSource(
+                mUrlBuilder = ListUrlBuilder().also {
+                    it.reset()
+                    it.mode = ListUrlBuilder.MODE_WHATS_HOT
+                },
+                mOkHttpClient = mOkHttpClient,
+                type = 2
+            )
+        ) { EhDBExt.whatsHotGalleryList() }.flow.cachedIn(lifecycleScope)
+
+        val galleryList2 = Pager(
+            PagingConfig(
+                pageSize = 25,
+                prefetchDistance = 8,
+                initialLoadSize = 30
+            ),
+            remoteMediator = GalleryListPagingSource(
+                mUrlBuilder = ListUrlBuilder().also {
+                    it.reset()
+                    it.mode = ListUrlBuilder.MODE_TOPLIST
+                    it.keyword = "13"
+                },
+                mOkHttpClient = mOkHttpClient,
+                type = 3
+            )
+        ) { EhDBExt.topListGalleryList() }.flow.cachedIn(lifecycleScope)
 
 
         return ComposeView(requireContext()).apply {
@@ -117,7 +147,7 @@ class ComposeMainUI : BaseScene() {
                                     .fillMaxWidth()
                             )
                             Box(modifier = Modifier.weight(1f)) {
-                                NavHost(navController, galleryList0)
+                                NavHost(navController, galleryList0,galleryList1,galleryList2)
                             }
                             AnimatedVisibility(
                                 visible = !isImeShow,
@@ -170,12 +200,23 @@ class ComposeMainUI : BaseScene() {
     }
 
     @Composable
-    fun NavHost(navController: NavHostController, galleryList0: Flow<PagingData<GalleryInfo>>) {
+    fun NavHost(
+        navController: NavHostController,
+        galleryList0: Flow<PagingData<GalleryInfo>>,
+        galleryList1: Flow<PagingData<GalleryInfo>>,
+        galleryList2: Flow<PagingData<GalleryInfo>>,
+    ) {
         NavHost(
             navController = navController,
             startDestination = ScreenNav.Home.route
         ) {
-            composable(ScreenNav.Home.route)      { ComposeHomePage(galleryList0 = galleryList0, startScene = { announcer -> startScene(announcer) }) }
+            composable(ScreenNav.Home.route)      {
+                ComposeHomePage(
+                    galleryList0 = galleryList0,
+                    galleryList1 = galleryList1,
+                    galleryList2 = galleryList2,
+                    startScene = { announcer -> startScene(announcer) })
+            }
             composable(ScreenNav.History.route)   { ComposeHistory(startScene = { announcer -> startScene(announcer) }) }
             composable(ScreenNav.Search.route)    { ComposeSearch() }
             composable(ScreenNav.Favourite.route) { startScene(Announcer(FavoritesScene::class.java))  }

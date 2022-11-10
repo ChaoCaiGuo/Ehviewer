@@ -21,6 +21,7 @@ import java.io.File
 @OptIn(ExperimentalPagingApi::class)
 class GalleryListPagingSource(
     private var minGid: Int = 0,
+    private val type: Int = 1,
     private val database: EhDatabase = EhDB.db,
     private val mUrlBuilder: ListUrlBuilder,
     private val mOkHttpClient: OkHttpClient
@@ -76,6 +77,23 @@ class GalleryListPagingSource(
                 minGid = Int.MAX_VALUE
             result.galleryInfoList.forEach {
                 minGid = minGid.coerceAtMost(it.gid.toInt())
+                when (type) {
+                    1 -> {
+                        it.home = true
+                        it.hot  = false
+                        it.top  = false
+                    }
+                    2 -> {
+                        it.home = false
+                        it.hot  = true
+                        it.top  = false
+                    }
+                    3 -> {
+                        it.home = false
+                        it.hot  = false
+                        it.top  = true
+                    }
+                }
             }
             //todo  CommonOperations.getPagesForFounds(result.founds, 25)表示当前页数
             database.withTransaction {

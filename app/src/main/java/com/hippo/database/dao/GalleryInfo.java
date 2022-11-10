@@ -130,6 +130,12 @@ public class GalleryInfo implements Parcelable {
     public String posted;
     @ColumnInfo(name = "UPLOADER")
     public String uploader;
+    @ColumnInfo(name = "HOME")
+    public boolean home;
+    @ColumnInfo(name = "HOT")
+    public boolean hot;
+    @ColumnInfo(name = "TOP")
+    public boolean top;
     @Ignore
     public boolean disowned;
     @ColumnInfo(name = "RATING")

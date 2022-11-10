@@ -10,8 +10,18 @@ object EhDBExt{
     }
 
     @JvmStatic
-    fun getGalleryList(): PagingSource<Int, GalleryInfo> {
-        return EhDB.db.galleryListSceneDao().pagingSource()
+    fun homePageGalleryList(): PagingSource<Int, GalleryInfo> {
+        return EhDB.db.galleryListSceneDao().homePagePagingSource()
+    }
+
+    @JvmStatic
+    fun whatsHotGalleryList(): PagingSource<Int, GalleryInfo> {
+        return EhDB.db.galleryListSceneDao().whatsHotPagingSource()
+    }
+
+    @JvmStatic
+    fun topListGalleryList(): PagingSource<Int, GalleryInfo> {
+        return EhDB.db.galleryListSceneDao().topListPagingSource()
     }
 
     @JvmStatic
